@@ -1,0 +1,500 @@
+EESchema Schematic File Version 4
+LIBS:power
+LIBS:device
+LIBS:74xx
+LIBS:audio
+LIBS:interface
+LIBS:Charger-cache
+EELAYER 26 0
+EELAYER END
+$Descr A4 11693 8268
+encoding utf-8
+Sheet 1 1
+Title "1A, single cell Li-Po Charger with fuel gauge"
+Date ""
+Rev ""
+Comp ""
+Comment1 ""
+Comment2 ""
+Comment3 ""
+Comment4 ""
+$EndDescr
+$Comp
+L maxim:MAX17043 U2
+U 1 1 5DB70484
+P 6600 3150
+F 0 "U2" H 6600 3665 50  0000 C CNN
+F 1 "MAX17048" H 6600 3574 50  0000 C CNN
+F 2 "my-smd:TDFN-T822+1" H 6450 3600 50  0001 C CNN
+F 3 "" H 6450 3600 50  0001 C CNN
+	1    6600 3150
+	1    0    0    -1  
+$EndComp
+$Comp
+L Connector_Generic:Conn_01x02 J1
+U 1 1 5DB707EE
+P 2850 3600
+F 0 "J1" H 2770 3275 50  0000 C CNN
+F 1 "Battery" H 2770 3366 50  0000 C CNN
+F 2 "Pin_Headers:Pin_Header_Straight_1x02_Pitch2.54mm" H 2850 3600 50  0001 C CNN
+F 3 "~" H 2850 3600 50  0001 C CNN
+	1    2850 3600
+	-1   0    0    1   
+$EndComp
+$Comp
+L Connector_Generic:Conn_01x02 J3
+U 1 1 5DB70860
+P 8850 1450
+F 0 "J3" H 8930 1442 50  0000 L CNN
+F 1 "Output 1" H 8930 1351 50  0000 L CNN
+F 2 "Pin_Headers:Pin_Header_Straight_1x02_Pitch2.54mm" H 8850 1450 50  0001 C CNN
+F 3 "~" H 8850 1450 50  0001 C CNN
+	1    8850 1450
+	1    0    0    -1  
+$EndComp
+$Comp
+L Connector_Generic:Conn_01x02 J4
+U 1 1 5DB7089E
+P 8850 1800
+F 0 "J4" H 8930 1792 50  0000 L CNN
+F 1 "Output 2" H 8930 1701 50  0000 L CNN
+F 2 "Pin_Headers:Pin_Header_Straight_1x02_Pitch2.54mm" H 8850 1800 50  0001 C CNN
+F 3 "~" H 8850 1800 50  0001 C CNN
+	1    8850 1800
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:GND #PWR0101
+U 1 1 5DB7097A
+P 5300 4800
+F 0 "#PWR0101" H 5300 4550 50  0001 C CNN
+F 1 "GND" H 5305 4627 50  0000 C CNN
+F 2 "" H 5300 4800 50  0001 C CNN
+F 3 "" H 5300 4800 50  0001 C CNN
+	1    5300 4800
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:PWR_FLAG #FLG0101
+U 1 1 5DB70A11
+P 7100 2300
+F 0 "#FLG0101" H 7100 2375 50  0001 C CNN
+F 1 "PWR_FLAG" H 7100 2474 50  0000 C CNN
+F 2 "" H 7100 2300 50  0001 C CNN
+F 3 "~" H 7100 2300 50  0001 C CNN
+	1    7100 2300
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R_US R1
+U 1 1 5DB70AB8
+P 5200 4350
+F 0 "R1" H 5268 4396 50  0000 L CNN
+F 1 "1K" H 5268 4305 50  0000 L CNN
+F 2 "Resistors_SMD:R_0805_HandSoldering" V 5240 4340 50  0001 C CNN
+F 3 "~" H 5200 4350 50  0001 C CNN
+	1    5200 4350
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:C C1
+U 1 1 5DB70B4B
+P 3300 4350
+F 0 "C1" H 3415 4396 50  0000 L CNN
+F 1 "10uF" H 3415 4305 50  0000 L CNN
+F 2 "Resistors_SMD:R_0805_HandSoldering" H 3338 4200 50  0001 C CNN
+F 3 "~" H 3300 4350 50  0001 C CNN
+	1    3300 4350
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	3050 2850 3150 2850
+Wire Wire Line
+	3150 2850 3150 3600
+Wire Wire Line
+	3150 3600 3050 3600
+Wire Wire Line
+	3050 3500 3750 3500
+Wire Wire Line
+	4700 2750 4700 3300
+Wire Wire Line
+	3300 4500 3300 4600
+Wire Wire Line
+	3300 4600 3750 4600
+Wire Wire Line
+	4700 4600 4700 3900
+$Comp
+L Device:C C2
+U 1 1 5DB70E82
+P 3750 4350
+F 0 "C2" H 3865 4396 50  0000 L CNN
+F 1 "10uF" H 3865 4305 50  0000 L CNN
+F 2 "Resistors_SMD:R_0805_HandSoldering" H 3788 4200 50  0001 C CNN
+F 3 "~" H 3750 4350 50  0001 C CNN
+	1    3750 4350
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	3750 4500 3750 4600
+Connection ~ 3750 4600
+Wire Wire Line
+	3750 4200 3750 3500
+Connection ~ 3750 3500
+Wire Wire Line
+	3750 3500 4300 3500
+Wire Wire Line
+	5200 4500 5200 4600
+Wire Wire Line
+	5200 4600 4700 4600
+Connection ~ 4700 4600
+$Comp
+L Connector_Generic:Conn_01x02 J2
+U 1 1 5DB716C5
+P 2850 2850
+F 0 "J2" H 2770 2525 50  0000 C CNN
+F 1 "Charger" H 2770 2616 50  0000 C CNN
+F 2 "Pin_Headers:Pin_Header_Straight_1x02_Pitch2.54mm" H 2850 2850 50  0001 C CNN
+F 3 "~" H 2850 2850 50  0001 C CNN
+	1    2850 2850
+	-1   0    0    1   
+$EndComp
+Wire Wire Line
+	6000 3300 6100 3300
+Wire Wire Line
+	6000 3300 6000 3400
+Wire Wire Line
+	6000 3400 6100 3400
+$Comp
+L Device:C C4
+U 1 1 5DB722A4
+P 7200 4350
+F 0 "C4" H 7315 4396 50  0000 L CNN
+F 1 "10nF" H 7315 4305 50  0000 L CNN
+F 2 "Resistors_SMD:R_0805_HandSoldering" H 7238 4200 50  0001 C CNN
+F 3 "~" H 7200 4350 50  0001 C CNN
+	1    7200 4350
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	5200 4600 5300 4600
+Wire Wire Line
+	7200 4600 7200 4500
+Connection ~ 5200 4600
+Wire Wire Line
+	8200 3100 8650 3100
+Wire Wire Line
+	6000 3400 6000 4600
+Connection ~ 6000 4600
+Wire Wire Line
+	6000 4600 6600 4600
+Wire Wire Line
+	6600 3750 6600 4600
+Connection ~ 6600 4600
+Wire Wire Line
+	6600 4600 7200 4600
+Wire Wire Line
+	3750 2900 3750 3500
+$Comp
+L Device:R_US R2
+U 1 1 5DB75734
+P 5350 2900
+F 0 "R2" V 5145 2900 50  0000 C CNN
+F 1 "1K" V 5236 2900 50  0000 C CNN
+F 2 "Resistors_SMD:R_0805_HandSoldering" V 5390 2890 50  0001 C CNN
+F 3 "~" H 5350 2900 50  0001 C CNN
+	1    5350 2900
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	5200 2900 3750 2900
+$Comp
+L Device:C C3
+U 1 1 5DB770AC
+P 5600 4350
+F 0 "C3" H 5715 4396 50  0000 L CNN
+F 1 "1uF" H 5715 4305 50  0000 L CNN
+F 2 "Resistors_SMD:R_0805_HandSoldering" H 5638 4200 50  0001 C CNN
+F 3 "~" H 5600 4350 50  0001 C CNN
+	1    5600 4350
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	5600 4200 5600 2900
+Wire Wire Line
+	5600 4500 5600 4600
+Connection ~ 5600 4600
+Wire Wire Line
+	5600 4600 6000 4600
+Wire Wire Line
+	3750 1800 8450 1800
+Connection ~ 3750 2900
+Wire Wire Line
+	8650 1450 8450 1450
+Wire Wire Line
+	8450 1450 8450 1800
+Connection ~ 8450 1800
+Wire Wire Line
+	8450 1800 8650 1800
+Wire Wire Line
+	8650 1550 8550 1550
+Wire Wire Line
+	8550 1550 8550 1900
+Wire Wire Line
+	8550 1900 8650 1900
+Wire Wire Line
+	8550 1900 8550 2900
+Connection ~ 8550 1900
+Wire Wire Line
+	5300 4600 5300 4800
+Connection ~ 5300 4600
+Wire Wire Line
+	5300 4600 5600 4600
+$Comp
+L power:PWR_FLAG #FLG0102
+U 1 1 5DB7C616
+P 6100 2300
+F 0 "#FLG0102" H 6100 2375 50  0001 C CNN
+F 1 "PWR_FLAG" H 6100 2474 50  0000 C CNN
+F 2 "" H 6100 2300 50  0001 C CNN
+F 3 "~" H 6100 2300 50  0001 C CNN
+	1    6100 2300
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:PWR_FLAG #FLG0103
+U 1 1 5DB7C648
+P 4050 2700
+F 0 "#FLG0103" H 4050 2775 50  0001 C CNN
+F 1 "PWR_FLAG" H 4050 2874 50  0000 C CNN
+F 2 "" H 4050 2700 50  0001 C CNN
+F 3 "~" H 4050 2700 50  0001 C CNN
+	1    4050 2700
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	4050 2700 4050 2750
+Connection ~ 4050 2750
+Wire Wire Line
+	4050 2750 4700 2750
+Wire Wire Line
+	6100 2300 6100 2900
+Connection ~ 6100 2900
+Text Label 8200 2400 0    50   ~ 0
+3.3V
+Text Label 3450 3500 0    50   ~ 0
+VBAT
+Text Label 8250 3200 0    50   ~ 0
+SDA
+Text Label 8250 3300 0    50   ~ 0
+SCL
+Text Label 6850 4600 0    50   ~ 0
+GND
+Text Label 8550 1700 0    50   ~ 0
+GND
+Text Label 3450 2750 0    50   ~ 0
+VCHG
+$Comp
+L Battery_Management:MCP73831-2-OT U1
+U 1 1 5DB6FAF2
+P 4700 3600
+F 0 "U1" H 4500 3850 50  0000 R CNN
+F 1 "MCP73831T-2" H 5250 3900 50  0000 R CNN
+F 2 "TO_SOT_Packages_SMD:SOT-23-5_HandSoldering" H 4750 3350 50  0001 L CIN
+F 3 "http://ww1.microchip.com/downloads/en/DeviceDoc/20001984g.pdf" H 4550 3550 50  0001 C CNN
+	1    4700 3600
+	-1   0    0    -1  
+$EndComp
+$Comp
+L Device:R_US R3
+U 1 1 5DB83C1B
+P 4400 4100
+F 0 "R3" V 4195 4100 50  0000 C CNN
+F 1 "1K" V 4286 4100 50  0000 C CNN
+F 2 "Resistors_SMD:R_0805_HandSoldering" V 4440 4090 50  0001 C CNN
+F 3 "~" H 4400 4100 50  0001 C CNN
+	1    4400 4100
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	4300 3700 4200 3700
+Wire Wire Line
+	5100 3700 5200 3700
+Wire Wire Line
+	5200 3700 5200 4200
+Wire Wire Line
+	3050 2750 3300 2750
+Wire Wire Line
+	5500 2900 5600 2900
+Connection ~ 5600 2900
+Wire Wire Line
+	5600 2900 6100 2900
+Connection ~ 6000 3400
+Text Label 8250 4100 0    50   ~ 0
+~STAT
+Wire Wire Line
+	3300 4200 3300 2750
+Connection ~ 3300 2750
+Wire Wire Line
+	3300 2750 4050 2750
+Wire Wire Line
+	4200 3700 4200 4100
+Wire Wire Line
+	4200 4100 4250 4100
+Wire Wire Line
+	3750 4600 4700 4600
+Text Label 7950 3000 0    50   ~ 0
+~ALRT
+Wire Wire Line
+	3150 3600 3150 4600
+Wire Wire Line
+	3150 4600 3300 4600
+Connection ~ 3150 3600
+Connection ~ 3300 4600
+$Comp
+L Device:R_US R5
+U 1 1 5DB9E613
+P 7500 2650
+F 0 "R5" H 7568 2696 50  0000 L CNN
+F 1 "4.7K" H 7568 2605 50  0000 L CNN
+F 2 "Resistors_SMD:R_0805_HandSoldering" V 7540 2640 50  0001 C CNN
+F 3 "~" H 7500 2650 50  0001 C CNN
+	1    7500 2650
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R_US R6
+U 1 1 5DBA021B
+P 7800 2650
+F 0 "R6" H 7868 2696 50  0000 L CNN
+F 1 "4.7K" H 7868 2605 50  0000 L CNN
+F 2 "Resistors_SMD:R_0805_HandSoldering" V 7840 2640 50  0001 C CNN
+F 3 "~" H 7800 2650 50  0001 C CNN
+	1    7800 2650
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R_US R4
+U 1 1 5DBA0257
+P 7200 2650
+F 0 "R4" H 7268 2696 50  0000 L CNN
+F 1 "150" H 7268 2605 50  0000 L CNN
+F 2 "Resistors_SMD:R_0805_HandSoldering" V 7240 2640 50  0001 C CNN
+F 3 "~" H 7200 2650 50  0001 C CNN
+	1    7200 2650
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	7200 2500 7200 2400
+Wire Wire Line
+	7200 2400 7500 2400
+Wire Wire Line
+	7500 2400 7500 2500
+Wire Wire Line
+	7500 2400 7800 2400
+Wire Wire Line
+	7800 2400 7800 2500
+Connection ~ 7500 2400
+Wire Wire Line
+	8200 2400 8200 3100
+Connection ~ 7800 2400
+$Comp
+L Device:R_US R7
+U 1 1 5DBA57A4
+P 7800 4300
+F 0 "R7" H 7868 4346 50  0000 L CNN
+F 1 "4.7K" H 7868 4255 50  0000 L CNN
+F 2 "Resistors_SMD:R_0805_HandSoldering" V 7840 4290 50  0001 C CNN
+F 3 "~" H 7800 4300 50  0001 C CNN
+	1    7800 4300
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	7100 3300 7500 3300
+Wire Wire Line
+	7500 3300 7500 3200
+Wire Wire Line
+	7100 3400 7800 3400
+Wire Wire Line
+	7800 3400 7800 3300
+Wire Wire Line
+	4550 4100 8450 4100
+Wire Wire Line
+	8450 4100 8450 3600
+Wire Wire Line
+	8450 3600 8650 3600
+Wire Wire Line
+	5850 3700 5850 3200
+Wire Wire Line
+	5850 3200 6100 3200
+Text Label 8100 3700 0    50   ~ 0
+QSTRT
+Wire Wire Line
+	7200 4600 7800 4600
+Wire Wire Line
+	7800 4600 7800 4450
+Connection ~ 7200 4600
+Wire Wire Line
+	3750 1800 3750 2900
+Wire Wire Line
+	7200 2800 7200 2900
+Wire Wire Line
+	7100 2900 7200 2900
+Connection ~ 7200 2900
+Wire Wire Line
+	7200 2900 7200 4200
+Wire Wire Line
+	7100 2300 7100 2900
+Connection ~ 7100 2900
+Wire Wire Line
+	7800 2400 8200 2400
+$Comp
+L Connector_Generic:Conn_01x08 J5
+U 1 1 5DB860CB
+P 8850 3200
+F 0 "J5" H 8929 3192 50  0000 L CNN
+F 1 "MCU" H 8929 3101 50  0000 L CNN
+F 2 "Pin_Headers:Pin_Header_Straight_1x08_Pitch2.54mm" H 8850 3200 50  0001 C CNN
+F 3 "~" H 8850 3200 50  0001 C CNN
+	1    8850 3200
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	8450 1800 8450 3000
+Wire Wire Line
+	8450 3000 8650 3000
+Wire Wire Line
+	8550 2900 8650 2900
+Wire Wire Line
+	8550 2900 8550 4600
+Wire Wire Line
+	8550 4600 7800 4600
+Connection ~ 8550 2900
+Connection ~ 7800 4600
+Wire Wire Line
+	8650 3200 7500 3200
+Connection ~ 7500 3200
+Wire Wire Line
+	7500 3200 7500 2800
+Wire Wire Line
+	8650 3300 7800 3300
+Connection ~ 7800 3300
+Wire Wire Line
+	7800 3300 7800 2800
+Wire Wire Line
+	7100 3000 7950 3000
+Wire Wire Line
+	7950 3500 8650 3500
+Wire Wire Line
+	7950 3000 7950 3500
+Wire Wire Line
+	8100 3700 8100 3400
+Wire Wire Line
+	8100 3400 8650 3400
+Wire Wire Line
+	5850 3700 7800 3700
+Wire Wire Line
+	7800 3700 7800 4150
+Connection ~ 7800 3700
+Wire Wire Line
+	7800 3700 8100 3700
+$EndSCHEMATC

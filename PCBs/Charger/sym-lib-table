@@ -1,0 +1,3 @@
+(sym_lib_table
+  (lib (name maxim)(type Legacy)(uri C:/wip/KiCad-Libraries/symbols/maxim.lib)(options "")(descr ""))
+)
