@@ -2,7 +2,7 @@
 
   (general
     (thickness 1.6)
-    (drawings 11)
+    (drawings 12)
     (tracks 52)
     (zones 0)
     (modules 3)
@@ -10,6 +10,10 @@
   )
 
   (page A4)
+  (title_block
+    (title "Connector v1")
+  )
+
   (layers
     (0 F.Cu signal)
     (31 B.Cu signal)
@@ -297,6 +301,9 @@
     )
   )
 
+  (gr_text "Connector v1" (at 137.7 70.8 90) (layer F.SilkS)
+    (effects (font (size 1.5 1.5) (thickness 0.3)))
+  )
   (gr_line (start 135.4 137.2) (end 139.5 133.1) (layer Edge.Cuts) (width 0.15))
   (gr_line (start 135.4 54.2) (end 139.5 58.3) (layer Edge.Cuts) (width 0.15))
   (gr_line (start 132.8 92.8) (end 135.2 92.8) (layer Edge.Cuts) (width 0.15))

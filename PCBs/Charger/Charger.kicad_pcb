@@ -2,7 +2,7 @@
 
   (general
     (thickness 1.6)
-    (drawings 16)
+    (drawings 17)
     (tracks 101)
     (zones 0)
     (modules 18)
@@ -824,6 +824,9 @@
     )
   )
 
+  (gr_text "Charger v1" (at 156.3 110 270) (layer B.SilkS) (tstamp 5DB98954)
+    (effects (font (size 1.5 1.5) (thickness 0.3)) (justify left mirror))
+  )
   (gr_text +BAT (at 153 97 270) (layer F.SilkS) (tstamp 5DB87008)
     (effects (font (size 0.75 0.75) (thickness 0.15)) (justify left))
   )
@@ -865,6 +868,10 @@
   (gr_line (start 135.5 116) (end 158 116) (layer Edge.Cuts) (width 0.2) (tstamp 5DB78306))
   (gr_line (start 135.5 97) (end 158 97) (layer Edge.Cuts) (width 0.2))
 
+  (segment (start 142 106.15) (end 143.05 105.1) (width 0.4572) (layer F.Cu) (net 1))
+  (segment (start 140.5 106.15) (end 142 106.15) (width 0.4572) (layer F.Cu) (net 1))
+  (segment (start 138.51 106.15) (end 140.5 106.15) (width 0.4572) (layer F.Cu) (net 1))
+  (segment (start 137 107.66) (end 138.51 106.15) (width 0.4572) (layer F.Cu) (net 1))
   (segment (start 153.5 105) (end 153.5 105) (width 0.1524) (layer F.Cu) (net 2))
   (segment (start 153.5 105) (end 153.9 105) (width 0.1524) (layer F.Cu) (net 2) (tstamp 5DB86815))
   (via (at 146.9 112) (size 0.6858) (drill 0.3302) (layers F.Cu B.Cu) (net 2))
@@ -872,10 +879,6 @@
   (via (at 154.4 103.1) (size 0.6858) (drill 0.3302) (layers F.Cu B.Cu) (net 2))
   (via (at 156.5 109.3) (size 0.6858) (drill 0.3302) (layers F.Cu B.Cu) (net 2))
   (via (at 156.5 104.4) (size 0.6858) (drill 0.3302) (layers F.Cu B.Cu) (net 2))
-  (segment (start 142 106.15) (end 143.05 105.1) (width 0.4572) (layer F.Cu) (net 1))
-  (segment (start 140.5 106.15) (end 142 106.15) (width 0.4572) (layer F.Cu) (net 1))
-  (segment (start 138.51 106.15) (end 140.5 106.15) (width 0.4572) (layer F.Cu) (net 1))
-  (segment (start 137 107.66) (end 138.51 106.15) (width 0.4572) (layer F.Cu) (net 1))
   (segment (start 141.6 108.85) (end 142.65 107.8) (width 0.4572) (layer F.Cu) (net 2))
   (segment (start 140.5 108.85) (end 141.6 108.85) (width 0.4572) (layer F.Cu) (net 2))
   (segment (start 140.5 103.85) (end 143.75 103.85) (width 0.4572) (layer F.Cu) (net 2))
