@@ -15,17 +15,17 @@
     Adafruit Unified Sensor by Adafruit
     BLEPeripheral by Sandeep Mistry
     Keypad by Mark Stanley, Alexander Brevig
+    Adafruit Neopixel by Adafruit
     
     TODO: add fuel gauge library
-    * Adafruit Neopixel by Adafruit
     * Arduio Low Power by Arduino
     
     WARNING: You must make some modifications to the default SparkFun nRF52832 Breakout library before
     this code will work:
     
     The default I2C pins must be changed. They are hard-coded in the board's varient.h file located at:
-        <user dir>\AppData\Local\Arduino15\packages\SparkFun\hardware\nRF5\0.2.3\variants\SparkFun_nRF52832_Breakout\varient.h
-    Change the definitions for PIN_WIRE_SDA and PIN_WIRE_SCL.
+        <user dir>\AppData\Local\Arduino15\packages\SparkFun\hardware\nRF5\0.2.3\variants\SparkFun_nRF52832_Breakout\variant.h
+    Change the definitions for PIN_WIRE_SDA and PIN_WIRE_SCL to match I2C_SCL_PIN and I2C_SDA_PIN, defined below.
     See https://learn.sparkfun.com/tutorials/nrf52832-breakout-board-hookup-guide/discuss
 
     Make sure to restart Arduino IDE after these changes before compiling.
