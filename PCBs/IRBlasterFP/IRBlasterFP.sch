@@ -4,7 +4,7 @@ LIBS:device
 LIBS:74xx
 LIBS:audio
 LIBS:interface
-LIBS:IRBlaster-cache
+LIBS:IRBlasterFP-cache
 EELAYER 26 0
 EELAYER END
 $Descr A4 11693 8268
@@ -93,12 +93,6 @@ Wire Wire Line
 Wire Wire Line
 	5600 3900 5600 3500
 Wire Wire Line
-	4700 4200 5800 4200
-Wire Wire Line
-	4700 4000 5100 4000
-Wire Wire Line
-	5100 4000 5100 4400
-Wire Wire Line
 	4700 4100 5700 4100
 Wire Wire Line
 	5700 4100 5700 4400
@@ -132,7 +126,7 @@ Connection ~ 6000 3800
 Wire Wire Line
 	6000 3800 6400 3800
 Wire Wire Line
-	5800 3500 5800 4200
+	5800 3500 5800 4000
 $Comp
 L power:PWR_FLAG #FLG0102
 U 1 1 5DC1E0EE
@@ -147,4 +141,10 @@ $EndComp
 Connection ~ 5500 4900
 Wire Wire Line
 	5500 4900 5700 4900
+Wire Wire Line
+	4700 4200 5100 4200
+Wire Wire Line
+	5100 4200 5100 4400
+Wire Wire Line
+	4700 4000 5800 4000
 $EndSCHEMATC
