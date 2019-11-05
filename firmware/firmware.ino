@@ -46,7 +46,7 @@
 #include <MAX17043.h>               // Battery fuel gauge
 #include <Arduino_nRF5x_lowPower.h> // Low power!
 
-//#define DEBUG
+#define DEBUG
 
 //////////////
 // Hardware //
@@ -54,15 +54,18 @@
 const int LED_PIN = 7;          // builtin LED, used only for testing
 const int BTN_PIN = 6;          // builtin button, used only for testing
 
-const int I2C_SCL_PIN = 8;
-const int I2C_SDA_PIN = 11;
+const int I2C_SCL_PIN = 8;      // make varient.h match!
+const int I2C_SDA_PIN = 11;     // make varient.h match!
+const int NFC1_PIN = 9;         // can't change these or disable NFC!
+const int NFC2_PIN = 10;        // can't change these or disable NFC!
 
-const int ACC_INT2_PIN = 2;     // not used
 const int ACC_INT1_PIN = 3;     // interrupt on rising
+const int ACC_INT2_PIN = 2;     // not used
 
-const int BAT_QSTRT_PIN = 5;    // not used
-const int BAT_ALRT_PIN = 9;     // not used
-const int BAT_STAT_PIN = 4;     // interrupt on falling
+const int BAT_CHG_PRESENT_PIN = 5;  // input, interrupt on rising, wakeup
+const int BAT_CHARGING_PIN = 4;     // input, interrupt on falling, wakeup
+const int BAT_CHG_ENABLE_PIN = 12;  // output, active high to disable, input float to enable
+const int BAT_LED_ENABLE_PIN = 13;  // output, active high
 
 const int LEDS_PIN = 16;
 
@@ -373,11 +376,17 @@ void loopAccel() {
 }
 
 void setupBattery() {
-    pinMode(BAT_ALRT_PIN, INPUT_PULLUP);
-    pinMode(BAT_QSTRT_PIN, OUTPUT);
-    pinMode(BAT_STAT_PIN, INPUT_PULLUP);
+    pinMode(BAT_CHG_PRESENT_PIN, INPUT_PULLDOWN);
+    pinMode(BAT_CHARGING_PIN, INPUT_PULLUP);
+    pinMode(BAT_LED_ENABLE_PIN, OUTPUT);
+    pinMode(BAT_CHG_ENABLE_PIN, OUTPUT);
 
-    digitalWrite(BAT_QSTRT_PIN, HIGH);
+    // TODO: does LED_ENABLE need a pulldown?
+    digitalWrite(BAT_LED_ENABLE_PIN, LOW);      // disable leds
+    digitalWrite(BAT_CHG_ENABLE_PIN, HIGH);     // disable charger
+    
+    //digitalWrite(BAT_LED_ENABLE_PIN, HIGH);      // enable leds
+    //digitalWrite(BAT_CHG_ENABLE_PIN, LOW);       // never do this!
     
 //    attachInterrupt(digitalPinToInterrupt(BAT_STAT_PIN), batteryInterrupt, FALLING);
 
@@ -411,6 +420,8 @@ void loopBattery() {
 float level = (int)20.0;
     batteryLastRead = millis();
     
+    /*
+    // TODO: redo this to handle charger/charging
     bool charging = !digitalRead(BAT_STAT_PIN);
     if (charging && !batteryCharging) {
         batteryCharging = true;
@@ -427,6 +438,15 @@ float level = (int)20.0;
         Serial.println("Stopped charging");
 #endif
     }
+    */
+    
+    bool chargerPresent = digitalRead(BAT_CHG_PRESENT_PIN);
+    bool charging = !digitalRead(BAT_CHARGING_PIN);
+    
+    Serial.print("Charger: ");
+    Serial.println(chargerPresent);
+    Serial.print("Charging: ");
+    Serial.println(charging);
     
     if (level != batteryLevel) {
         batteryLevel = level;
@@ -560,10 +580,12 @@ void checkIdle() {
 }
 
 void enterSleep() {
+    /*
     setLEDs(LEDS_OFF);
     nRF5x_lowPower.enableWakeupByInterrupt(ACC_INT1_PIN, RISING);
     nRF5x_lowPower.enableWakeupByInterrupt(BAT_STAT_PIN, FALLING);
     nRF5x_lowPower.powerMode(POWER_MODE_OFF);
+    */
 }
 
     

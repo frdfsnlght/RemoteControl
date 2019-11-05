@@ -20,7 +20,7 @@ Comment3 ""
 Comment4 ""
 $EndDescr
 $Comp
-L maxim:MAX17043 U3
+L Charger-rescue:MAX17043-maxim U3
 U 1 1 5DB70484
 P 7250 3150
 F 0 "U3" H 7250 3665 50  0000 C CNN
@@ -164,7 +164,7 @@ Text Label 8450 2800 0    50   ~ 0
 3.3V
 Text Label 8150 1800 0    50   ~ 0
 VBAT
-Text Label 8200 3800 0    50   ~ 0
+Text Label 8150 3600 0    50   ~ 0
 SDA
 Text Label 8450 3500 0    50   ~ 0
 SCL
@@ -209,10 +209,10 @@ Wire Wire Line
 	1850 4950 2000 4950
 Connection ~ 2000 4950
 $Comp
-L Device:R_US R6
+L Device:R_US R7
 U 1 1 5DB9E613
 P 8000 3050
-F 0 "R6" H 8068 3096 50  0000 L CNN
+F 0 "R7" H 8068 3096 50  0000 L CNN
 F 1 "4.7K" H 8068 3005 50  0000 L CNN
 F 2 "Resistors_SMD:R_0805_HandSoldering" V 8040 3040 50  0001 C CNN
 F 3 "~" H 8000 3050 50  0001 C CNN
@@ -220,10 +220,10 @@ F 3 "~" H 8000 3050 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L Device:R_US R7
+L Device:R_US R8
 U 1 1 5DBA021B
 P 8300 3050
-F 0 "R7" H 8368 3096 50  0000 L CNN
+F 0 "R8" H 8368 3096 50  0000 L CNN
 F 1 "4.7K" H 8368 3005 50  0000 L CNN
 F 2 "Resistors_SMD:R_0805_HandSoldering" V 8340 3040 50  0001 C CNN
 F 3 "~" H 8300 3050 50  0001 C CNN
@@ -299,10 +299,10 @@ Text Label 7800 4250 0    50   ~ 0
 Wire Wire Line
 	2450 1800 2450 3500
 $Comp
-L Device:R_US R5
+L Device:R_US R6
 U 1 1 5DC6C6A1
 P 6500 2650
-F 0 "R5" H 6568 2696 50  0000 L CNN
+F 0 "R6" H 6568 2696 50  0000 L CNN
 F 1 "1K" H 6568 2605 50  0000 L CNN
 F 2 "Resistors_SMD:R_0805_HandSoldering" V 6540 2640 50  0001 C CNN
 F 3 "~" H 6500 2650 50  0001 C CNN
@@ -320,7 +320,7 @@ Wire Wire Line
 Wire Wire Line
 	6750 2550 7300 2550
 $Comp
-L my-regulators:TPS61240 U2
+L Charger-rescue:TPS61240-my-regulators U2
 U 1 1 5DC514F8
 P 5100 3550
 F 0 "U2" H 5100 3875 50  0000 C CNN
@@ -497,7 +497,7 @@ Wire Wire Line
 	4200 4850 4200 4950
 Connection ~ 4200 4950
 Wire Wire Line
-	4200 4950 5700 4950
+	4200 4950 4550 4950
 Wire Wire Line
 	4200 4550 4200 4350
 Wire Wire Line
@@ -521,23 +521,13 @@ Wire Wire Line
 Wire Wire Line
 	4400 1800 6500 1800
 Wire Wire Line
-	8000 3300 8000 3800
-Wire Wire Line
-	8000 3800 9000 3800
+	8000 3300 8000 3600
 Connection ~ 8000 3300
 Wire Wire Line
 	8300 3400 8300 3500
 Wire Wire Line
 	8300 3500 9000 3500
 Connection ~ 8300 3400
-Wire Wire Line
-	8450 4150 8450 3700
-Wire Wire Line
-	8450 3700 9000 3700
-Wire Wire Line
-	8550 4250 8550 3600
-Wire Wire Line
-	8550 3600 9000 3600
 Wire Wire Line
 	8650 4350 8650 3400
 Wire Wire Line
@@ -554,4 +544,33 @@ Text Label 4650 3050 0    50   ~ 0
 L
 Text Label 6500 3100 0    50   ~ 0
 CELL
+Wire Wire Line
+	8000 3600 9000 3600
+Wire Wire Line
+	8550 4250 8550 3700
+Wire Wire Line
+	8550 3700 9000 3700
+Wire Wire Line
+	8450 4150 8450 3800
+Wire Wire Line
+	8450 3800 9000 3800
+$Comp
+L Device:R_US R5
+U 1 1 5DC1CF62
+P 4550 4700
+F 0 "R5" H 4618 4746 50  0000 L CNN
+F 1 "4.7K" H 4618 4655 50  0000 L CNN
+F 2 "Resistors_SMD:R_0805_HandSoldering" V 4590 4690 50  0001 C CNN
+F 3 "~" H 4550 4700 50  0001 C CNN
+	1    4550 4700
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	4550 4550 4550 4150
+Connection ~ 4550 4150
+Wire Wire Line
+	4550 4850 4550 4950
+Connection ~ 4550 4950
+Wire Wire Line
+	4550 4950 5700 4950
 $EndSCHEMATC
