@@ -138,8 +138,6 @@ Wire Wire Line
 	6650 3400 6750 3400
 Connection ~ 3900 4950
 Wire Wire Line
-	8550 3200 9000 3200
-Wire Wire Line
 	6650 3400 6650 3800
 Wire Wire Line
 	7250 3750 7250 3800
@@ -160,13 +158,11 @@ Connection ~ 6500 4950
 Wire Wire Line
 	9000 2300 8900 2300
 Connection ~ 6750 2900
-Text Label 8450 2800 0    50   ~ 0
-3.3V
 Text Label 8150 1800 0    50   ~ 0
 VBAT
-Text Label 8150 3600 0    50   ~ 0
+Text Label 8150 3500 0    50   ~ 0
 SDA
-Text Label 8450 3500 0    50   ~ 0
+Text Label 8150 3400 0    50   ~ 0
 SCL
 Text Label 8100 4950 0    50   ~ 0
 GND
@@ -209,37 +205,6 @@ Wire Wire Line
 	1850 4950 2000 4950
 Connection ~ 2000 4950
 $Comp
-L Device:R_US R7
-U 1 1 5DB9E613
-P 8000 3050
-F 0 "R7" H 8068 3096 50  0000 L CNN
-F 1 "4.7K" H 8068 3005 50  0000 L CNN
-F 2 "Resistors_SMD:R_0805_HandSoldering" V 8040 3040 50  0001 C CNN
-F 3 "~" H 8000 3050 50  0001 C CNN
-	1    8000 3050
-	1    0    0    -1  
-$EndComp
-$Comp
-L Device:R_US R8
-U 1 1 5DBA021B
-P 8300 3050
-F 0 "R8" H 8368 3096 50  0000 L CNN
-F 1 "4.7K" H 8368 3005 50  0000 L CNN
-F 2 "Resistors_SMD:R_0805_HandSoldering" V 8340 3040 50  0001 C CNN
-F 3 "~" H 8300 3050 50  0001 C CNN
-	1    8300 3050
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	8000 2800 8000 2900
-Wire Wire Line
-	8000 2800 8300 2800
-Wire Wire Line
-	8300 2800 8300 2900
-Wire Wire Line
-	8550 2800 8550 3200
-Connection ~ 8300 2800
-$Comp
 L Device:R_US R3
 U 1 1 5DBA57A4
 P 4200 4000
@@ -255,13 +220,9 @@ Wire Wire Line
 Wire Wire Line
 	7750 2900 7850 2900
 Wire Wire Line
-	8300 2800 8550 2800
-Wire Wire Line
 	8750 3100 9000 3100
 Wire Wire Line
 	8900 3000 9000 3000
-Wire Wire Line
-	8000 3300 8000 3200
 Wire Wire Line
 	7850 2550 7850 2900
 Wire Wire Line
@@ -358,32 +319,17 @@ Wire Wire Line
 $Comp
 L pspice:INDUCTOR L1
 U 1 1 5DCCC5EF
-P 4750 2900
-F 0 "L1" H 4750 3115 50  0000 C CNN
-F 1 "1uH" H 4750 3024 50  0000 C CNN
-F 2 "Inductors_SMD:L_0805_HandSoldering" H 4750 2900 50  0001 C CNN
-F 3 "~" H 4750 2900 50  0001 C CNN
-	1    4750 2900
-	1    0    0    -1  
+P 4550 2600
+F 0 "L1" V 4450 2700 50  0000 C CNN
+F 1 "1uH" V 4550 2724 50  0000 C CNN
+F 2 "Inductors_SMD:L_0805_HandSoldering" H 4550 2600 50  0001 C CNN
+F 3 "~" H 4550 2600 50  0001 C CNN
+	1    4550 2600
+	0    1    1    0   
 $EndComp
 Wire Wire Line
 	4650 3450 4400 3450
-Wire Wire Line
-	4400 3450 4400 2900
 Connection ~ 4400 1800
-Wire Wire Line
-	4500 2900 4400 2900
-Connection ~ 4400 2900
-Wire Wire Line
-	4400 2900 4400 1800
-Wire Wire Line
-	5000 2900 5100 2900
-Wire Wire Line
-	5100 2900 5100 3050
-Wire Wire Line
-	5100 3050 4550 3050
-Wire Wire Line
-	4550 3050 4550 3550
 Wire Wire Line
 	4550 3550 4650 3550
 $Comp
@@ -430,17 +376,6 @@ Wire Wire Line
 Wire Wire Line
 	8750 1800 6500 1800
 Connection ~ 6500 1800
-$Comp
-L Connector_Generic:Conn_01x09 J4
-U 1 1 5DD0A71E
-P 9200 3400
-F 0 "J4" H 9279 3442 50  0000 L CNN
-F 1 "MCU" H 9279 3351 50  0000 L CNN
-F 2 "Pin_Headers:Pin_Header_Angled_1x09_Pitch2.54mm" H 9200 3400 50  0001 C CNN
-F 3 "~" H 9200 3400 50  0001 C CNN
-	1    9200 3400
-	1    0    0    -1  
-$EndComp
 Wire Wire Line
 	8450 4150 4550 4150
 Wire Wire Line
@@ -515,51 +450,23 @@ Wire Wire Line
 Wire Wire Line
 	5950 2200 9000 2200
 Wire Wire Line
-	7750 3400 8300 3400
-Wire Wire Line
-	8300 3200 8300 3400
-Wire Wire Line
 	4400 1800 6500 1800
 Wire Wire Line
-	8000 3300 8000 3600
-Connection ~ 8000 3300
-Wire Wire Line
-	8300 3400 8300 3500
-Wire Wire Line
-	8300 3500 9000 3500
-Connection ~ 8300 3400
-Wire Wire Line
-	8650 4350 8650 3400
-Wire Wire Line
-	8650 3400 9000 3400
-Wire Wire Line
-	8750 4450 8750 3300
-Wire Wire Line
-	8750 3300 9000 3300
+	8000 3300 8000 3500
 Text Label 6750 2200 0    50   ~ 0
 VLED
 Text Label 2900 4050 0    50   ~ 0
 STAT
-Text Label 4650 3050 0    50   ~ 0
+Text Label 4550 3050 0    50   ~ 0
 L
 Text Label 6500 3100 0    50   ~ 0
 CELL
-Wire Wire Line
-	8000 3600 9000 3600
-Wire Wire Line
-	8550 4250 8550 3700
-Wire Wire Line
-	8550 3700 9000 3700
-Wire Wire Line
-	8450 4150 8450 3800
-Wire Wire Line
-	8450 3800 9000 3800
 $Comp
 L Device:R_US R5
 U 1 1 5DC1CF62
 P 4550 4700
 F 0 "R5" H 4618 4746 50  0000 L CNN
-F 1 "4.7K" H 4618 4655 50  0000 L CNN
+F 1 "10K" H 4618 4655 50  0000 L CNN
 F 2 "Resistors_SMD:R_0805_HandSoldering" V 4590 4690 50  0001 C CNN
 F 3 "~" H 4550 4700 50  0001 C CNN
 	1    4550 4700
@@ -573,4 +480,46 @@ Wire Wire Line
 Connection ~ 4550 4950
 Wire Wire Line
 	4550 4950 5700 4950
+Wire Wire Line
+	8750 3200 9000 3200
+Wire Wire Line
+	8750 3200 8750 4450
+Wire Wire Line
+	8650 3300 9000 3300
+Wire Wire Line
+	8650 3300 8650 4350
+Wire Wire Line
+	7750 3400 9000 3400
+Wire Wire Line
+	9000 3500 8000 3500
+Wire Wire Line
+	8550 3600 9000 3600
+Wire Wire Line
+	8550 3600 8550 4250
+Wire Wire Line
+	8450 3700 9000 3700
+Wire Wire Line
+	8450 3700 8450 4150
+$Comp
+L Connector_Generic:Conn_01x08 J4
+U 1 1 5DC3011D
+P 9200 3300
+F 0 "J4" H 9279 3292 50  0000 L CNN
+F 1 "MCU" H 9279 3201 50  0000 L CNN
+F 2 "Pin_Headers:Pin_Header_Straight_1x08_Pitch2.54mm" H 9200 3300 50  0001 C CNN
+F 3 "~" H 9200 3300 50  0001 C CNN
+	1    9200 3300
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	4400 1800 4400 2200
+Wire Wire Line
+	4400 2200 4550 2200
+Wire Wire Line
+	4550 2200 4550 2350
+Connection ~ 4400 2200
+Wire Wire Line
+	4400 2200 4400 3450
+Wire Wire Line
+	4550 2850 4550 3550
 $EndSCHEMATC
