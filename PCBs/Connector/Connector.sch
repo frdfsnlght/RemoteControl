@@ -52,14 +52,9 @@ Wire Wire Line
 Wire Wire Line
 	4900 3500 5200 3500
 Wire Wire Line
-	5200 5500 4700 5500
-Wire Wire Line
-	4700 5500 4700 4700
-Wire Wire Line
 	4700 3400 5200 3400
 Wire Wire Line
 	5200 4700 4700 4700
-Connection ~ 4700 4700
 NoConn ~ 5200 3200
 NoConn ~ 5200 3300
 Wire Wire Line
@@ -119,33 +114,14 @@ Wire Wire Line
 Text Label 4700 2200 0    50   ~ 0
 LED_EN
 Wire Wire Line
-	3700 5600 3700 2900
-Wire Wire Line
-	3700 5600 5200 5600
-Wire Wire Line
-	3500 2800 3500 5700
-Wire Wire Line
-	3500 5700 5200 5700
+	3500 2800 3500 5600
 Wire Wire Line
 	3500 2800 5200 2800
 Wire Wire Line
-	4500 4100 4500 5800
+	4500 4100 4500 5700
 Connection ~ 4500 4100
 Wire Wire Line
-	4500 5800 5200 5800
-$Comp
-L Connector_Generic:Conn_01x09 J3
-U 1 1 5DC12E08
-P 5400 5700
-F 0 "J3" H 5480 5742 50  0000 L CNN
-F 1 "Power Supply" H 5480 5651 50  0000 L CNN
-F 2 "" H 5400 5700 50  0001 C CNN
-F 3 "~" H 5400 5700 50  0001 C CNN
-	1    5400 5700
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	4300 4200 4300 5900
+	4300 4200 4300 5800
 Connection ~ 4300 4200
 $Comp
 L Connector_Generic:Conn_01x15 J1
@@ -153,7 +129,7 @@ U 1 1 5DC13B06
 P 5400 2900
 F 0 "J1" H 5479 2942 50  0000 L CNN
 F 1 "MCU" H 5479 2851 50  0000 L CNN
-F 2 "" H 5400 2900 50  0001 C CNN
+F 2 "Pin_Headers:Pin_Header_Straight_1x15_Pitch2.54mm" H 5400 2900 50  0001 C CNN
 F 3 "~" H 5400 2900 50  0001 C CNN
 	1    5400 2900
 	1    0    0    -1  
@@ -163,15 +139,34 @@ Wire Wire Line
 Wire Wire Line
 	3300 2300 5200 2300
 Wire Wire Line
-	5200 5900 4300 5900
+	3300 2300 3300 5900
 Wire Wire Line
-	3300 6000 5200 6000
-Wire Wire Line
-	3300 2300 3300 6000
-Wire Wire Line
-	3100 6100 5200 6100
-Wire Wire Line
-	3100 2200 3100 6100
+	3100 2200 3100 6000
 NoConn ~ 5200 2500
 NoConn ~ 5200 2600
+$Comp
+L Connector_Generic:Conn_01x08 J3
+U 1 1 5DC1B29E
+P 5400 5600
+F 0 "J3" H 5479 5592 50  0000 L CNN
+F 1 "Power Supply" H 5479 5501 50  0000 L CNN
+F 2 "Pin_Headers:Pin_Header_Straight_1x08_Pitch2.54mm" H 5400 5600 50  0001 C CNN
+F 3 "~" H 5400 5600 50  0001 C CNN
+	1    5400 5600
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	5200 5500 3700 5500
+Wire Wire Line
+	3700 5500 3700 2900
+Wire Wire Line
+	5200 5600 3500 5600
+Wire Wire Line
+	5200 5700 4500 5700
+Wire Wire Line
+	5200 5800 4300 5800
+Wire Wire Line
+	5200 5900 3300 5900
+Wire Wire Line
+	5200 6000 3100 6000
 $EndSCHEMATC
