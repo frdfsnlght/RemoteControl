@@ -21,14 +21,11 @@
     Required library but must be manually installed from zip:
     ---------------------------------------------------------
     https://github.com/mristau/Arduino_nRF5x_lowPower
-
-    
-    * Arduio Low Power by Arduino
     
     WARNING: You must make some modifications to the default SparkFun nRF52832 Breakout library before
     this code will work:
     
-    The default I2C pins must be changed. They are hard-coded in the board's varient.h file located at:
+    The default I2C pins must be changed. They are hard-coded in the board's variant.h file located at:
         <user dir>\AppData\Local\Arduino15\packages\SparkFun\hardware\nRF5\0.2.3\variants\SparkFun_nRF52832_Breakout\variant.h
     Change the definitions for PIN_WIRE_SDA and PIN_WIRE_SCL to match I2C_SCL_PIN and I2C_SDA_PIN, defined below.
     See https://learn.sparkfun.com/tutorials/nrf52832-breakout-board-hookup-guide/discuss
@@ -36,13 +33,11 @@
     Make sure to restart Arduino IDE after these changes before compiling.
 */
 
-#include <SPI.h>                    // BLEPeripheral depends on this
-#include <Wire.h>                   // For I2C
 #include <BLEPeripheral.h>          // BLE stuff
 #include <Adafruit_Sensor.h>        // Accelerometer
 #include <Adafruit_ADXL345_U.h>     // Accelerometer
-#include <Keypad.h>                 // All the buttons!
 #include <Adafruit_NeoPixel.h>      // LEDs
+#include <Keypad.h>                 // All the buttons!
 #include <MAX17043.h>               // Battery fuel gauge
 #include <Arduino_nRF5x_lowPower.h> // Low power!
 
@@ -53,24 +48,25 @@
 //////////////
 const int LED_PIN = 7;          // builtin LED, used only for testing
 const int BTN_PIN = 6;          // builtin button, used only for testing
+const int RESET_PIN = 21;       // reset, bring low to reset device
 
-const int I2C_SCL_PIN = 8;      // make varient.h match!
-const int I2C_SDA_PIN = 11;     // make varient.h match!
+const int I2C_SCL_PIN = 8;      // make variant.h match!
+const int I2C_SDA_PIN = 11;     // make variant.h match!
 const int NFC1_PIN = 9;         // can't change these or disable NFC!
 const int NFC2_PIN = 10;        // can't change these or disable NFC!
 
-const int ACC_INT1_PIN = 3;     // interrupt on rising
+const int ACC_INT1_PIN = 3;     // interrupt on rising, wakeup on rising
 const int ACC_INT2_PIN = 2;     // not used
 
-const int BAT_CHG_PRESENT_PIN = 5;  // input, interrupt on rising, wakeup
-const int BAT_CHARGING_PIN = 4;     // input, interrupt on falling, wakeup
-const int BAT_CHG_ENABLE_PIN = 12;  // output, active high to disable, input float to enable
-const int BAT_LED_ENABLE_PIN = 13;  // output, active high
+const int PS_CHARGER_PIN = 5;       // input, wakeup on rising
+const int PS_CHARGING_PIN = 4;      // input
+const int PS_CHARGER_ENABLE_PIN = 12;  // output, active high to disable, input float to enable
+const int PS_LED_ENABLE_PIN = 13;   // output, active high to enable
 
 const int LEDS_PIN = 16;
 
-byte KEYPAD_ROW_PINS[] = {17, 18, 19, 20, 22, 23};
-byte KEYPAD_COL_PINS[] = {24, 25, 28, 29, 30, 31};
+uint8_t KEYPAD_ROW_PINS[] = {17, 18, 19, 20, 22, 23};
+uint8_t KEYPAD_COL_PINS[] = {24, 25, 28, 29, 30, 31};
 
 ///////////////
 // Neopixels //
@@ -80,8 +76,15 @@ typedef struct {
     uint8_t green;
     uint8_t blue;
 } color_t;
-const color_t LEDS_OFF[] = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
-const color_t LEDS_ON[] = {{127, 127, 127}, {127, 127, 127}, {127, 127, 127}, {127, 127, 127}, {127, 127, 127}};
+const color_t LED_OFF = {0, 0, 0};
+const color_t LED_RED = {127, 0, 0};
+const color_t LED_GREEN = {0, 127, 0};
+const color_t LED_BLUE = {0, 0, 127};
+const color_t LED_WHITE = {127, 127, 127};
+const color_t LEDS_OFF[] = {LED_OFF, LED_OFF, LED_OFF, LED_OFF, LED_OFF};
+const color_t LEDS_GREEN[] = {LED_GREEN, LED_GREEN, LED_GREEN, LED_GREEN, LED_GREEN};
+//const color_t LEDS_OFF[] = {LED_OFF{0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
+//const color_t LEDS_ON[] = {{127, 127, 127}, {127, 127, 127}, {127, 127, 127}, {127, 127, 127}, {127, 127, 127}};
 const unsigned long LEDS_BLINK_INTERVAL = 500;
 const int LEDS_DATA_LENGTH = sizeof(LEDS_OFF);
 const int LEDS_NUMPIXELS = 5;
@@ -103,8 +106,8 @@ BLEUnsignedCharCharacteristic buttonDownChar("0001", BLERead | BLENotify);
 BLEUnsignedCharCharacteristic buttonUpChar("0002", BLERead | BLENotify);
 BLEFixedLengthCharacteristic ledsChar("0003", BLERead | BLEWrite, LEDS_DATA_LENGTH);
 BLEUnsignedCharCharacteristic chargingChar("0004", BLERead | BLENotify);
-BLEFloatCharacteristic batteryChar("0005", BLERead | BLENotify);
-BLEFloatCharacteristic accelChar("0006", BLERead | BLENotify);
+BLEFloatCharacteristic batteryLevelChar("0005", BLERead | BLENotify);
+BLEUnsignedCharCharacteristic resetChar("0099", BLEWrite);
 
 ////////////
 // Keypad //
@@ -112,10 +115,12 @@ BLEFloatCharacteristic accelChar("0006", BLERead | BLENotify);
 const uint8_t KEYPAD_ROWS = sizeof(KEYPAD_ROW_PINS);
 const uint8_t KEYPAD_COLS = sizeof(KEYPAD_COL_PINS);
 char KEYPAD_MAP[KEYPAD_ROWS][KEYPAD_COLS] = {
-  {'1','2','3'},
-  {'4','5','6'},
-  {'7','8','9'},
-  {'*','0','#'}
+    {0x11, 0x12, 0x13, 0x14, 0x15, 0x16},
+    {0x21, 0x22, 0x23, 0x24, 0x25, 0x26},
+    {0x31, 0x32, 0x33, 0x34, 0x35, 0x36},
+    {0x41, 0x42, 0x43, 0x44, 0x45, 0x46},
+    {0x51, 0x52, 0x53, 0x54, 0x55, 0x56},
+    {0x61, 0x62, 0x63, 0x64, 0x65, 0x66}
 };
 Keypad keypad = Keypad(makeKeymap(KEYPAD_MAP), KEYPAD_ROW_PINS, KEYPAD_COL_PINS, KEYPAD_ROWS, KEYPAD_COLS);
 bool keypadIdle;
@@ -125,30 +130,36 @@ bool keypadIdle;
 ///////////////////
 bool accelSetup = false;
 const uint8_t ACC_ADDRESS = 0x1d;
-const unsigned long ACCEL_READ_INTERVAL = 500;
+const range_t ACCEL_RANGE = ADXL345_RANGE_2_G;
+const dataRate_t ACCEL_RATE = ADXL345_DATARATE_25_HZ;
 const float ACCEL_THRESHOLD = 1.5;
+Adafruit_ADXL345_Unified accel = Adafruit_ADXL345_Unified();
+bool accelIdle;
+volatile bool accelInterrupted = false;
+
+/*
+const unsigned long ACCEL_READ_INTERVAL = 500;
 typedef struct {
     float x;
     float y;
     float z;
 } accel_data_t;
-Adafruit_ADXL345_Unified accel = Adafruit_ADXL345_Unified();
-sensors_event_t accelEvent;  
-accel_data_t accelLastValue;
-unsigned long accelLastRead;
-float accelValue = 0;
-bool accelIdle;
-volatile bool accelInterrupted = false;
+*/
+//sensors_event_t accelEvent;  
+//accel_data_t accelLastValue;
+//unsigned long accelLastRead;
+//float accelValue = 0;
 
-///////////////////////////
-// Charger/battery level //
-///////////////////////////
-bool batterySetup = false;
-const unsigned long BATTERY_READ_INTERVAL = 1000;
-unsigned long batteryLastRead;
-bool batteryCharging = false;
-bool batteryStateChanged = false;
-float batteryLevel = 0;
+//////////////////
+// Power supply //
+//////////////////
+bool psSetup = false;
+const unsigned long PS_CHECK_INTERVAL = 1000;
+unsigned long psLastCheck;
+bool psOnCharger = false;
+bool psCharging = false;
+bool psBatteryLevelChanged = false;
+float psBatteryLevel = 0;
 
 //////////
 // Idle //
@@ -160,7 +171,7 @@ unsigned long idleStart;
 
 
 void setup() {
-    digitalWrite(LED_PIN, LOW);
+    digitalWrite(LED_PIN, LOW); // turn on built-in LED
 #ifdef DEBUG
     Serial.begin(9600);
 #endif
@@ -169,12 +180,12 @@ void setup() {
     setupBluetooth();
     setupKeypad();
     setupAccel();
-    setupBattery();
+    setupPowerSupply();
     
 #ifdef DEBUG
     Serial.println("Ready");
 #endif
-    digitalWrite(LED_PIN, HIGH);
+    digitalWrite(LED_PIN, HIGH); // turn off built-in LED
 }
 
 void loop() {
@@ -182,15 +193,11 @@ void loop() {
     loopBluetooth();
     loopKeypad();
     loopAccel();
-    loopBattery();
+    loopPowerSupply();
     
     checkIdle();
 }
 
-
-//======================================================
-// Testing
-//
 
 void setupBluetooth() {
     pinMode(BTN_PIN, INPUT_PULLUP);
@@ -209,19 +216,16 @@ void setupBluetooth() {
     blePeriph.addAttribute(buttonUpChar);
     blePeriph.addAttribute(ledsChar);
     blePeriph.addAttribute(chargingChar);
-    blePeriph.addAttribute(batteryChar);
-    blePeriph.addAttribute(accelChar);
+    blePeriph.addAttribute(batteryLevelChar);
+    blePeriph.addAttribute(resetChar);
 
     // Initialize characteristic values
     buttonDownChar.setValue(0);
     buttonUpChar.setValue(0);
     ledsChar.setValue((unsigned char*)ledsValue, LEDS_DATA_LENGTH);
-    chargingChar.setValue(batteryCharging);
-    batteryChar.setValue(batteryLevel);
+    chargingChar.setValue(psCharging);
+    batteryLevelChar.setValue(psBatteryLevel);
 
-    //blePeriph.setEventHandler(BLEConnected, bleConnectedHandler);
-    //blePeriph.setEventHandler(BLEDisconnected, bleDisconnectedHandler);
-    
     // Initialize BLE:
     blePeriph.begin();
 
@@ -247,10 +251,10 @@ void loopBluetooth() {
 #endif
 
         if (buttonValue == LOW) {
-            buttonDownChar.setValue('A');
+            buttonDownChar.setValue(0x99);
             buttonUpChar.setValue(0);
         } else {
-            buttonUpChar.setValue('A');
+            buttonUpChar.setValue(0x99);
             buttonDownChar.setValue(0);
         }
     }
@@ -263,20 +267,14 @@ void loopBluetooth() {
         dumpLEDs(ledsValue);
 #endif
     }
-    
+    if (resetChar.written()) {
+#ifdef DEBUG
+        Serial.println("Resetting...");
+#endif
+        delay(1000);
+        digitalWrite(RESET_PIN, LOW);
+    }
 }
-
-/*
-void bleConnectedHandler(BLECentral& central) {
-    Serial.println("BLE Connected");
-    Serial.print("Central address: ");
-    Serial.println(central.address());
-}
-
-void bleDisconnectedHandler(BLECentral& central) {
-    Serial.println("BLE Disconnected");
-}
-*/
 
 void setupKeypad() {
     keypad.addEventListener(keypadEvent);
@@ -317,11 +315,11 @@ void setupAccel() {
 #endif
         return;
     }
-    accel.setRange(ADXL345_RANGE_2_G);
-    accel.setDataRate(ADXL345_DATARATE_25_HZ);
+    accel.setRange(ACCEL_RANGE);
+    accel.setDataRate(ACCEL_RATE);
     
     pinMode(ACC_INT1_PIN, INPUT_PULLDOWN);
-    pinMode(ACC_INT2_PIN, INPUT_PULLDOWN);
+    pinMode(ACC_INT2_PIN, INPUT_PULLDOWN);  // not used
     
     accel.writeRegister(ADXL345_REG_INT_ENABLE, 0);         // disable interrupts
     accel.writeRegister(ADXL345_REG_INT_MAP, 0);            // map all interrupts to INT1
@@ -350,46 +348,23 @@ void loopAccel() {
         accelInterrupted = false;
         accelIdle = false;
         accel.readRegister(ADXL345_REG_INT_SOURCE); // read to clear interrupts
-    }
-    
-    if ((millis() - accelLastRead) < ACCEL_READ_INTERVAL) return;
-  
-    accel.getEvent(&accelEvent);
-    accelLastRead = millis();
-
-    accel_data_t diff;
-    diff.x = abs(accelEvent.acceleration.x - accelLastValue.x);
-    diff.y = abs(accelEvent.acceleration.y - accelLastValue.y);
-    diff.z = abs(accelEvent.acceleration.z - accelLastValue.z);
-    accelLastValue.x = accelEvent.acceleration.x;
-    accelLastValue.y = accelEvent.acceleration.y;
-    accelLastValue.z = accelEvent.acceleration.z;
-    
-    float totalDiff = diff.x + diff.y + diff.z;
-    
-    if (totalDiff != accelValue) {
-        accelValue = totalDiff;
-        accelChar.setValue(accelValue);
-        accelIdle = accelValue < (ACCEL_THRESHOLD * 3);
-    }
-    
+    } else
+        accelIdle = true;
 }
 
-void setupBattery() {
-    pinMode(BAT_CHG_PRESENT_PIN, INPUT_PULLDOWN);
-    pinMode(BAT_CHARGING_PIN, INPUT_PULLUP);
-    pinMode(BAT_LED_ENABLE_PIN, OUTPUT);
-    pinMode(BAT_CHG_ENABLE_PIN, OUTPUT);
+void setupPowerSupply() {
+    pinMode(PS_CHARGER_PIN, INPUT_PULLDOWN);    // pulldown isn't really needed
+    pinMode(PS_CHARGING_PIN, INPUT_PULLUP);
 
-    // TODO: does LED_ENABLE need a pulldown?
-    digitalWrite(BAT_LED_ENABLE_PIN, LOW);      // disable leds
-    digitalWrite(BAT_CHG_ENABLE_PIN, HIGH);     // disable charger
+    pinMode(PS_CHARGER_ENABLE_PIN, OUTPUT);     // enable charger managment
+    digitalWrite(PS_CHARGER_ENABLE_PIN, HIGH);     // disable charger
     
-    //digitalWrite(BAT_LED_ENABLE_PIN, HIGH);      // enable leds
-    //digitalWrite(BAT_CHG_ENABLE_PIN, LOW);       // never do this!
+    pinMode(PS_LED_ENABLE_PIN, OUTPUT);
+    digitalWrite(PS_LED_ENABLE_PIN, HIGH);     // enable leds
     
-//    attachInterrupt(digitalPinToInterrupt(BAT_STAT_PIN), batteryInterrupt, FALLING);
-
+    pinMode(RESET_PIN, OUTPUT);
+    digitalWrite(RESET_PIN, HIGH);
+    
     FuelGauge.begin();
     if (FuelGauge.version() == 0xffff) {
 #ifdef DEBUG
@@ -397,72 +372,63 @@ void setupBattery() {
 #endif
         return;
     }
-    batteryLastRead = millis(); // to prevent reading the battery too soon
-    batterySetup = true;
+    // TODO: put fuel gauge in active mode (library doesn't support this)
+    psLastCheck = millis();
+    psSetup = true;
 #ifdef DEBUG
     Serial.println("MAX17043 setup");
 #endif
 }
 
-//volatile bool batteryInterrupted = false;
-/*
-void batteryInterrupt() {
-    batteryInterrupted = true;
-}
-*/
-
-
-void loopBattery() {
-//    if (! batterySetup) return;
-    if ((millis() - batteryLastRead) < BATTERY_READ_INTERVAL) return;
-  
-//    float level = (int)FuelGauge.percent();
-float level = (int)20.0;
-    batteryLastRead = millis();
+void loopPowerSupply() {
+    // TODO: remove comment
+    //if (! psSetup) return;
+    if ((millis() - psLastCheck) < PS_CHECK_INTERVAL) return;
+    psLastCheck = millis();
     
-    /*
-    // TODO: redo this to handle charger/charging
-    bool charging = !digitalRead(BAT_STAT_PIN);
-    if (charging && !batteryCharging) {
-        batteryCharging = true;
-        batteryStateChanged = true;
+    bool charger = digitalRead(PS_CHARGER_PIN);
+    if (charger && !psOnCharger) {
+        psOnCharger = true;
+        psBatteryLevelChanged = true;
+        pinMode(PS_CHARGER_ENABLE_PIN, INPUT); // enable charger
+    } else if (!charger && psOnCharger) {
+        psOnCharger = false;
+        psBatteryLevelChanged = true;
+        pinMode(PS_CHARGER_ENABLE_PIN, OUTPUT);     // enable charger managment
+        digitalWrite(PS_CHARGER_ENABLE_PIN, HIGH);     // disable charger
+    }
+
+    bool charging = !digitalRead(PS_CHARGING_PIN);
+    if (psOnCharger && charging && !psCharging) {
+        psCharging = true;
+        psBatteryLevelChanged = true;
         chargingChar.setValue(1);
 #ifdef DEBUG
         Serial.println("Started charging");
 #endif
-    } else if (!charging && batteryCharging) {
-        batteryCharging = false;
-        batteryStateChanged = true;
+    } else if (!psOnCharger || (!charging && psCharging)) {
+        psCharging = false;
+        psBatteryLevelChanged = true;
         chargingChar.setValue(0);
 #ifdef DEBUG
         Serial.println("Stopped charging");
 #endif
     }
-    */
     
-    bool chargerPresent = digitalRead(BAT_CHG_PRESENT_PIN);
-    bool charging = !digitalRead(BAT_CHARGING_PIN);
+    // TODO: remove comment
+    //float level = (int)FuelGauge.percent();
+    // TODO: remove line
+    float level = (int)20.0;
     
-    Serial.print("Charger: ");
-    Serial.println(chargerPresent);
-    Serial.print("Charging: ");
-    Serial.println(charging);
-    
-    if (level != batteryLevel) {
-        batteryLevel = level;
-        batteryStateChanged = true;
-        batteryChar.setValue(batteryLevel);
+    if (level != psBatteryLevel) {
+        psBatteryLevel = level;
+        psBatteryLevelChanged = true;
+        batteryLevelChar.setValue(psBatteryLevel);
 #ifdef DEBUG
         Serial.print("Battery level: ");
         Serial.println(level);
 #endif
     }
-    /*
-    if (batteryInterrupted) {
-        batteryInterrupted = false;
-        Serial.println("Battery interrupted!");
-    }
-    */
 }
 
 void setupLEDs() {
@@ -477,29 +443,29 @@ void setupLEDs() {
 }
 
 void loopLEDs() {
-    if (batteryCharging) {
-        digitalWrite(LED_PIN, LOW);
-        if (batteryStateChanged) {
-            batteryStateChanged = false;
-            color_t colors[LEDS_NUMPIXELS];
-            for (int i = 0; i < LEDS_NUMPIXELS; i++) {
-                bool on = batteryLevel >= (((float)i * 100.0 / (float)LEDS_NUMPIXELS) + (50.0 / (float)LEDS_NUMPIXELS));
-                colors[i].green = 0;
-                colors[i].blue = 0;
-                if (on)
-                    colors[i].red = 255;
-                else
-                    colors[i].red = 0;
+    if (psOnCharger) {
+        if (psBatteryLevelChanged) {
+            psBatteryLevelChanged = false;
+            if (psCharging) {
+                digitalWrite(LED_PIN, LOW);
+                color_t colors[LEDS_NUMPIXELS];
+                for (int i = 0; i < LEDS_NUMPIXELS; i++) {
+                    bool on = psBatteryLevel >= (((float)i * 100.0 / (float)LEDS_NUMPIXELS) + (50.0 / (float)LEDS_NUMPIXELS));
+                    memcpy(&colors[i], on ? &LED_RED : &LED_OFF, sizeof(color_t));
+                }
+                setLEDs(colors);
+            } else {
+                digitalWrite(LED_PIN, HIGH);
+                setLEDs(LEDS_GREEN);
             }
-            setLEDs(colors);
         }
         return;
     }
     
-    if (batteryStateChanged) {
-        batteryStateChanged = false;
+    if (psBatteryLevelChanged) {
+        psBatteryLevelChanged = false;
         digitalWrite(LED_PIN, HIGH);
-        if (batteryLevel < LEDS_LOW_BATTERY_LEVEL) {
+        if (psBatteryLevel < LEDS_LOW_BATTERY_LEVEL) {
             if (!ledsBlink) {
                 ledsBlink = true;
                 ledsBlinkOn = true;
@@ -550,7 +516,7 @@ void dumpLEDs(color_t leds[]) {
 }
     
 void checkIdle() {
-    if (batteryCharging) {
+    if (psOnCharger) {
         isIdle = false;
         return;
     }
@@ -571,21 +537,22 @@ void checkIdle() {
             isIdle = false;
             if (idleStart == 0) {
 #ifdef DEBUG
-            Serial.println("Waking up");
+                Serial.println("Waking up");
 #endif
-            // Should never be here
+                // Should never be here
             }
         }
     }
 }
 
 void enterSleep() {
-    /*
     setLEDs(LEDS_OFF);
+    digitalWrite(PS_LED_ENABLE_PIN, LOW);  // disble leds
+    // TODO: put fuel gauge in hibernate mode (library doesn't support this)
+    // charger should already be disabled
     nRF5x_lowPower.enableWakeupByInterrupt(ACC_INT1_PIN, RISING);
-    nRF5x_lowPower.enableWakeupByInterrupt(BAT_STAT_PIN, FALLING);
+    nRF5x_lowPower.enableWakeupByInterrupt(PS_CHARGER_PIN, RISING);
     nRF5x_lowPower.powerMode(POWER_MODE_OFF);
-    */
 }
 
     
