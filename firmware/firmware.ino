@@ -59,7 +59,7 @@ const int ACC_INT1_PIN = 3;     // interrupt on rising, wakeup on rising
 const int ACC_INT2_PIN = 2;     // not used
 
 const int PS_CHARGER_PIN = 5;       // input, wakeup on rising
-const int PS_CHARGING_PIN = 4;      // input
+const int PS_CHARGING_PIN = 4;      // input, active low
 const int PS_CHARGER_ENABLE_PIN = 12;  // output, active high to disable, input float to enable
 const int PS_LED_ENABLE_PIN = 13;   // output, active high to enable
 
@@ -67,6 +67,8 @@ const int LEDS_PIN = 16;
 
 uint8_t KEYPAD_ROW_PINS[] = {17, 18, 19, 20, 22, 23};
 uint8_t KEYPAD_COL_PINS[] = {24, 25, 28, 29, 30, 31};
+
+void(* reset) (void) = 0;
 
 ///////////////
 // Neopixels //
@@ -83,8 +85,6 @@ const color_t LED_BLUE = {0, 0, 127};
 const color_t LED_WHITE = {127, 127, 127};
 const color_t LEDS_OFF[] = {LED_OFF, LED_OFF, LED_OFF, LED_OFF, LED_OFF};
 const color_t LEDS_GREEN[] = {LED_GREEN, LED_GREEN, LED_GREEN, LED_GREEN, LED_GREEN};
-//const color_t LEDS_OFF[] = {LED_OFF{0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
-//const color_t LEDS_ON[] = {{127, 127, 127}, {127, 127, 127}, {127, 127, 127}, {127, 127, 127}, {127, 127, 127}};
 const unsigned long LEDS_BLINK_INTERVAL = 500;
 const int LEDS_DATA_LENGTH = sizeof(LEDS_OFF);
 const int LEDS_NUMPIXELS = 5;
@@ -94,20 +94,6 @@ color_t ledsValue[5] = {};
 bool ledsBlink;
 bool ledsBlinkOn;
 unsigned long ledsLastBlink;
-
-///////////////
-// Bluetooth //
-///////////////
-const char* BLE_NAME = "RemoteControl";
-const unsigned short BLE_ADVERTISING_INTERVAL = 50;
-BLEPeripheral blePeriph;
-BLEService bleServ("1234");
-BLEUnsignedCharCharacteristic buttonDownChar("0001", BLERead | BLENotify);
-BLEUnsignedCharCharacteristic buttonUpChar("0002", BLERead | BLENotify);
-BLEFixedLengthCharacteristic ledsChar("0003", BLERead | BLEWrite, LEDS_DATA_LENGTH);
-BLEUnsignedCharCharacteristic chargingChar("0004", BLERead | BLENotify);
-BLEFloatCharacteristic batteryLevelChar("0005", BLERead | BLENotify);
-BLEUnsignedCharCharacteristic resetChar("0099", BLEWrite);
 
 ////////////
 // Keypad //
@@ -123,7 +109,21 @@ char KEYPAD_MAP[KEYPAD_ROWS][KEYPAD_COLS] = {
     {0x61, 0x62, 0x63, 0x64, 0x65, 0x66}
 };
 Keypad keypad = Keypad(makeKeymap(KEYPAD_MAP), KEYPAD_ROW_PINS, KEYPAD_COL_PINS, KEYPAD_ROWS, KEYPAD_COLS);
+unsigned char keypadButton[2];
 bool keypadIdle;
+
+///////////////
+// Bluetooth //
+///////////////
+const char* BLE_NAME = "RemoteControl";
+const unsigned short BLE_ADVERTISING_INTERVAL = 50;
+BLEPeripheral blePeriph;
+BLEService bleServ("1234");
+BLEFixedLengthCharacteristic buttonChar("0001", BLENotify, (unsigned char)sizeof(keypadButton));
+BLEFixedLengthCharacteristic ledsChar("0002", BLERead | BLEWrite, LEDS_DATA_LENGTH);
+BLEUnsignedCharCharacteristic chargingChar("0003", BLERead | BLENotify);
+BLEFloatCharacteristic batteryLevelChar("0004", BLERead | BLENotify);
+BLEUnsignedCharCharacteristic resetChar("0099", BLEWrite);
 
 ///////////////////
 // Accelerometer //
@@ -136,19 +136,6 @@ const float ACCEL_THRESHOLD = 1.5;
 Adafruit_ADXL345_Unified accel = Adafruit_ADXL345_Unified();
 bool accelIdle;
 volatile bool accelInterrupted = false;
-
-/*
-const unsigned long ACCEL_READ_INTERVAL = 500;
-typedef struct {
-    float x;
-    float y;
-    float z;
-} accel_data_t;
-*/
-//sensors_event_t accelEvent;  
-//accel_data_t accelLastValue;
-//unsigned long accelLastRead;
-//float accelValue = 0;
 
 //////////////////
 // Power supply //
@@ -168,9 +155,18 @@ const unsigned long IDLE_THRESHOLD = 10000;
 bool isIdle;
 unsigned long idleStart;
 
+///////////
+// Stats //
+///////////
+unsigned long bootTime;
+unsigned long setupTime;
+unsigned long bluetoothConnectedTime;
+unsigned long bluetoothConnections = 0;
 
 
 void setup() {
+    bootTime = millis();
+    
     digitalWrite(LED_PIN, LOW); // turn on built-in LED
 #ifdef DEBUG
     Serial.begin(9600);
@@ -182,10 +178,13 @@ void setup() {
     setupAccel();
     setupPowerSupply();
     
-#ifdef DEBUG
-    Serial.println("Ready");
-#endif
     digitalWrite(LED_PIN, HIGH); // turn off built-in LED
+    
+    setupTime = millis();
+#ifdef DEBUG
+    Serial.print("Ready in ");
+    Serial.println(setupTime - bootTime);
+#endif
 }
 
 void loop() {
@@ -212,20 +211,19 @@ void setupBluetooth() {
     blePeriph.addAttribute(bleServ);
 
     // Add characteristics
-    blePeriph.addAttribute(buttonDownChar);
-    blePeriph.addAttribute(buttonUpChar);
+    blePeriph.addAttribute(buttonChar);
     blePeriph.addAttribute(ledsChar);
     blePeriph.addAttribute(chargingChar);
     blePeriph.addAttribute(batteryLevelChar);
     blePeriph.addAttribute(resetChar);
 
-    // Initialize characteristic values
-    buttonDownChar.setValue(0);
-    buttonUpChar.setValue(0);
+    // Initialize readable characteristic values
     ledsChar.setValue((unsigned char*)ledsValue, LEDS_DATA_LENGTH);
     chargingChar.setValue(psCharging);
     batteryLevelChar.setValue(psBatteryLevel);
 
+    blePeriph.setEventHandler(BLEConnected, bluetoothConnected);
+    
     // Initialize BLE:
     blePeriph.begin();
 
@@ -235,29 +233,20 @@ void setupBluetooth() {
     
 }
 
+void bluetoothConnected(BLECentral& central) {
+    bluetoothConnectedTime = millis();
+    bluetoothConnections++;
+#ifdef DEBUG
+    if (bluetoothConnections == 1) {
+        Serial.print("Connected in ");
+        Serial.println(bluetoothConnectedTime - bootTime);
+    }
+#endif
+}
+
 void loopBluetooth() {
     blePeriph.poll();
 
-    char buttonValue = digitalRead(BTN_PIN);
-    static char lastButtonValue = HIGH;
-    
-    if (buttonValue != lastButtonValue) {
-        lastButtonValue = buttonValue;
-        
-#ifdef DEBUG
-        Serial.print("Button: ");
-        Serial.print(buttonValue, DEC);
-        Serial.println();
-#endif
-
-        if (buttonValue == LOW) {
-            buttonDownChar.setValue(0x99);
-            buttonUpChar.setValue(0);
-        } else {
-            buttonUpChar.setValue(0x99);
-            buttonDownChar.setValue(0);
-        }
-    }
     
     if (ledsChar.written()) {
         const unsigned char* ledsState = ledsChar.value();
@@ -272,7 +261,7 @@ void loopBluetooth() {
         Serial.println("Resetting...");
 #endif
         delay(1000);
-        digitalWrite(RESET_PIN, LOW);
+        reset();
     }
 }
 
@@ -285,24 +274,51 @@ void setupKeypad() {
 
 void loopKeypad() {
     keypadIdle = !keypad.getKey();
+    
+    char buttonValue = digitalRead(BTN_PIN);
+    static char lastButtonValue = HIGH;
+    
+    if (buttonValue != lastButtonValue) {
+        lastButtonValue = buttonValue;
+        keypadIdle = false;
+        
+#ifdef DEBUG
+        Serial.print("Button: ");
+        Serial.print(buttonValue, DEC);
+        Serial.println();
+#endif
+
+        if (buttonValue == LOW) {
+            keypadButton[0] = 0x01;
+            keypadButton[1] = 0x99;
+            buttonChar.setValue(keypadButton, sizeof(keypadButton));
+        } else {
+            keypadButton[0] = 0x00;
+            keypadButton[1] = 0x99;
+            buttonChar.setValue(keypadButton, sizeof(keypadButton));
+        }
+    }
+    
 }
 
 void keypadEvent(KeypadEvent key) {
     switch (keypad.getState()) {
         case PRESSED:
-            buttonDownChar.setValue(key);
-            buttonUpChar.setValue(0);
+            keypadButton[0] = 0x01;
+            keypadButton[1] = key;
+            buttonChar.setValue(keypadButton, sizeof(keypadButton));
 #ifdef DEBUG
             Serial.print("Key down: ");
-            Serial.println(key);
+            Serial.println(key, HEX);
 #endif
             break;
         case RELEASED:
-            buttonUpChar.setValue(key);
-            buttonDownChar.setValue(0);
+            keypadButton[0] = 0x00;
+            keypadButton[1] = key;
+            buttonChar.setValue(keypadButton, sizeof(keypadButton));
 #ifdef DEBUG
             Serial.print("Key up: ");
-            Serial.println(key);
+            Serial.println(key, HEX);
 #endif
             break;
     }
@@ -391,11 +407,17 @@ void loopPowerSupply() {
         psOnCharger = true;
         psBatteryLevelChanged = true;
         pinMode(PS_CHARGER_ENABLE_PIN, INPUT); // enable charger
+#ifdef DEBUG
+        Serial.println("On charger");
+#endif
     } else if (!charger && psOnCharger) {
         psOnCharger = false;
         psBatteryLevelChanged = true;
         pinMode(PS_CHARGER_ENABLE_PIN, OUTPUT);     // enable charger managment
         digitalWrite(PS_CHARGER_ENABLE_PIN, HIGH);     // disable charger
+#ifdef DEBUG
+        Serial.println("Off charger");
+#endif
     }
 
     bool charging = !digitalRead(PS_CHARGING_PIN);
@@ -406,7 +428,7 @@ void loopPowerSupply() {
 #ifdef DEBUG
         Serial.println("Started charging");
 #endif
-    } else if (!psOnCharger || (!charging && psCharging)) {
+    } else if (!charging && psCharging) {
         psCharging = false;
         psBatteryLevelChanged = true;
         chargingChar.setValue(0);
