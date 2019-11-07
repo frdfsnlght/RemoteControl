@@ -1,0 +1,21 @@
+
+
+Button Test 2:
+0.1mm detail
+15% honeycomb infill
+no skirt
+
+Button Test 3:
+0.05 detail
+15% honeycomb
+no skirt
+
+Button Test 4:
+0.1 layer
+10% gyroid
+no skirt
+
+Button Test 5:
+0.1 layer
+0% infill
+no skirt
