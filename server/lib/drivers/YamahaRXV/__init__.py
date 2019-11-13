@@ -1,0 +1,3 @@
+
+from .YamahaRXV import Device
+
