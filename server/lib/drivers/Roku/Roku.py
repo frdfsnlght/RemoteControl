@@ -133,6 +133,6 @@ class Device(BaseDevice):
             self.logger.error('No app with id or name "{}"!'.format(appId))
             return
         if self.__roku.active_app != app:
-            self.logger.info('Launching app {}'.format((app.name, app.id)))
+            self.logger.info('Launching app "{}"'.format(app.name))
             app.launch()
         
