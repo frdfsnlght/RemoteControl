@@ -1,0 +1,964 @@
+EESchema Schematic File Version 4
+LIBS:power
+LIBS:device
+EELAYER 26 0
+EELAYER END
+$Descr A4 11693 8268
+encoding utf-8
+Sheet 1 1
+Title "Interface"
+Date ""
+Rev ""
+Comp ""
+Comment1 ""
+Comment2 ""
+Comment3 ""
+Comment4 ""
+$EndDescr
+$Comp
+L Switch:SW_Push SW11
+U 1 1 5DD2A88C
+P 3700 3750
+F 0 "SW11" H 3700 3943 50  0000 C CNN
+F 1 "SW_Push" H 3700 3944 50  0001 C CNN
+F 2 "my-switches:SMD_MultiSwitch" H 3700 3950 50  0001 C CNN
+F 3 "" H 3700 3950 50  0001 C CNN
+	1    3700 3750
+	1    0    0    -1  
+$EndComp
+$Comp
+L Connector_Generic:Conn_01x02 J2
+U 1 1 5DD2AA40
+P 1850 1450
+F 0 "J2" H 1770 1125 50  0000 C CNN
+F 1 "VLED" H 1770 1216 50  0000 C CNN
+F 2 "Pin_Headers:Pin_Header_Angled_1x02_Pitch2.54mm" H 1850 1450 50  0001 C CNN
+F 3 "~" H 1850 1450 50  0001 C CNN
+	1    1850 1450
+	-1   0    0    1   
+$EndComp
+$Comp
+L Switch:SW_Push SW21
+U 1 1 5DD2AB64
+P 3700 4100
+F 0 "SW21" H 3700 4293 50  0000 C CNN
+F 1 "SW_Push" H 3700 4294 50  0001 C CNN
+F 2 "my-switches:SMD_MultiSwitch" H 3700 4300 50  0001 C CNN
+F 3 "" H 3700 4300 50  0001 C CNN
+	1    3700 4100
+	1    0    0    -1  
+$EndComp
+$Comp
+L Switch:SW_Push SW31
+U 1 1 5DD2AB90
+P 3700 4450
+F 0 "SW31" H 3700 4643 50  0000 C CNN
+F 1 "SW_Push" H 3700 4644 50  0001 C CNN
+F 2 "my-switches:SMD_MultiSwitch" H 3700 4650 50  0001 C CNN
+F 3 "" H 3700 4650 50  0001 C CNN
+	1    3700 4450
+	1    0    0    -1  
+$EndComp
+$Comp
+L Switch:SW_Push SW41
+U 1 1 5DD2ABB4
+P 3700 4800
+F 0 "SW41" H 3700 4993 50  0000 C CNN
+F 1 "SW_Push" H 3700 4994 50  0001 C CNN
+F 2 "my-switches:SMD_MultiSwitch" H 3700 5000 50  0001 C CNN
+F 3 "" H 3700 5000 50  0001 C CNN
+	1    3700 4800
+	1    0    0    -1  
+$EndComp
+$Comp
+L Switch:SW_Push SW51
+U 1 1 5DD2AC22
+P 3700 5150
+F 0 "SW51" H 3700 5343 50  0000 C CNN
+F 1 "SW_Push" H 3700 5344 50  0001 C CNN
+F 2 "my-switches:SMD_MultiSwitch" H 3700 5350 50  0001 C CNN
+F 3 "" H 3700 5350 50  0001 C CNN
+	1    3700 5150
+	1    0    0    -1  
+$EndComp
+$Comp
+L Switch:SW_Push SW61
+U 1 1 5DD2ACBC
+P 3700 5500
+F 0 "SW61" H 3700 5693 50  0000 C CNN
+F 1 "SW_Push" H 3700 5694 50  0001 C CNN
+F 2 "my-switches:SMD_MultiSwitch" H 3700 5700 50  0001 C CNN
+F 3 "" H 3700 5700 50  0001 C CNN
+	1    3700 5500
+	1    0    0    -1  
+$EndComp
+$Comp
+L Switch:SW_Push SW22
+U 1 1 5DD2AF85
+P 4500 4100
+F 0 "SW22" H 4500 4293 50  0000 C CNN
+F 1 "SW_Push" H 4500 4294 50  0001 C CNN
+F 2 "my-switches:SMD_MultiSwitch" H 4500 4300 50  0001 C CNN
+F 3 "" H 4500 4300 50  0001 C CNN
+	1    4500 4100
+	1    0    0    -1  
+$EndComp
+$Comp
+L Switch:SW_Push SW32
+U 1 1 5DD2AF8C
+P 4500 4450
+F 0 "SW32" H 4500 4643 50  0000 C CNN
+F 1 "SW_Push" H 4500 4644 50  0001 C CNN
+F 2 "my-switches:SMD_MultiSwitch" H 4500 4650 50  0001 C CNN
+F 3 "" H 4500 4650 50  0001 C CNN
+	1    4500 4450
+	1    0    0    -1  
+$EndComp
+$Comp
+L Switch:SW_Push SW42
+U 1 1 5DD2AF93
+P 4500 4800
+F 0 "SW42" H 4500 4993 50  0000 C CNN
+F 1 "SW_Push" H 4500 4994 50  0001 C CNN
+F 2 "my-switches:SMD_MultiSwitch" H 4500 5000 50  0001 C CNN
+F 3 "" H 4500 5000 50  0001 C CNN
+	1    4500 4800
+	1    0    0    -1  
+$EndComp
+$Comp
+L Switch:SW_Push SW52
+U 1 1 5DD2AF9A
+P 4500 5150
+F 0 "SW52" H 4500 5343 50  0000 C CNN
+F 1 "SW_Push" H 4500 5344 50  0001 C CNN
+F 2 "my-switches:SMD_MultiSwitch" H 4500 5350 50  0001 C CNN
+F 3 "" H 4500 5350 50  0001 C CNN
+	1    4500 5150
+	1    0    0    -1  
+$EndComp
+$Comp
+L Switch:SW_Push SW62
+U 1 1 5DD2AFA1
+P 4500 5500
+F 0 "SW62" H 4500 5693 50  0000 C CNN
+F 1 "SW_Push" H 4500 5694 50  0001 C CNN
+F 2 "my-switches:SMD_MultiSwitch" H 4500 5700 50  0001 C CNN
+F 3 "" H 4500 5700 50  0001 C CNN
+	1    4500 5500
+	1    0    0    -1  
+$EndComp
+$Comp
+L Switch:SW_Push SW13
+U 1 1 5DD2B066
+P 5300 3750
+F 0 "SW13" H 5300 3943 50  0000 C CNN
+F 1 "SW_Push" H 5300 3944 50  0001 C CNN
+F 2 "my-switches:SMD_MultiSwitch" H 5300 3950 50  0001 C CNN
+F 3 "" H 5300 3950 50  0001 C CNN
+	1    5300 3750
+	1    0    0    -1  
+$EndComp
+$Comp
+L Switch:SW_Push SW23
+U 1 1 5DD2B06D
+P 5300 4100
+F 0 "SW23" H 5300 4293 50  0000 C CNN
+F 1 "SW_Push" H 5300 4294 50  0001 C CNN
+F 2 "my-switches:SMD_MultiSwitch" H 5300 4300 50  0001 C CNN
+F 3 "" H 5300 4300 50  0001 C CNN
+	1    5300 4100
+	1    0    0    -1  
+$EndComp
+$Comp
+L Switch:SW_Push SW43
+U 1 1 5DD2B07B
+P 5300 4800
+F 0 "SW43" H 5300 4993 50  0000 C CNN
+F 1 "SW_Push" H 5300 4994 50  0001 C CNN
+F 2 "my-switches:SMD_MultiSwitch" H 5300 5000 50  0001 C CNN
+F 3 "" H 5300 5000 50  0001 C CNN
+	1    5300 4800
+	1    0    0    -1  
+$EndComp
+$Comp
+L Switch:SW_Push SW53
+U 1 1 5DD2B082
+P 5300 5150
+F 0 "SW53" H 5300 5343 50  0000 C CNN
+F 1 "SW_Push" H 5300 5344 50  0001 C CNN
+F 2 "my-switches:SMD_MultiSwitch" H 5300 5350 50  0001 C CNN
+F 3 "" H 5300 5350 50  0001 C CNN
+	1    5300 5150
+	1    0    0    -1  
+$EndComp
+$Comp
+L Switch:SW_Push SW14
+U 1 1 5DD2B16C
+P 6100 3750
+F 0 "SW14" H 6100 3943 50  0000 C CNN
+F 1 "SW_Push" H 6100 3944 50  0001 C CNN
+F 2 "my-switches:SMD_MultiSwitch" H 6100 3950 50  0001 C CNN
+F 3 "" H 6100 3950 50  0001 C CNN
+	1    6100 3750
+	1    0    0    -1  
+$EndComp
+$Comp
+L Switch:SW_Push SW24
+U 1 1 5DD2B173
+P 6100 4100
+F 0 "SW24" H 6100 4293 50  0000 C CNN
+F 1 "SW_Push" H 6100 4294 50  0001 C CNN
+F 2 "my-switches:SMD_MultiSwitch" H 6100 4300 50  0001 C CNN
+F 3 "" H 6100 4300 50  0001 C CNN
+	1    6100 4100
+	1    0    0    -1  
+$EndComp
+$Comp
+L Switch:SW_Push SW44
+U 1 1 5DD2B181
+P 6100 4800
+F 0 "SW44" H 6100 4993 50  0000 C CNN
+F 1 "SW_Push" H 6100 4994 50  0001 C CNN
+F 2 "my-switches:SMD_MultiSwitch" H 6100 5000 50  0001 C CNN
+F 3 "" H 6100 5000 50  0001 C CNN
+	1    6100 4800
+	1    0    0    -1  
+$EndComp
+$Comp
+L Switch:SW_Push SW54
+U 1 1 5DD2B188
+P 6100 5150
+F 0 "SW54" H 6100 5343 50  0000 C CNN
+F 1 "SW_Push" H 6100 5344 50  0001 C CNN
+F 2 "my-switches:SMD_MultiSwitch" H 6100 5350 50  0001 C CNN
+F 3 "" H 6100 5350 50  0001 C CNN
+	1    6100 5150
+	1    0    0    -1  
+$EndComp
+$Comp
+L Switch:SW_Push SW64
+U 1 1 5DD2B18F
+P 6100 5500
+F 0 "SW64" H 6100 5693 50  0000 C CNN
+F 1 "SW_Push" H 6100 5694 50  0001 C CNN
+F 2 "my-switches:SMD_MultiSwitch" H 6100 5700 50  0001 C CNN
+F 3 "" H 6100 5700 50  0001 C CNN
+	1    6100 5500
+	1    0    0    -1  
+$EndComp
+$Comp
+L Switch:SW_Push SW15
+U 1 1 5DD2B270
+P 6900 3750
+F 0 "SW15" H 6900 3943 50  0000 C CNN
+F 1 "SW_Push" H 6900 3944 50  0001 C CNN
+F 2 "my-switches:SMD_MultiSwitch" H 6900 3950 50  0001 C CNN
+F 3 "" H 6900 3950 50  0001 C CNN
+	1    6900 3750
+	1    0    0    -1  
+$EndComp
+$Comp
+L Switch:SW_Push SW25
+U 1 1 5DD2B277
+P 6900 4100
+F 0 "SW25" H 6900 4293 50  0000 C CNN
+F 1 "SW_Push" H 6900 4294 50  0001 C CNN
+F 2 "my-switches:SMD_MultiSwitch" H 6900 4300 50  0001 C CNN
+F 3 "" H 6900 4300 50  0001 C CNN
+	1    6900 4100
+	1    0    0    -1  
+$EndComp
+$Comp
+L Switch:SW_Push SW35
+U 1 1 5DD2B27E
+P 6900 4450
+F 0 "SW35" H 6900 4643 50  0000 C CNN
+F 1 "SW_Push" H 6900 4644 50  0001 C CNN
+F 2 "my-switches:SMD_MultiSwitch" H 6900 4650 50  0001 C CNN
+F 3 "" H 6900 4650 50  0001 C CNN
+	1    6900 4450
+	1    0    0    -1  
+$EndComp
+$Comp
+L Switch:SW_Push SW45
+U 1 1 5DD2B285
+P 6900 4800
+F 0 "SW45" H 6900 4993 50  0000 C CNN
+F 1 "SW_Push" H 6900 4994 50  0001 C CNN
+F 2 "my-switches:SMD_MultiSwitch" H 6900 5000 50  0001 C CNN
+F 3 "" H 6900 5000 50  0001 C CNN
+	1    6900 4800
+	1    0    0    -1  
+$EndComp
+$Comp
+L Switch:SW_Push SW55
+U 1 1 5DD2B28C
+P 6900 5150
+F 0 "SW55" H 6900 5343 50  0000 C CNN
+F 1 "SW_Push" H 6900 5344 50  0001 C CNN
+F 2 "my-switches:SMD_MultiSwitch" H 6900 5350 50  0001 C CNN
+F 3 "" H 6900 5350 50  0001 C CNN
+	1    6900 5150
+	1    0    0    -1  
+$EndComp
+$Comp
+L Switch:SW_Push SW63
+U 1 1 5DD2B293
+P 5300 5500
+F 0 "SW63" H 5300 5693 50  0000 C CNN
+F 1 "SW_Push" H 5300 5694 50  0001 C CNN
+F 2 "my-switches:SMD_MultiSwitch" H 5300 5700 50  0001 C CNN
+F 3 "" H 5300 5700 50  0001 C CNN
+	1    5300 5500
+	1    0    0    -1  
+$EndComp
+$Comp
+L Switch:SW_Push SW16
+U 1 1 5DD2B356
+P 7700 3750
+F 0 "SW16" H 7700 3943 50  0000 C CNN
+F 1 "SW_Push" H 7700 3944 50  0001 C CNN
+F 2 "my-switches:SMD_MultiSwitch" H 7700 3950 50  0001 C CNN
+F 3 "" H 7700 3950 50  0001 C CNN
+	1    7700 3750
+	1    0    0    -1  
+$EndComp
+$Comp
+L Switch:SW_Push SW26
+U 1 1 5DD2B35D
+P 7700 4100
+F 0 "SW26" H 7700 4293 50  0000 C CNN
+F 1 "SW_Push" H 7700 4294 50  0001 C CNN
+F 2 "my-switches:SMD_MultiSwitch" H 7700 4300 50  0001 C CNN
+F 3 "" H 7700 4300 50  0001 C CNN
+	1    7700 4100
+	1    0    0    -1  
+$EndComp
+$Comp
+L Switch:SW_Push SW36
+U 1 1 5DD2B364
+P 7700 4450
+F 0 "SW36" H 7700 4643 50  0000 C CNN
+F 1 "SW_Push" H 7700 4644 50  0001 C CNN
+F 2 "my-switches:SMD_MultiSwitch" H 7700 4650 50  0001 C CNN
+F 3 "" H 7700 4650 50  0001 C CNN
+	1    7700 4450
+	1    0    0    -1  
+$EndComp
+$Comp
+L Switch:SW_Push SW56
+U 1 1 5DD2B372
+P 7700 5150
+F 0 "SW56" H 7700 5343 50  0000 C CNN
+F 1 "SW_Push" H 7700 5344 50  0001 C CNN
+F 2 "my-switches:SMD_MultiSwitch" H 7700 5350 50  0001 C CNN
+F 3 "" H 7700 5350 50  0001 C CNN
+	1    7700 5150
+	1    0    0    -1  
+$EndComp
+$Comp
+L Switch:SW_Push SW66
+U 1 1 5DD2B379
+P 7700 5500
+F 0 "SW66" H 7700 5693 50  0000 C CNN
+F 1 "SW_Push" H 7700 5694 50  0001 C CNN
+F 2 "my-switches:SMD_MultiSwitch" H 7700 5700 50  0001 C CNN
+F 3 "" H 7700 5700 50  0001 C CNN
+	1    7700 5500
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	3500 3750 3500 4100
+Wire Wire Line
+	3500 4100 3500 4450
+Connection ~ 3500 4100
+Wire Wire Line
+	3500 4450 3500 4800
+Connection ~ 3500 4450
+Wire Wire Line
+	3500 4800 3500 5150
+Connection ~ 3500 4800
+Wire Wire Line
+	3500 5150 3500 5500
+Connection ~ 3500 5150
+Wire Wire Line
+	4300 4100 4300 4450
+Wire Wire Line
+	4300 4450 4300 4800
+Connection ~ 4300 4450
+Wire Wire Line
+	4300 4800 4300 5150
+Connection ~ 4300 4800
+Wire Wire Line
+	4300 5150 4300 5500
+Connection ~ 4300 5150
+Wire Wire Line
+	5100 3750 5100 4100
+Connection ~ 5100 4100
+Wire Wire Line
+	5100 4800 5100 5150
+Connection ~ 5100 4800
+Connection ~ 5100 5150
+Wire Wire Line
+	5900 3750 5900 4100
+Connection ~ 5900 4100
+Wire Wire Line
+	5900 4800 5900 5150
+Connection ~ 5900 4800
+Wire Wire Line
+	5900 5150 5900 5500
+Connection ~ 5900 5150
+Wire Wire Line
+	3900 3750 3900 3800
+Wire Wire Line
+	5500 3800 5500 3750
+Wire Wire Line
+	3900 4100 3900 4150
+Wire Wire Line
+	3900 4150 4700 4150
+Wire Wire Line
+	4700 4150 4700 4100
+Wire Wire Line
+	4700 4150 5500 4150
+Wire Wire Line
+	5500 4150 5500 4100
+Connection ~ 4700 4150
+Wire Wire Line
+	3900 4450 3900 4500
+Wire Wire Line
+	3900 4500 4700 4500
+Wire Wire Line
+	4700 4500 4700 4450
+Connection ~ 4700 4500
+Wire Wire Line
+	3900 4800 3900 4850
+Wire Wire Line
+	3900 4850 4700 4850
+Wire Wire Line
+	4700 4850 4700 4800
+Wire Wire Line
+	4700 4850 5500 4850
+Wire Wire Line
+	5500 4850 5500 4800
+Connection ~ 4700 4850
+Wire Wire Line
+	3900 5150 3900 5200
+Wire Wire Line
+	3900 5200 4700 5200
+Wire Wire Line
+	4700 5200 4700 5150
+Wire Wire Line
+	4700 5200 5500 5200
+Wire Wire Line
+	5500 5200 5500 5150
+Connection ~ 4700 5200
+Wire Wire Line
+	3900 5500 3900 5550
+Wire Wire Line
+	3900 5550 4700 5550
+Wire Wire Line
+	4700 5550 4700 5500
+Connection ~ 4700 5550
+Wire Wire Line
+	6700 3750 6700 4100
+Wire Wire Line
+	6700 4100 6700 4450
+Connection ~ 6700 4100
+Wire Wire Line
+	6700 4800 6700 4450
+Connection ~ 6700 4450
+Wire Wire Line
+	6700 4800 6700 5150
+Connection ~ 6700 4800
+Connection ~ 6700 5150
+Wire Wire Line
+	7500 3750 7500 4100
+Wire Wire Line
+	7500 4100 7500 4450
+Connection ~ 7500 4100
+Connection ~ 7500 4450
+Wire Wire Line
+	7500 5150 7500 5500
+Connection ~ 7500 5150
+Wire Wire Line
+	5500 3800 6300 3800
+Wire Wire Line
+	6300 3800 6300 3750
+Connection ~ 5500 3800
+Wire Wire Line
+	6300 3800 7100 3800
+Wire Wire Line
+	7100 3800 7100 3750
+Connection ~ 6300 3800
+Wire Wire Line
+	7100 3800 7900 3800
+Wire Wire Line
+	7900 3800 7900 3750
+Connection ~ 7100 3800
+Wire Wire Line
+	5500 4150 6300 4150
+Wire Wire Line
+	6300 4150 6300 4100
+Connection ~ 5500 4150
+Wire Wire Line
+	6300 4150 7100 4150
+Wire Wire Line
+	7100 4150 7100 4100
+Connection ~ 6300 4150
+Wire Wire Line
+	7100 4150 7900 4150
+Wire Wire Line
+	7900 4150 7900 4100
+Connection ~ 7100 4150
+Wire Wire Line
+	7100 4500 7100 4450
+Wire Wire Line
+	7100 4500 7900 4500
+Wire Wire Line
+	7900 4500 7900 4450
+Connection ~ 7100 4500
+Wire Wire Line
+	5500 4850 6300 4850
+Wire Wire Line
+	6300 4850 6300 4800
+Connection ~ 5500 4850
+Wire Wire Line
+	6300 4850 7100 4850
+Wire Wire Line
+	7100 4850 7100 4800
+Connection ~ 6300 4850
+Wire Wire Line
+	5500 5200 6300 5200
+Wire Wire Line
+	6300 5200 6300 5150
+Connection ~ 5500 5200
+Wire Wire Line
+	6300 5200 7100 5200
+Wire Wire Line
+	7100 5200 7100 5150
+Connection ~ 6300 5200
+Wire Wire Line
+	7100 5200 7900 5200
+Wire Wire Line
+	7900 5200 7900 5150
+Connection ~ 7100 5200
+Wire Wire Line
+	6300 5550 6300 5500
+Connection ~ 6300 5550
+Wire Wire Line
+	7900 5550 7900 5500
+Wire Wire Line
+	3900 3800 3100 3800
+Wire Wire Line
+	3100 3800 3100 4050
+Wire Wire Line
+	3100 4050 2100 4050
+Wire Wire Line
+	3900 4150 2100 4150
+Connection ~ 3900 4150
+Wire Wire Line
+	3900 5550 2800 5550
+Wire Wire Line
+	2800 5550 2800 4550
+Wire Wire Line
+	2800 4550 2100 4550
+Connection ~ 3900 5550
+Wire Wire Line
+	2100 4450 2900 4450
+Wire Wire Line
+	2900 4450 2900 5200
+Wire Wire Line
+	2900 5200 3900 5200
+Connection ~ 3900 5200
+Wire Wire Line
+	3900 4850 3000 4850
+Wire Wire Line
+	3000 4850 3000 4350
+Wire Wire Line
+	3000 4350 2100 4350
+Connection ~ 3900 4850
+Wire Wire Line
+	2100 4250 3100 4250
+Wire Wire Line
+	3100 4250 3100 4500
+Wire Wire Line
+	3100 4500 3900 4500
+Connection ~ 3900 4500
+Wire Wire Line
+	2100 4650 2700 4650
+Wire Wire Line
+	2700 4650 2700 5700
+Wire Wire Line
+	2700 5700 3500 5700
+Wire Wire Line
+	3500 5700 3500 5500
+Connection ~ 3500 5500
+Wire Wire Line
+	2100 4750 2600 4750
+Wire Wire Line
+	2600 4750 2600 5800
+Wire Wire Line
+	2600 5800 4300 5800
+Wire Wire Line
+	4300 5800 4300 5500
+Connection ~ 4300 5500
+Wire Wire Line
+	2100 4850 2500 4850
+Wire Wire Line
+	2500 4850 2500 5900
+Wire Wire Line
+	2500 5900 5100 5900
+Wire Wire Line
+	2100 4950 2400 4950
+Wire Wire Line
+	2400 4950 2400 6000
+Wire Wire Line
+	2400 6000 5900 6000
+Wire Wire Line
+	5900 6000 5900 5500
+Connection ~ 5900 5500
+Wire Wire Line
+	2100 5050 2300 5050
+Wire Wire Line
+	2300 5050 2300 6100
+Wire Wire Line
+	2300 6100 6700 6100
+Wire Wire Line
+	2200 6200 7500 6200
+Wire Wire Line
+	7500 6200 7500 5500
+Connection ~ 7500 5500
+Wire Wire Line
+	2100 5150 2200 5150
+Wire Wire Line
+	2200 5150 2200 6200
+$Comp
+L Connector_Generic:Conn_01x13 J1
+U 1 1 5DD9316A
+P 1900 4550
+F 0 "J1" H 1820 5367 50  0000 C CNN
+F 1 "MCU" H 1820 5276 50  0000 C CNN
+F 2 "Pin_Headers:Pin_Header_Angled_1x13_Pitch2.54mm" H 1900 4550 50  0001 C CNN
+F 3 "~" H 1900 4550 50  0001 C CNN
+	1    1900 4550
+	-1   0    0    -1  
+$EndComp
+$Comp
+L LED:SK6812MINI D1
+U 1 1 5DD9EB81
+P 3400 1750
+F 0 "D1" H 3200 2000 50  0000 L CNN
+F 1 "SK6812MINI" H 3450 2000 50  0000 L CNN
+F 2 "my-smd:PLCC4_3.5x3.5mm_P1.75mm" H 3450 1450 50  0001 L TNN
+F 3 "https://cdn-shop.adafruit.com/product-files/2686/SK6812MINI_REV.01-1-2.pdf" H 3500 1375 50  0001 L TNN
+	1    3400 1750
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:C C1
+U 1 1 5DD9EE44
+P 2900 2200
+F 0 "C1" H 3015 2246 50  0000 L CNN
+F 1 "1uF" H 3015 2155 50  0000 L CNN
+F 2 "Capacitors_SMD:C_0805_HandSoldering" H 2938 2050 50  0001 C CNN
+F 3 "~" H 2900 2200 50  0001 C CNN
+	1    2900 2200
+	1    0    0    -1  
+$EndComp
+$Comp
+L LED:SK6812MINI D2
+U 1 1 5DD9F685
+P 4500 1750
+F 0 "D2" H 4300 2000 50  0000 L CNN
+F 1 "SK6812MINI" H 4550 2000 50  0000 L CNN
+F 2 "my-smd:PLCC4_3.5x3.5mm_P1.75mm" H 4550 1450 50  0001 L TNN
+F 3 "https://cdn-shop.adafruit.com/product-files/2686/SK6812MINI_REV.01-1-2.pdf" H 4600 1375 50  0001 L TNN
+	1    4500 1750
+	1    0    0    -1  
+$EndComp
+$Comp
+L LED:SK6812MINI D3
+U 1 1 5DD9F6EF
+P 5600 1750
+F 0 "D3" H 5400 2000 50  0000 L CNN
+F 1 "SK6812MINI" H 5650 2000 50  0000 L CNN
+F 2 "my-smd:PLCC4_3.5x3.5mm_P1.75mm" H 5650 1450 50  0001 L TNN
+F 3 "https://cdn-shop.adafruit.com/product-files/2686/SK6812MINI_REV.01-1-2.pdf" H 5700 1375 50  0001 L TNN
+	1    5600 1750
+	1    0    0    -1  
+$EndComp
+$Comp
+L LED:SK6812MINI D4
+U 1 1 5DD9F808
+P 6700 1750
+F 0 "D4" H 6500 2000 50  0000 L CNN
+F 1 "SK6812MINI" H 6750 2000 50  0000 L CNN
+F 2 "my-smd:PLCC4_3.5x3.5mm_P1.75mm" H 6750 1450 50  0001 L TNN
+F 3 "https://cdn-shop.adafruit.com/product-files/2686/SK6812MINI_REV.01-1-2.pdf" H 6800 1375 50  0001 L TNN
+	1    6700 1750
+	1    0    0    -1  
+$EndComp
+$Comp
+L LED:SK6812MINI D5
+U 1 1 5DD9F927
+P 7800 1750
+F 0 "D5" H 7600 2000 50  0000 L CNN
+F 1 "SK6812MINI" H 7850 2000 50  0000 L CNN
+F 2 "my-smd:PLCC4_3.5x3.5mm_P1.75mm" H 7850 1450 50  0001 L TNN
+F 3 "https://cdn-shop.adafruit.com/product-files/2686/SK6812MINI_REV.01-1-2.pdf" H 7900 1375 50  0001 L TNN
+	1    7800 1750
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	2050 1350 2900 1350
+Wire Wire Line
+	3400 1350 3400 1450
+Wire Wire Line
+	3400 1350 4000 1350
+Wire Wire Line
+	4500 1350 4500 1450
+Connection ~ 3400 1350
+$Comp
+L Device:C C2
+U 1 1 5DDABA8F
+P 4000 2200
+F 0 "C2" H 4115 2246 50  0000 L CNN
+F 1 "1uF" H 4115 2155 50  0000 L CNN
+F 2 "Capacitors_SMD:C_0805_HandSoldering" H 4038 2050 50  0001 C CNN
+F 3 "~" H 4000 2200 50  0001 C CNN
+	1    4000 2200
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:C C4
+U 1 1 5DDABAFF
+P 6200 2200
+F 0 "C4" H 6315 2246 50  0000 L CNN
+F 1 "1uF" H 6315 2155 50  0000 L CNN
+F 2 "Capacitors_SMD:C_0805_HandSoldering" H 6238 2050 50  0001 C CNN
+F 3 "~" H 6200 2200 50  0001 C CNN
+	1    6200 2200
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:C C3
+U 1 1 5DDABB75
+P 5100 2200
+F 0 "C3" H 5215 2246 50  0000 L CNN
+F 1 "1uF" H 5215 2155 50  0000 L CNN
+F 2 "Capacitors_SMD:C_0805_HandSoldering" H 5138 2050 50  0001 C CNN
+F 3 "~" H 5100 2200 50  0001 C CNN
+	1    5100 2200
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:C C5
+U 1 1 5DDABC90
+P 7300 2200
+F 0 "C5" H 7415 2246 50  0000 L CNN
+F 1 "1uF" H 7415 2155 50  0000 L CNN
+F 2 "Capacitors_SMD:C_0805_HandSoldering" H 7338 2050 50  0001 C CNN
+F 3 "~" H 7300 2200 50  0001 C CNN
+	1    7300 2200
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	4500 1350 5100 1350
+Wire Wire Line
+	5600 1350 5600 1450
+Connection ~ 4500 1350
+Wire Wire Line
+	5600 1350 6200 1350
+Wire Wire Line
+	6700 1350 6700 1450
+Connection ~ 5600 1350
+Wire Wire Line
+	6700 1350 7300 1350
+Wire Wire Line
+	7800 1350 7800 1450
+Connection ~ 6700 1350
+Wire Wire Line
+	7300 2050 7300 1350
+Connection ~ 7300 1350
+Wire Wire Line
+	7300 1350 7800 1350
+Wire Wire Line
+	6200 2050 6200 1350
+Connection ~ 6200 1350
+Wire Wire Line
+	6200 1350 6700 1350
+Wire Wire Line
+	5100 2050 5100 1350
+Connection ~ 5100 1350
+Wire Wire Line
+	5100 1350 5600 1350
+Wire Wire Line
+	4000 2050 4000 1350
+Connection ~ 4000 1350
+Wire Wire Line
+	4000 1350 4500 1350
+Wire Wire Line
+	3700 1750 4200 1750
+Wire Wire Line
+	4800 1750 5300 1750
+Wire Wire Line
+	5900 1750 6400 1750
+Wire Wire Line
+	7000 1750 7500 1750
+NoConn ~ 8100 1750
+Wire Wire Line
+	2900 2050 2900 1350
+Connection ~ 2900 1350
+Wire Wire Line
+	2900 1350 3400 1350
+Wire Wire Line
+	2050 1450 2350 1450
+Wire Wire Line
+	2350 1450 2350 2450
+Wire Wire Line
+	2350 2450 2900 2450
+Wire Wire Line
+	2900 2450 2900 2350
+Wire Wire Line
+	2900 2450 3400 2450
+Wire Wire Line
+	4000 2450 4000 2350
+Connection ~ 2900 2450
+Wire Wire Line
+	4000 2450 4500 2450
+Wire Wire Line
+	5100 2450 5100 2350
+Connection ~ 4000 2450
+Wire Wire Line
+	5100 2450 5600 2450
+Wire Wire Line
+	6200 2450 6200 2350
+Connection ~ 5100 2450
+Wire Wire Line
+	3400 2050 3400 2450
+Connection ~ 3400 2450
+Wire Wire Line
+	3400 2450 4000 2450
+Wire Wire Line
+	4500 2050 4500 2450
+Connection ~ 4500 2450
+Wire Wire Line
+	4500 2450 5100 2450
+Wire Wire Line
+	5600 2050 5600 2450
+Connection ~ 5600 2450
+Wire Wire Line
+	5600 2450 6200 2450
+Wire Wire Line
+	3100 1750 2500 1750
+Wire Wire Line
+	2500 1750 2500 3950
+Wire Wire Line
+	2500 3950 2100 3950
+Wire Wire Line
+	6200 2450 6700 2450
+Wire Wire Line
+	7300 2450 7300 2350
+Connection ~ 6200 2450
+Wire Wire Line
+	6700 2050 6700 2450
+Connection ~ 6700 2450
+Wire Wire Line
+	6700 2450 7300 2450
+Wire Wire Line
+	3900 3800 5500 3800
+Connection ~ 3900 3800
+Wire Wire Line
+	5100 4100 5100 4800
+Wire Wire Line
+	5900 4100 5900 4800
+Wire Wire Line
+	7500 4450 7500 5150
+Wire Wire Line
+	5100 5150 5100 5500
+Wire Wire Line
+	4700 4500 7100 4500
+Wire Wire Line
+	4700 5550 5500 5550
+Wire Wire Line
+	7300 2450 7800 2450
+Wire Wire Line
+	7800 2450 7800 2050
+Connection ~ 7300 2450
+$Comp
+L power:PWR_FLAG #FLG0101
+U 1 1 5DF6380F
+P 5100 1200
+F 0 "#FLG0101" H 5100 1275 50  0001 C CNN
+F 1 "PWR_FLAG" H 5100 1374 50  0000 C CNN
+F 2 "" H 5100 1200 50  0001 C CNN
+F 3 "~" H 5100 1200 50  0001 C CNN
+	1    5100 1200
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	5100 2450 5100 2650
+Wire Wire Line
+	5100 1200 5100 1350
+$Comp
+L power:PWR_FLAG #FLG0102
+U 1 1 5DF73B9B
+P 5100 2650
+F 0 "#FLG0102" H 5100 2725 50  0001 C CNN
+F 1 "PWR_FLAG" H 5100 2823 50  0000 C CNN
+F 2 "" H 5100 2650 50  0001 C CNN
+F 3 "~" H 5100 2650 50  0001 C CNN
+	1    5100 2650
+	1    0    0    1   
+$EndComp
+Text Label 3100 2450 0    50   ~ 0
+GND
+Text Label 2700 1750 0    50   ~ 0
+DIN1
+Text Label 3800 1750 0    50   ~ 0
+DIN2
+Text Label 4900 1750 0    50   ~ 0
+DIN3
+Text Label 6000 1750 0    50   ~ 0
+DIN4
+Text Label 7100 1750 0    50   ~ 0
+DIN5
+Text Label 4200 1350 0    50   ~ 0
+VLED
+Text Label 2700 4050 0    50   ~ 0
+ROW1
+Text Label 2700 4150 0    50   ~ 0
+ROW2
+Text Label 2700 4250 0    50   ~ 0
+ROW3
+Text Label 2700 4350 0    50   ~ 0
+ROW4
+Text Label 2700 4450 0    50   ~ 0
+ROW5
+Text Label 2700 4550 0    50   ~ 0
+ROW6
+Text Label 2800 5700 0    50   ~ 0
+COL1
+Text Label 2800 5800 0    50   ~ 0
+COL2
+Text Label 2800 5900 0    50   ~ 0
+COL3
+Text Label 2800 6000 0    50   ~ 0
+COL4
+Text Label 2800 6100 0    50   ~ 0
+COL5
+Text Label 2800 6200 0    50   ~ 0
+COL6
+Connection ~ 5100 5500
+Wire Wire Line
+	5100 5500 5100 5900
+Wire Wire Line
+	6300 5550 7900 5550
+Wire Wire Line
+	5500 5500 5500 5550
+Wire Wire Line
+	6700 5150 6700 6100
+Connection ~ 5500 5550
+Wire Wire Line
+	5500 5550 6300 5550
+$EndSCHEMATC
