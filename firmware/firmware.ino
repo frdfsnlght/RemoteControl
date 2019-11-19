@@ -43,6 +43,16 @@
 
 #define DEBUG
 
+#ifdef DEBUG
+#define debug(x) Serial.print(x)
+#define debugln(x) Serial.println(x)
+#define debugnumln(x, y) Serial.println(x, y)
+#else
+#define debug(x)
+#define debugln(x)
+#define debugnumln(x, y)
+#endif
+
 //////////////
 // Hardware //
 //////////////
@@ -66,13 +76,55 @@ const int PS_LED_ENABLE_PIN = 13;   // output, active high to enable
 const int LEDS_PIN = 16;
 
 uint8_t KEYPAD_ROW_PINS[] = {17, 18, 19, 20, 22, 23};
-uint8_t KEYPAD_COL_PINS[] = {24, 25, 28, 29, 30, 31};
+uint8_t KEYPAD_COL_PINS[] = {31, 29, 25, 30, 28, 24};
 
 void(* reset) (void) = 0;
 
-///////////////
-// Neopixels //
-///////////////
+
+//=============================================================================
+// Settings
+//
+
+const float DEFAULT_WAKEUPACCELERATION = 1.5;       // g's
+const unsigned char DEFAULT_LOWBATTERYLEVEL = 20;   // percent
+const unsigned long DEFAULT_SLEEPTIME = 10000;      // milliseconds
+
+float wakeupAcceleration = DEFAULT_WAKEUPACCELERATION;
+unsigned char lowBatterLevel = DEFAULT_LOWBATTERYLEVEL;
+unsigned long sleepTime = DEFAULT_SLEEPTIME;
+
+//=============================================================================
+// Power supply
+//
+bool psSetup = false;
+const unsigned long PS_CHECK_INTERVAL = 1000;
+unsigned long psLastCheck;
+bool psOnCharger = false;
+bool psCharging = false;
+bool psBatteryLevelChanged = false;
+float psBatteryLevel = 0;
+
+//=============================================================================
+// Keypad
+//
+const uint8_t KEYPAD_ROWS = sizeof(KEYPAD_ROW_PINS);
+const uint8_t KEYPAD_COLS = sizeof(KEYPAD_COL_PINS);
+const unsigned int KEYPAD_DEBOUNCE_TIME = 100;
+char KEYPAD_MAP[KEYPAD_ROWS][KEYPAD_COLS] = {
+    {0x11, 0x12, 0x13, 0x14, 0x15, 0x16},
+    {0x21, 0x22, 0x23, 0x24, 0x25, 0x26},
+    {0x31, 0x32, 0x33, 0x34, 0x35, 0x36},
+    {0x41, 0x42, 0x43, 0x44, 0x45, 0x46},
+    {0x51, 0x52, 0x53, 0x54, 0x55, 0x56},
+    {0x61, 0x62, 0x63, 0x64, 0x65, 0x66}
+};
+Keypad keypad = Keypad(makeKeymap(KEYPAD_MAP), KEYPAD_ROW_PINS, KEYPAD_COL_PINS, KEYPAD_ROWS, KEYPAD_COLS);
+unsigned char keypadButton[2];
+bool keypadIdle;
+
+//=============================================================================
+// LEDs
+//
 typedef struct {
     uint8_t red;
     uint8_t green;
@@ -88,33 +140,15 @@ const color_t LEDS_GREEN[] = {LED_GREEN, LED_GREEN, LED_GREEN, LED_GREEN, LED_GR
 const unsigned long LEDS_BLINK_INTERVAL = 500;
 const int LEDS_DATA_LENGTH = sizeof(LEDS_OFF);
 const int LEDS_NUMPIXELS = 5;
-const float LEDS_LOW_BATTERY_LEVEL = 30.0;
 Adafruit_NeoPixel leds = Adafruit_NeoPixel(LEDS_NUMPIXELS, LEDS_PIN, NEO_GRB + NEO_KHZ800);
 color_t ledsValue[5] = {};
 bool ledsBlink;
 bool ledsBlinkOn;
 unsigned long ledsLastBlink;
 
-////////////
-// Keypad //
-////////////
-const uint8_t KEYPAD_ROWS = sizeof(KEYPAD_ROW_PINS);
-const uint8_t KEYPAD_COLS = sizeof(KEYPAD_COL_PINS);
-char KEYPAD_MAP[KEYPAD_ROWS][KEYPAD_COLS] = {
-    {0x11, 0x12, 0x13, 0x14, 0x15, 0x16},
-    {0x21, 0x22, 0x23, 0x24, 0x25, 0x26},
-    {0x31, 0x32, 0x33, 0x34, 0x35, 0x36},
-    {0x41, 0x42, 0x43, 0x44, 0x45, 0x46},
-    {0x51, 0x52, 0x53, 0x54, 0x55, 0x56},
-    {0x61, 0x62, 0x63, 0x64, 0x65, 0x66}
-};
-Keypad keypad = Keypad(makeKeymap(KEYPAD_MAP), KEYPAD_ROW_PINS, KEYPAD_COL_PINS, KEYPAD_ROWS, KEYPAD_COLS);
-unsigned char keypadButton[2];
-bool keypadIdle;
-
-///////////////
-// Bluetooth //
-///////////////
+//=============================================================================
+// Bluetooth
+//
 const char* BLE_NAME = "RemoteControl";
 const unsigned short BLE_ADVERTISING_INTERVAL = 50;
 BLEPeripheral blePeriph;
@@ -123,41 +157,32 @@ BLEFixedLengthCharacteristic buttonChar("0001", BLENotify, (unsigned char)sizeof
 BLEFixedLengthCharacteristic ledsChar("0002", BLERead | BLEWrite, LEDS_DATA_LENGTH);
 BLEUnsignedCharCharacteristic chargingChar("0003", BLERead | BLENotify);
 BLEFloatCharacteristic batteryLevelChar("0004", BLERead | BLENotify);
+BLEFloatCharacteristic wakeupAccelerationChar("0005", BLERead | BLEWrite);
+BLEUnsignedCharCharacteristic lowBatterLevelChar("0006", BLERead | BLEWrite);
+BLEUnsignedLongCharacteristic sleepTimeChar("0007", BLERead | BLEWrite);
+
 BLEUnsignedCharCharacteristic resetChar("0099", BLEWrite);
 
-///////////////////
-// Accelerometer //
-///////////////////
+//=============================================================================
+// Accelerometer
+//
 bool accelSetup = false;
 const uint8_t ACC_ADDRESS = 0x1d;
 const range_t ACCEL_RANGE = ADXL345_RANGE_2_G;
 const dataRate_t ACCEL_RATE = ADXL345_DATARATE_25_HZ;
-const float ACCEL_THRESHOLD = 1.5;
 Adafruit_ADXL345_Unified accel = Adafruit_ADXL345_Unified();
 bool accelIdle;
 volatile bool accelInterrupted = false;
 
-//////////////////
-// Power supply //
-//////////////////
-bool psSetup = false;
-const unsigned long PS_CHECK_INTERVAL = 1000;
-unsigned long psLastCheck;
-bool psOnCharger = false;
-bool psCharging = false;
-bool psBatteryLevelChanged = false;
-float psBatteryLevel = 0;
-
-//////////
-// Idle //
-//////////
-const unsigned long IDLE_THRESHOLD = 10000;
+//=============================================================================
+// Idle
+//
 bool isIdle;
 unsigned long idleStart;
 
-///////////
-// Stats //
-///////////
+//=============================================================================
+// Stats
+//
 unsigned long bootTime;
 unsigned long setupTime;
 unsigned long bluetoothConnectedTime;
@@ -172,31 +197,31 @@ void setup() {
     Serial.begin(9600);
 #endif
 
-    setupLEDs();
     setupBluetooth();
-    setupKeypad();
-    setupAccel();
     setupPowerSupply();
+    setupLEDs();
+    setupKeypad();
+    setupAccelerometer();
     
     digitalWrite(LED_PIN, HIGH); // turn off built-in LED
     
     setupTime = millis();
-#ifdef DEBUG
-    Serial.print("Ready in ");
-    Serial.println(setupTime - bootTime);
-#endif
+    debug("Ready in ");
+    debugln(setupTime - bootTime);
 }
 
 void loop() {
-    loopLEDs();
     loopBluetooth();
-    loopKeypad();
-    loopAccel();
     loopPowerSupply();
-    
+    loopLEDs();
+    loopKeypad();
+    loopAccelerometer();
     checkIdle();
 }
 
+//=============================================================================
+// Bluetooth
+//
 
 void setupBluetooth() {
     pinMode(BTN_PIN, INPUT_PULLUP);
@@ -216,32 +241,34 @@ void setupBluetooth() {
     blePeriph.addAttribute(chargingChar);
     blePeriph.addAttribute(batteryLevelChar);
     blePeriph.addAttribute(resetChar);
+    blePeriph.addAttribute(wakeupAccelerationChar);
+    blePeriph.addAttribute(lowBatterLevelChar);
+    blePeriph.addAttribute(sleepTimeChar);
 
     // Initialize readable characteristic values
-    ledsChar.setValue((unsigned char*)ledsValue, LEDS_DATA_LENGTH);
+    ledsChar.setValue((unsigned char*)LEDS_OFF, LEDS_DATA_LENGTH);
     chargingChar.setValue(psCharging);
     batteryLevelChar.setValue(psBatteryLevel);
+    wakeupAccelerationChar.setValue(wakeupAcceleration);
+    lowBatterLevelChar.setValue(lowBatterLevel);
+    sleepTimeChar.setValue(sleepTime);
 
     blePeriph.setEventHandler(BLEConnected, bluetoothConnected);
     
     // Initialize BLE:
     blePeriph.begin();
 
-#ifdef DEBUG
-    Serial.println("BLE setup");
-#endif
+    debugln("BLE setup");
     
 }
 
 void bluetoothConnected(BLECentral& central) {
     bluetoothConnectedTime = millis();
     bluetoothConnections++;
-#ifdef DEBUG
     if (bluetoothConnections == 1) {
-        Serial.print("Connected in ");
-        Serial.println(bluetoothConnectedTime - bootTime);
+        debug("Connected in ");
+        debugln(bluetoothConnectedTime - bootTime);
     }
-#endif
 }
 
 void loopBluetooth() {
@@ -252,121 +279,36 @@ void loopBluetooth() {
         const unsigned char* ledsState = ledsChar.value();
         memcpy(ledsValue, ledsState, LEDS_DATA_LENGTH);
         setLEDs();
-#ifdef DEBUG
         dumpLEDs(ledsValue);
-#endif
     }
+    if (wakeupAccelerationChar.written()) {
+        wakeupAcceleration = wakeupAccelerationChar.value();
+        debug("Set wakeupAcceleration to ");
+        debugln(wakeupAcceleration);
+        if (accelSetup)
+            setAccelerationThreshold();
+    }
+    if (lowBatterLevelChar.written()) {
+        lowBatterLevel = lowBatterLevelChar.value();
+        debug("Set lowBatterLevel to ");
+        debugln(lowBatterLevel);
+    }
+    if (sleepTimeChar.written()) {
+        sleepTime = sleepTimeChar.value();
+        debug("Set sleepTime to ");
+        debugln(sleepTime);
+    }
+    
     if (resetChar.written()) {
-#ifdef DEBUG
-        Serial.println("Resetting...");
-#endif
+        debugln("Resetting...");
         delay(1000);
         reset();
     }
 }
 
-void setupKeypad() {
-    keypad.addEventListener(keypadEvent);
-#ifdef DEBUG
-    Serial.println("Keypad setup");
-#endif
-}
-
-void loopKeypad() {
-    keypadIdle = !keypad.getKey();
-    
-    char buttonValue = digitalRead(BTN_PIN);
-    static char lastButtonValue = HIGH;
-    
-    if (buttonValue != lastButtonValue) {
-        lastButtonValue = buttonValue;
-        keypadIdle = false;
-        
-#ifdef DEBUG
-        Serial.print("Button: ");
-        Serial.print(buttonValue, DEC);
-        Serial.println();
-#endif
-
-        if (buttonValue == LOW) {
-            keypadButton[0] = 0x01;
-            keypadButton[1] = 0x99;
-            buttonChar.setValue(keypadButton, sizeof(keypadButton));
-        } else {
-            keypadButton[0] = 0x00;
-            keypadButton[1] = 0x99;
-            buttonChar.setValue(keypadButton, sizeof(keypadButton));
-        }
-    }
-    
-}
-
-void keypadEvent(KeypadEvent key) {
-    switch (keypad.getState()) {
-        case PRESSED:
-            keypadButton[0] = 0x01;
-            keypadButton[1] = key;
-            buttonChar.setValue(keypadButton, sizeof(keypadButton));
-#ifdef DEBUG
-            Serial.print("Key down: ");
-            Serial.println(key, HEX);
-#endif
-            break;
-        case RELEASED:
-            keypadButton[0] = 0x00;
-            keypadButton[1] = key;
-            buttonChar.setValue(keypadButton, sizeof(keypadButton));
-#ifdef DEBUG
-            Serial.print("Key up: ");
-            Serial.println(key, HEX);
-#endif
-            break;
-    }
-}
-
-void setupAccel() {
-    if (!accel.begin(ACC_ADDRESS)) {
-#ifdef DEBUG
-        Serial.println("ADXL345 not detected!");
-#endif
-        return;
-    }
-    accel.setRange(ACCEL_RANGE);
-    accel.setDataRate(ACCEL_RATE);
-    
-    pinMode(ACC_INT1_PIN, INPUT_PULLDOWN);
-    pinMode(ACC_INT2_PIN, INPUT_PULLDOWN);  // not used
-    
-    accel.writeRegister(ADXL345_REG_INT_ENABLE, 0);         // disable interrupts
-    accel.writeRegister(ADXL345_REG_INT_MAP, 0);            // map all interrupts to INT1
-    accel.writeRegister(ADXL345_REG_POWER_CTL, 0);          // turn off link and put in standby
-    accel.writeRegister(ADXL345_REG_ACT_INACT_CTL, 0xf0);   // ac-coupled x, y, z activity
-    accel.writeRegister(ADXL345_REG_THRESH_ACT, ACCEL_THRESHOLD * 1000.0 / 62.5);
-    accel.writeRegister(ADXL345_REG_INT_ENABLE, 0x10);      // enable activity interrupt
-    accel.writeRegister(ADXL345_REG_POWER_CTL, 0x08);       // turn on measurement mode
-    accel.readRegister(ADXL345_REG_INT_SOURCE);             // read to clear any interrupts
-    
-    attachInterrupt(digitalPinToInterrupt(ACC_INT1_PIN), accelInterrupt, RISING);
-    accelSetup = true;
-#ifdef DEBUG
-    Serial.println("ADXL345 setup");
-#endif
-}
-
-void accelInterrupt() {
-    accelInterrupted = true;
-}
-
-void loopAccel() {
-    if (! accelSetup) return;
-    
-    if (accelInterrupted) {
-        accelInterrupted = false;
-        accelIdle = false;
-        accel.readRegister(ADXL345_REG_INT_SOURCE); // read to clear interrupts
-    } else
-        accelIdle = true;
-}
+//=============================================================================
+// Power supply
+//
 
 void setupPowerSupply() {
     pinMode(PS_CHARGER_PIN, INPUT_PULLDOWN);    // pulldown isn't really needed
@@ -383,17 +325,13 @@ void setupPowerSupply() {
     
     FuelGauge.begin();
     if (FuelGauge.version() == 0xffff) {
-#ifdef DEBUG
-        Serial.println("MAX17043 not detected!");
-#endif
+        debugln("MAX17043 not detected!");
         return;
     }
     // TODO: put fuel gauge in active mode (library doesn't support this)
     psLastCheck = millis();
     psSetup = true;
-#ifdef DEBUG
-    Serial.println("MAX17043 setup");
-#endif
+    debugln("MAX17043 setup");
 }
 
 void loopPowerSupply() {
@@ -407,17 +345,13 @@ void loopPowerSupply() {
         psOnCharger = true;
         psBatteryLevelChanged = true;
         pinMode(PS_CHARGER_ENABLE_PIN, INPUT); // enable charger
-#ifdef DEBUG
-        Serial.println("On charger");
-#endif
+        debugln("On charger");
     } else if (!charger && psOnCharger) {
         psOnCharger = false;
         psBatteryLevelChanged = true;
         pinMode(PS_CHARGER_ENABLE_PIN, OUTPUT);     // enable charger managment
         digitalWrite(PS_CHARGER_ENABLE_PIN, HIGH);     // disable charger
-#ifdef DEBUG
-        Serial.println("Off charger");
-#endif
+        debugln("Off charger");
     }
 
     bool charging = !digitalRead(PS_CHARGING_PIN);
@@ -425,16 +359,12 @@ void loopPowerSupply() {
         psCharging = true;
         psBatteryLevelChanged = true;
         chargingChar.setValue(1);
-#ifdef DEBUG
-        Serial.println("Started charging");
-#endif
+        debugln("Started charging");
     } else if (!charging && psCharging) {
         psCharging = false;
         psBatteryLevelChanged = true;
         chargingChar.setValue(0);
-#ifdef DEBUG
-        Serial.println("Stopped charging");
-#endif
+        debugln("Stopped charging");
     }
     
     // TODO: remove comment
@@ -446,12 +376,14 @@ void loopPowerSupply() {
         psBatteryLevel = level;
         psBatteryLevelChanged = true;
         batteryLevelChar.setValue(psBatteryLevel);
-#ifdef DEBUG
-        Serial.print("Battery level: ");
-        Serial.println(level);
-#endif
+        debug("Battery level: ");
+        debugln(level);
     }
 }
+
+//=============================================================================
+// LEDs
+//
 
 void setupLEDs() {
     pinMode(LED_PIN, OUTPUT);
@@ -459,9 +391,7 @@ void setupLEDs() {
     leds.begin();
     setLEDs(LEDS_OFF);
     memcpy(ledsValue, LEDS_OFF, LEDS_DATA_LENGTH);
-#ifdef DEBUG
-    Serial.println("LEDs setup");
-#endif
+    debugln("LEDs setup");
 }
 
 void loopLEDs() {
@@ -487,7 +417,7 @@ void loopLEDs() {
     if (psBatteryLevelChanged) {
         psBatteryLevelChanged = false;
         digitalWrite(LED_PIN, HIGH);
-        if (psBatteryLevel < LEDS_LOW_BATTERY_LEVEL) {
+        if (psBatteryLevel < lowBatterLevel) {
             if (!ledsBlink) {
                 ledsBlink = true;
                 ledsBlinkOn = true;
@@ -524,6 +454,7 @@ void setLEDs(const color_t values[]) {
 }
 
 void dumpLEDs(color_t leds[]) {
+#ifdef DEBUG
     Serial.print("LEDs: ");
     for (int i = 0; i < LEDS_NUMPIXELS; i++) {
         if (i > 0)
@@ -535,7 +466,117 @@ void dumpLEDs(color_t leds[]) {
         Serial.print(leds[i].blue);
     }
     Serial.println();
+#endif
 }
+
+//=============================================================================
+// Keypad
+//
+
+void setupKeypad() {
+    keypad.addEventListener(keypadEvent);
+    keypad.setDebounceTime(KEYPAD_DEBOUNCE_TIME);
+    debugln("Keypad setup");
+}
+
+void loopKeypad() {
+    if (psOnCharger) return;
+    
+    keypadIdle = !keypad.getKeys(); // allows event handler to trigger for multiple keys
+    //keypadIdle = !keypad.getKey();
+    
+    char buttonValue = digitalRead(BTN_PIN);
+    static char lastButtonValue = HIGH;
+    
+    if (buttonValue != lastButtonValue) {
+        lastButtonValue = buttonValue;
+        keypadIdle = false;
+        debug("Button: ");
+        debugnumln(buttonValue, DEC);
+
+        if (buttonValue == LOW) {
+            keypadButton[0] = 0x01;
+            keypadButton[1] = 0x99;
+            buttonChar.setValue(keypadButton, sizeof(keypadButton));
+        } else {
+            keypadButton[0] = 0x00;
+            keypadButton[1] = 0x99;
+            buttonChar.setValue(keypadButton, sizeof(keypadButton));
+        }
+    }
+    
+}
+
+void keypadEvent(KeypadEvent key) {
+    switch (keypad.getState()) {
+        case PRESSED:
+            keypadButton[0] = 0x01;
+            keypadButton[1] = key;
+            buttonChar.setValue(keypadButton, sizeof(keypadButton));
+            debug("Key down: ");
+            debugnumln(key, HEX);
+            break;
+        case RELEASED:
+            keypadButton[0] = 0x00;
+            keypadButton[1] = key;
+            buttonChar.setValue(keypadButton, sizeof(keypadButton));
+            debug("Key up: ");
+            debugnumln(key, HEX);
+            break;
+    }
+}
+
+//=============================================================================
+// Accelerometer
+//
+
+void setupAccelerometer() {
+    if (!accel.begin(ACC_ADDRESS)) {
+        debugln("ADXL345 not detected!");
+        return;
+    }
+    accel.setRange(ACCEL_RANGE);
+    accel.setDataRate(ACCEL_RATE);
+    
+    pinMode(ACC_INT1_PIN, INPUT_PULLDOWN);
+    pinMode(ACC_INT2_PIN, INPUT_PULLDOWN);  // not used
+    
+    setAccelerationThreshold();
+    
+    attachInterrupt(digitalPinToInterrupt(ACC_INT1_PIN), accelerometerInterrupt, RISING);
+    accelSetup = true;
+    debugln("ADXL345 setup");
+}
+
+void setAccelerationThreshold() {
+    accel.writeRegister(ADXL345_REG_INT_ENABLE, 0);         // disable interrupts
+    accel.writeRegister(ADXL345_REG_INT_MAP, 0);            // map all interrupts to INT1
+    accel.writeRegister(ADXL345_REG_POWER_CTL, 0);          // turn off link and put in standby
+    accel.writeRegister(ADXL345_REG_ACT_INACT_CTL, 0xf0);   // ac-coupled x, y, z activity
+    accel.writeRegister(ADXL345_REG_THRESH_ACT, wakeupAcceleration * 1000.0 / 62.5);
+    accel.writeRegister(ADXL345_REG_INT_ENABLE, 0x10);      // enable activity interrupt
+    accel.writeRegister(ADXL345_REG_POWER_CTL, 0x08);       // turn on measurement mode
+    accel.readRegister(ADXL345_REG_INT_SOURCE);             // read to clear any interrupts
+}
+
+void accelerometerInterrupt() {
+    accelInterrupted = true;
+}
+
+void loopAccelerometer() {
+    if (! accelSetup) return;
+    
+    if (accelInterrupted) {
+        accelInterrupted = false;
+        accelIdle = false;
+        accel.readRegister(ADXL345_REG_INT_SOURCE); // read to clear interrupts
+    } else
+        accelIdle = true;
+}
+
+//=============================================================================
+// Idle
+//
     
 void checkIdle() {
     if (psOnCharger) {
@@ -547,10 +588,8 @@ void checkIdle() {
         if (!isIdle) {
             isIdle = true;
             idleStart = millis();
-        } else if ((idleStart != 0) && ((millis() - idleStart) > IDLE_THRESHOLD)) {
-#ifdef DEBUG
-            Serial.println("Going to sleep");
-#endif            
+        } else if ((idleStart != 0) && ((millis() - idleStart) > sleepTime)) {
+            debugln("Going to sleep");
             idleStart = 0;
             enterSleep();
         }
@@ -558,9 +597,7 @@ void checkIdle() {
         if (isIdle) {
             isIdle = false;
             if (idleStart == 0) {
-#ifdef DEBUG
-                Serial.println("Waking up");
-#endif
+                debugln("Waking up");
                 // Should never be here
             }
         }
@@ -577,4 +614,4 @@ void enterSleep() {
     nRF5x_lowPower.powerMode(POWER_MODE_OFF);
 }
 
-    
+
