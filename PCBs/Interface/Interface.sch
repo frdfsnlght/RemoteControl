@@ -1,6 +1,7 @@
 EESchema Schematic File Version 4
 LIBS:power
 LIBS:device
+LIBS:Interface-cache
 EELAYER 26 0
 EELAYER END
 $Descr A4 11693 8268
@@ -21,7 +22,7 @@ U 1 1 5DD2A88C
 P 3700 3750
 F 0 "SW11" H 3700 3943 50  0000 C CNN
 F 1 "SW_Push" H 3700 3944 50  0001 C CNN
-F 2 "my-switches:SMD_MultiSwitch" H 3700 3950 50  0001 C CNN
+F 2 "my-switches:SMD_Tactile_Switch" H 3700 3950 50  0001 C CNN
 F 3 "" H 3700 3950 50  0001 C CNN
 	1    3700 3750
 	1    0    0    -1  
@@ -32,7 +33,7 @@ U 1 1 5DD2AA40
 P 1850 1450
 F 0 "J2" H 1770 1125 50  0000 C CNN
 F 1 "VLED" H 1770 1216 50  0000 C CNN
-F 2 "Pin_Headers:Pin_Header_Angled_1x02_Pitch2.54mm" H 1850 1450 50  0001 C CNN
+F 2 "my-smd:SMD_Right_Socket_Strip_Angled_1x02_Pitch2.54mm" H 1850 1450 50  0001 C CNN
 F 3 "~" H 1850 1450 50  0001 C CNN
 	1    1850 1450
 	-1   0    0    1   
@@ -43,7 +44,7 @@ U 1 1 5DD2AB64
 P 3700 4100
 F 0 "SW21" H 3700 4293 50  0000 C CNN
 F 1 "SW_Push" H 3700 4294 50  0001 C CNN
-F 2 "my-switches:SMD_MultiSwitch" H 3700 4300 50  0001 C CNN
+F 2 "my-switches:SMD_Tactile_Switch" H 3700 4300 50  0001 C CNN
 F 3 "" H 3700 4300 50  0001 C CNN
 	1    3700 4100
 	1    0    0    -1  
@@ -54,7 +55,7 @@ U 1 1 5DD2AB90
 P 3700 4450
 F 0 "SW31" H 3700 4643 50  0000 C CNN
 F 1 "SW_Push" H 3700 4644 50  0001 C CNN
-F 2 "my-switches:SMD_MultiSwitch" H 3700 4650 50  0001 C CNN
+F 2 "my-switches:SMD_Tactile_Switch" H 3700 4650 50  0001 C CNN
 F 3 "" H 3700 4650 50  0001 C CNN
 	1    3700 4450
 	1    0    0    -1  
@@ -65,7 +66,7 @@ U 1 1 5DD2ABB4
 P 3700 4800
 F 0 "SW41" H 3700 4993 50  0000 C CNN
 F 1 "SW_Push" H 3700 4994 50  0001 C CNN
-F 2 "my-switches:SMD_MultiSwitch" H 3700 5000 50  0001 C CNN
+F 2 "my-switches:SMD_Tactile_Switch" H 3700 5000 50  0001 C CNN
 F 3 "" H 3700 5000 50  0001 C CNN
 	1    3700 4800
 	1    0    0    -1  
@@ -76,7 +77,7 @@ U 1 1 5DD2AC22
 P 3700 5150
 F 0 "SW51" H 3700 5343 50  0000 C CNN
 F 1 "SW_Push" H 3700 5344 50  0001 C CNN
-F 2 "my-switches:SMD_MultiSwitch" H 3700 5350 50  0001 C CNN
+F 2 "my-switches:SMD_Tactile_Switch" H 3700 5350 50  0001 C CNN
 F 3 "" H 3700 5350 50  0001 C CNN
 	1    3700 5150
 	1    0    0    -1  
@@ -87,20 +88,9 @@ U 1 1 5DD2ACBC
 P 3700 5500
 F 0 "SW61" H 3700 5693 50  0000 C CNN
 F 1 "SW_Push" H 3700 5694 50  0001 C CNN
-F 2 "my-switches:SMD_MultiSwitch" H 3700 5700 50  0001 C CNN
+F 2 "my-switches:SMD_Tactile_Switch" H 3700 5700 50  0001 C CNN
 F 3 "" H 3700 5700 50  0001 C CNN
 	1    3700 5500
-	1    0    0    -1  
-$EndComp
-$Comp
-L Switch:SW_Push SW22
-U 1 1 5DD2AF85
-P 4500 4100
-F 0 "SW22" H 4500 4293 50  0000 C CNN
-F 1 "SW_Push" H 4500 4294 50  0001 C CNN
-F 2 "my-switches:SMD_MultiSwitch" H 4500 4300 50  0001 C CNN
-F 3 "" H 4500 4300 50  0001 C CNN
-	1    4500 4100
 	1    0    0    -1  
 $EndComp
 $Comp
@@ -109,7 +99,7 @@ U 1 1 5DD2AF8C
 P 4500 4450
 F 0 "SW32" H 4500 4643 50  0000 C CNN
 F 1 "SW_Push" H 4500 4644 50  0001 C CNN
-F 2 "my-switches:SMD_MultiSwitch" H 4500 4650 50  0001 C CNN
+F 2 "my-switches:SMD_Tactile_Switch" H 4500 4650 50  0001 C CNN
 F 3 "" H 4500 4650 50  0001 C CNN
 	1    4500 4450
 	1    0    0    -1  
@@ -120,7 +110,7 @@ U 1 1 5DD2AF93
 P 4500 4800
 F 0 "SW42" H 4500 4993 50  0000 C CNN
 F 1 "SW_Push" H 4500 4994 50  0001 C CNN
-F 2 "my-switches:SMD_MultiSwitch" H 4500 5000 50  0001 C CNN
+F 2 "my-switches:SMD_Tactile_Switch" H 4500 5000 50  0001 C CNN
 F 3 "" H 4500 5000 50  0001 C CNN
 	1    4500 4800
 	1    0    0    -1  
@@ -131,7 +121,7 @@ U 1 1 5DD2AF9A
 P 4500 5150
 F 0 "SW52" H 4500 5343 50  0000 C CNN
 F 1 "SW_Push" H 4500 5344 50  0001 C CNN
-F 2 "my-switches:SMD_MultiSwitch" H 4500 5350 50  0001 C CNN
+F 2 "my-switches:SMD_Tactile_Switch" H 4500 5350 50  0001 C CNN
 F 3 "" H 4500 5350 50  0001 C CNN
 	1    4500 5150
 	1    0    0    -1  
@@ -142,7 +132,7 @@ U 1 1 5DD2AFA1
 P 4500 5500
 F 0 "SW62" H 4500 5693 50  0000 C CNN
 F 1 "SW_Push" H 4500 5694 50  0001 C CNN
-F 2 "my-switches:SMD_MultiSwitch" H 4500 5700 50  0001 C CNN
+F 2 "my-switches:SMD_Tactile_Switch" H 4500 5700 50  0001 C CNN
 F 3 "" H 4500 5700 50  0001 C CNN
 	1    4500 5500
 	1    0    0    -1  
@@ -153,7 +143,7 @@ U 1 1 5DD2B066
 P 5300 3750
 F 0 "SW13" H 5300 3943 50  0000 C CNN
 F 1 "SW_Push" H 5300 3944 50  0001 C CNN
-F 2 "my-switches:SMD_MultiSwitch" H 5300 3950 50  0001 C CNN
+F 2 "my-switches:SMD_Tactile_Switch" H 5300 3950 50  0001 C CNN
 F 3 "" H 5300 3950 50  0001 C CNN
 	1    5300 3750
 	1    0    0    -1  
@@ -164,7 +154,7 @@ U 1 1 5DD2B06D
 P 5300 4100
 F 0 "SW23" H 5300 4293 50  0000 C CNN
 F 1 "SW_Push" H 5300 4294 50  0001 C CNN
-F 2 "my-switches:SMD_MultiSwitch" H 5300 4300 50  0001 C CNN
+F 2 "my-switches:SMD_Tactile_Switch" H 5300 4300 50  0001 C CNN
 F 3 "" H 5300 4300 50  0001 C CNN
 	1    5300 4100
 	1    0    0    -1  
@@ -175,7 +165,7 @@ U 1 1 5DD2B07B
 P 5300 4800
 F 0 "SW43" H 5300 4993 50  0000 C CNN
 F 1 "SW_Push" H 5300 4994 50  0001 C CNN
-F 2 "my-switches:SMD_MultiSwitch" H 5300 5000 50  0001 C CNN
+F 2 "my-switches:SMD_Tactile_Switch" H 5300 5000 50  0001 C CNN
 F 3 "" H 5300 5000 50  0001 C CNN
 	1    5300 4800
 	1    0    0    -1  
@@ -186,7 +176,7 @@ U 1 1 5DD2B082
 P 5300 5150
 F 0 "SW53" H 5300 5343 50  0000 C CNN
 F 1 "SW_Push" H 5300 5344 50  0001 C CNN
-F 2 "my-switches:SMD_MultiSwitch" H 5300 5350 50  0001 C CNN
+F 2 "my-switches:SMD_Tactile_Switch" H 5300 5350 50  0001 C CNN
 F 3 "" H 5300 5350 50  0001 C CNN
 	1    5300 5150
 	1    0    0    -1  
@@ -197,7 +187,7 @@ U 1 1 5DD2B16C
 P 6100 3750
 F 0 "SW14" H 6100 3943 50  0000 C CNN
 F 1 "SW_Push" H 6100 3944 50  0001 C CNN
-F 2 "my-switches:SMD_MultiSwitch" H 6100 3950 50  0001 C CNN
+F 2 "my-switches:SMD_Tactile_Switch" H 6100 3950 50  0001 C CNN
 F 3 "" H 6100 3950 50  0001 C CNN
 	1    6100 3750
 	1    0    0    -1  
@@ -208,7 +198,7 @@ U 1 1 5DD2B173
 P 6100 4100
 F 0 "SW24" H 6100 4293 50  0000 C CNN
 F 1 "SW_Push" H 6100 4294 50  0001 C CNN
-F 2 "my-switches:SMD_MultiSwitch" H 6100 4300 50  0001 C CNN
+F 2 "my-switches:SMD_Tactile_Switch" H 6100 4300 50  0001 C CNN
 F 3 "" H 6100 4300 50  0001 C CNN
 	1    6100 4100
 	1    0    0    -1  
@@ -219,7 +209,7 @@ U 1 1 5DD2B181
 P 6100 4800
 F 0 "SW44" H 6100 4993 50  0000 C CNN
 F 1 "SW_Push" H 6100 4994 50  0001 C CNN
-F 2 "my-switches:SMD_MultiSwitch" H 6100 5000 50  0001 C CNN
+F 2 "my-switches:SMD_Tactile_Switch" H 6100 5000 50  0001 C CNN
 F 3 "" H 6100 5000 50  0001 C CNN
 	1    6100 4800
 	1    0    0    -1  
@@ -230,7 +220,7 @@ U 1 1 5DD2B188
 P 6100 5150
 F 0 "SW54" H 6100 5343 50  0000 C CNN
 F 1 "SW_Push" H 6100 5344 50  0001 C CNN
-F 2 "my-switches:SMD_MultiSwitch" H 6100 5350 50  0001 C CNN
+F 2 "my-switches:SMD_Tactile_Switch" H 6100 5350 50  0001 C CNN
 F 3 "" H 6100 5350 50  0001 C CNN
 	1    6100 5150
 	1    0    0    -1  
@@ -241,7 +231,7 @@ U 1 1 5DD2B18F
 P 6100 5500
 F 0 "SW64" H 6100 5693 50  0000 C CNN
 F 1 "SW_Push" H 6100 5694 50  0001 C CNN
-F 2 "my-switches:SMD_MultiSwitch" H 6100 5700 50  0001 C CNN
+F 2 "my-switches:SMD_Tactile_Switch" H 6100 5700 50  0001 C CNN
 F 3 "" H 6100 5700 50  0001 C CNN
 	1    6100 5500
 	1    0    0    -1  
@@ -252,7 +242,7 @@ U 1 1 5DD2B270
 P 6900 3750
 F 0 "SW15" H 6900 3943 50  0000 C CNN
 F 1 "SW_Push" H 6900 3944 50  0001 C CNN
-F 2 "my-switches:SMD_MultiSwitch" H 6900 3950 50  0001 C CNN
+F 2 "my-switches:SMD_Tactile_Switch" H 6900 3950 50  0001 C CNN
 F 3 "" H 6900 3950 50  0001 C CNN
 	1    6900 3750
 	1    0    0    -1  
@@ -263,7 +253,7 @@ U 1 1 5DD2B277
 P 6900 4100
 F 0 "SW25" H 6900 4293 50  0000 C CNN
 F 1 "SW_Push" H 6900 4294 50  0001 C CNN
-F 2 "my-switches:SMD_MultiSwitch" H 6900 4300 50  0001 C CNN
+F 2 "my-switches:SMD_Tactile_Switch" H 6900 4300 50  0001 C CNN
 F 3 "" H 6900 4300 50  0001 C CNN
 	1    6900 4100
 	1    0    0    -1  
@@ -274,7 +264,7 @@ U 1 1 5DD2B27E
 P 6900 4450
 F 0 "SW35" H 6900 4643 50  0000 C CNN
 F 1 "SW_Push" H 6900 4644 50  0001 C CNN
-F 2 "my-switches:SMD_MultiSwitch" H 6900 4650 50  0001 C CNN
+F 2 "my-switches:SMD_Tactile_Switch" H 6900 4650 50  0001 C CNN
 F 3 "" H 6900 4650 50  0001 C CNN
 	1    6900 4450
 	1    0    0    -1  
@@ -285,7 +275,7 @@ U 1 1 5DD2B285
 P 6900 4800
 F 0 "SW45" H 6900 4993 50  0000 C CNN
 F 1 "SW_Push" H 6900 4994 50  0001 C CNN
-F 2 "my-switches:SMD_MultiSwitch" H 6900 5000 50  0001 C CNN
+F 2 "my-switches:SMD_Tactile_Switch" H 6900 5000 50  0001 C CNN
 F 3 "" H 6900 5000 50  0001 C CNN
 	1    6900 4800
 	1    0    0    -1  
@@ -296,7 +286,7 @@ U 1 1 5DD2B28C
 P 6900 5150
 F 0 "SW55" H 6900 5343 50  0000 C CNN
 F 1 "SW_Push" H 6900 5344 50  0001 C CNN
-F 2 "my-switches:SMD_MultiSwitch" H 6900 5350 50  0001 C CNN
+F 2 "my-switches:SMD_Tactile_Switch" H 6900 5350 50  0001 C CNN
 F 3 "" H 6900 5350 50  0001 C CNN
 	1    6900 5150
 	1    0    0    -1  
@@ -307,7 +297,7 @@ U 1 1 5DD2B293
 P 5300 5500
 F 0 "SW63" H 5300 5693 50  0000 C CNN
 F 1 "SW_Push" H 5300 5694 50  0001 C CNN
-F 2 "my-switches:SMD_MultiSwitch" H 5300 5700 50  0001 C CNN
+F 2 "my-switches:SMD_Tactile_Switch" H 5300 5700 50  0001 C CNN
 F 3 "" H 5300 5700 50  0001 C CNN
 	1    5300 5500
 	1    0    0    -1  
@@ -318,7 +308,7 @@ U 1 1 5DD2B356
 P 7700 3750
 F 0 "SW16" H 7700 3943 50  0000 C CNN
 F 1 "SW_Push" H 7700 3944 50  0001 C CNN
-F 2 "my-switches:SMD_MultiSwitch" H 7700 3950 50  0001 C CNN
+F 2 "my-switches:SMD_Tactile_Switch" H 7700 3950 50  0001 C CNN
 F 3 "" H 7700 3950 50  0001 C CNN
 	1    7700 3750
 	1    0    0    -1  
@@ -329,7 +319,7 @@ U 1 1 5DD2B35D
 P 7700 4100
 F 0 "SW26" H 7700 4293 50  0000 C CNN
 F 1 "SW_Push" H 7700 4294 50  0001 C CNN
-F 2 "my-switches:SMD_MultiSwitch" H 7700 4300 50  0001 C CNN
+F 2 "my-switches:SMD_Tactile_Switch" H 7700 4300 50  0001 C CNN
 F 3 "" H 7700 4300 50  0001 C CNN
 	1    7700 4100
 	1    0    0    -1  
@@ -340,7 +330,7 @@ U 1 1 5DD2B364
 P 7700 4450
 F 0 "SW36" H 7700 4643 50  0000 C CNN
 F 1 "SW_Push" H 7700 4644 50  0001 C CNN
-F 2 "my-switches:SMD_MultiSwitch" H 7700 4650 50  0001 C CNN
+F 2 "my-switches:SMD_Tactile_Switch" H 7700 4650 50  0001 C CNN
 F 3 "" H 7700 4650 50  0001 C CNN
 	1    7700 4450
 	1    0    0    -1  
@@ -351,7 +341,7 @@ U 1 1 5DD2B372
 P 7700 5150
 F 0 "SW56" H 7700 5343 50  0000 C CNN
 F 1 "SW_Push" H 7700 5344 50  0001 C CNN
-F 2 "my-switches:SMD_MultiSwitch" H 7700 5350 50  0001 C CNN
+F 2 "my-switches:SMD_Tactile_Switch" H 7700 5350 50  0001 C CNN
 F 3 "" H 7700 5350 50  0001 C CNN
 	1    7700 5150
 	1    0    0    -1  
@@ -362,7 +352,7 @@ U 1 1 5DD2B379
 P 7700 5500
 F 0 "SW66" H 7700 5693 50  0000 C CNN
 F 1 "SW_Push" H 7700 5694 50  0001 C CNN
-F 2 "my-switches:SMD_MultiSwitch" H 7700 5700 50  0001 C CNN
+F 2 "my-switches:SMD_Tactile_Switch" H 7700 5700 50  0001 C CNN
 F 3 "" H 7700 5700 50  0001 C CNN
 	1    7700 5500
 	1    0    0    -1  
@@ -382,10 +372,7 @@ Wire Wire Line
 	3500 5150 3500 5500
 Connection ~ 3500 5150
 Wire Wire Line
-	4300 4100 4300 4450
-Wire Wire Line
 	4300 4450 4300 4800
-Connection ~ 4300 4450
 Wire Wire Line
 	4300 4800 4300 5150
 Connection ~ 4300 4800
@@ -415,14 +402,7 @@ Wire Wire Line
 Wire Wire Line
 	3900 4100 3900 4150
 Wire Wire Line
-	3900 4150 4700 4150
-Wire Wire Line
-	4700 4150 4700 4100
-Wire Wire Line
-	4700 4150 5500 4150
-Wire Wire Line
 	5500 4150 5500 4100
-Connection ~ 4700 4150
 Wire Wire Line
 	3900 4450 3900 4500
 Wire Wire Line
@@ -588,45 +568,25 @@ Wire Wire Line
 	2100 4650 2700 4650
 Wire Wire Line
 	2700 4650 2700 5700
-Wire Wire Line
-	2700 5700 3500 5700
-Wire Wire Line
-	3500 5700 3500 5500
 Connection ~ 3500 5500
 Wire Wire Line
 	2100 4750 2600 4750
 Wire Wire Line
 	2600 4750 2600 5800
-Wire Wire Line
-	2600 5800 4300 5800
-Wire Wire Line
-	4300 5800 4300 5500
 Connection ~ 4300 5500
 Wire Wire Line
 	2100 4850 2500 4850
 Wire Wire Line
 	2500 4850 2500 5900
 Wire Wire Line
-	2500 5900 5100 5900
-Wire Wire Line
 	2100 4950 2400 4950
 Wire Wire Line
 	2400 4950 2400 6000
-Wire Wire Line
-	2400 6000 5900 6000
-Wire Wire Line
-	5900 6000 5900 5500
 Connection ~ 5900 5500
 Wire Wire Line
 	2100 5050 2300 5050
 Wire Wire Line
 	2300 5050 2300 6100
-Wire Wire Line
-	2300 6100 6700 6100
-Wire Wire Line
-	2200 6200 7500 6200
-Wire Wire Line
-	7500 6200 7500 5500
 Connection ~ 7500 5500
 Wire Wire Line
 	2100 5150 2200 5150
@@ -638,7 +598,7 @@ U 1 1 5DD9316A
 P 1900 4550
 F 0 "J1" H 1820 5367 50  0000 C CNN
 F 1 "MCU" H 1820 5276 50  0000 C CNN
-F 2 "Pin_Headers:Pin_Header_Angled_1x13_Pitch2.54mm" H 1900 4550 50  0001 C CNN
+F 2 "my-smd:SMD_Right_Socket_Strip_Angled_1x13_Pitch2.54mm" H 1900 4550 50  0001 C CNN
 F 3 "~" H 1900 4550 50  0001 C CNN
 	1    1900 4550
 	-1   0    0    -1  
@@ -937,28 +897,50 @@ Text Label 2700 4450 0    50   ~ 0
 ROW5
 Text Label 2700 4550 0    50   ~ 0
 ROW6
-Text Label 2800 5700 0    50   ~ 0
+Text Label 2900 6200 0    50   ~ 0
 COL1
-Text Label 2800 5800 0    50   ~ 0
+Text Label 2900 6000 0    50   ~ 0
 COL2
-Text Label 2800 5900 0    50   ~ 0
+Text Label 2900 5800 0    50   ~ 0
 COL3
-Text Label 2800 6000 0    50   ~ 0
+Text Label 2900 6100 0    50   ~ 0
 COL4
-Text Label 2800 6100 0    50   ~ 0
+Text Label 2900 5900 0    50   ~ 0
 COL5
-Text Label 2800 6200 0    50   ~ 0
+Text Label 2900 5700 0    50   ~ 0
 COL6
-Connection ~ 5100 5500
-Wire Wire Line
-	5100 5500 5100 5900
 Wire Wire Line
 	6300 5550 7900 5550
 Wire Wire Line
 	5500 5500 5500 5550
 Wire Wire Line
-	6700 5150 6700 6100
+	6700 5150 6700 5900
 Connection ~ 5500 5550
 Wire Wire Line
 	5500 5550 6300 5550
+Wire Wire Line
+	3900 4150 5500 4150
+Wire Wire Line
+	2200 6200 3500 6200
+Wire Wire Line
+	3500 5500 3500 6200
+Wire Wire Line
+	2300 6100 5900 6100
+Wire Wire Line
+	5900 5500 5900 6100
+Wire Wire Line
+	2400 6000 4300 6000
+Wire Wire Line
+	4300 5500 4300 6000
+Wire Wire Line
+	2500 5900 6700 5900
+Wire Wire Line
+	2600 5800 5100 5800
+Wire Wire Line
+	5100 5800 5100 5500
+Connection ~ 5100 5500
+Wire Wire Line
+	2700 5700 7500 5700
+Wire Wire Line
+	7500 5700 7500 5500
 $EndSCHEMATC
