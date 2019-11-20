@@ -1,4 +1,4 @@
 (sym_lib_table
   (lib (name maxim)(type Legacy)(uri C:/wip/KiCad-Libraries/symbols/maxim.lib)(options "")(descr ""))
-  (lib (name Charger-rescue)(type Legacy)(uri ${KIPRJMOD}/Charger-rescue.lib)(options "")(descr ""))
+  (lib (name PowerSupply-rescue)(type Legacy)(uri ${KIPRJMOD}/PowerSupply-rescue.lib)(options "")(descr ""))
 )
