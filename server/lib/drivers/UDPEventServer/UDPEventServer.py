@@ -48,7 +48,8 @@ class Device(BaseDevice):
                 return
             if self.apiKey != event.get('apiKey'):
                 self.logger.error('Invalid apiKey from {}'.format(address))
-            
+                return
+                
         if 'type' not in event:
             self.logger.error('Missing event type from {}: {}'.format(address, event))
             return
