@@ -19,3 +19,28 @@ Button Test 5:
 0.1 layer
 0% infill
 no skirt
+
+
+Hub-Top:
+Material: PETG, 44.71g
+Layers: 0.1mm
+Infill: 5% Gyroid
+Perimeters: 4
+Time: 6:14
+Printer: Prusa MK3
+
+Hub-Bottom:
+Material: PETG, 60.95g
+Layers: 0.1mm
+Infill: 5% Gyroid
+Perimeters: 4
+Time: 8:56
+Printer: Prusa MK3
+
+Remote Control-Bottom:
+Material: PETG, 38.89g
+Layers: 0.1mm
+Infill: 5% Gyroid
+Perimeters: 4
+Time: 5:10
+Printer: Prusa MK3
