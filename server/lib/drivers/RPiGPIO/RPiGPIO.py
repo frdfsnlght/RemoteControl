@@ -100,9 +100,7 @@ class Pin():
         elif self.mode == 'hardPWM':
             self.setPWM(0, 0)
         elif self.mode == 'softPWM':
-            if self.pwmTimer is not None:
-                self.pwmTimer.cancel()
-                self.pwmTimer = None
+            self.setPWM(0, 0)
             
 
     def inputCallback(self, pin, level, tick):
@@ -163,10 +161,15 @@ class Pin():
             if self.pwmTimer is not None:
                 self.pwmTimer.cancel()
                 self.pwmTimer = None
+        elif self.dutyCycle == 1:
+            self.device.pi.write(self.pin, 1)
+            if self.pwmTimer is not None:
+                self.pwmTimer.cancel()
+                self.pwmTimer = None
         else:
             self.device.pi.write(self.pin, 1)
             if self.pwmTimer is None:
-                self.pwmTimer = Timer(self.dutyCycle / self.frequency, self.pwmTimerLow)
+                self.pwmTimer = Timer(self.dutyCycle / self.frequency, self.pwmTimerLow, repeat = True)
                 self.pwmTimer.start()
             else:
                 self.pwmTimer.reset(self.dutyCycle / self.frequency, self.pwmTimerLow)
@@ -238,33 +241,34 @@ class Device(BaseDevice):
         if pin is None: pin = self.pinsByName.get(pinOrName)
         if pin is None:
             raise DeviceException('Pin "{}" is unknown!', pinOrName)
+        return pin
             
     #--------------------------------------------------------------------------
     # Public API
     #
 
     def getInput(self, pinOrName):
-        if not self.connected: return None
+        if self.pi is None or not self.pi.connected: return None
         pin = self.__findPin(pinOrName)
         return pin.getInput()
             
-    def setOuput(self, pin, level):
-        if not self.connected: return None
+    def setOuput(self, pinOrName, level):
+        if self.pi is None or not self.pi.connected: return None
         pin = self.__findPin(pinOrName)
         pin.setOutput(level)
     
-    def setPWM(self, frequency, dutyCycle):
-        if not self.connected: return None
+    def setPWM(self, pinOrName, frequency, dutyCycle):
+        if self.pi is None or not self.pi.connected: return None
         pin = self.__findPin(pinOrName)
-        pin.setPWM(state, frequency, dutyCycle)
+        pin.setPWM(frequency, dutyCycle)
     
-    def setPWMFrequency(self, frequency):
-        if not self.connected: return None
+    def setPWMFrequency(self, pinOrName, frequency):
+        if self.pi is None or not self.pi.connected: return None
         pin = self.__findPin(pinOrName)
-        pin.setPWMFrequency(state, frequency)
+        pin.setPWMFrequency(frequency)
     
-    def setPWMDuty(self, dutyCycle):
-        if not self.connected: return None
+    def setPWMDutyCycle(self, pinOrName, dutyCycle):
+        if self.pi is None or not self.pi.connected: return None
         pin = self.__findPin(pinOrName)
-        pin.setPWMDuty(state, dutyCycle)
+        pin.setPWMDuty(dutyCycle)
     
