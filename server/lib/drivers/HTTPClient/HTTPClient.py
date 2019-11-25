@@ -82,6 +82,11 @@ class Device(BaseDevice):
     def __reset(self):
         self.requests = None
 
+    def __getattr__(self, k):
+        if k in self.requets:
+            return self.requeus[k]
+        return super().__getattr__(k)
+        
     #--------------------------------------------------------------------------
     # Public API
     #
