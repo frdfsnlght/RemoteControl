@@ -7,6 +7,9 @@ import hub
 class ControllerException(Exception):
     pass
     
+class Exit(Exception):
+    pass
+    
 class ControllerEvent():
 
     def __init__(self, type, device = None):
@@ -125,7 +128,9 @@ class Controller():
             'aState': None,
             'logger': None,
             
-            'sleep': time.sleep
+            'sleep': time.sleep,
+            'time': time.time,
+            'Exit': Exit
         }
         
     def configure(self, **config):
@@ -266,6 +271,15 @@ class Controller():
         self.execGlobals['event'] = event
         self.execGlobals['button'] = button
         try:
-            exec(code, self.execGlobals, locals)
+            if isinstance(code, list):
+                for c in code:
+                    try:
+                        exec(c, self.execGlobals, locals)
+                    except Exit:
+                        pass
+            else:
+                exec(code, self.execGlobals, locals)
+        except Exit:
+            pass
         except:
             self.logger.exception('Exception raised during code execution:')

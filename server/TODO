@@ -1,3 +1,2 @@
 
-* DotDict return DotDict for dict values
-* HTTPClient method like access for request names
+* Save/restore state/activity on quit/start

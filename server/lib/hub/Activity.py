@@ -24,8 +24,8 @@ class Activity():
         self.basedOn = config.get('basedOn', [])
         self.buttons = config.get('buttons', {})
         self.events = config.get('events', {})
-        self.buttonsIgnore = config.get('buttonsIgnore', [])
-        self.eventsIgnore = config.get('eventsIgnore', [])
+        self.ignoreButtons = config.get('ignoreButtons', [])
+        self.ignoreEvents = config.get('ignoreEvents', [])
         
         for (btnId, btnConf) in self.buttons.items():
             button = ActivityButton(btnId, self)
@@ -60,29 +60,59 @@ class Activity():
         basedOn.reverse()
         self.basedOn = basedOn
 
-        self.__inheritDictionary('buttons')
-        self.__inheritDictionary('events')
-
+        self.__inheritButtons()
+        self.__inheritEvents()
         
-    def __inheritProperty(self, prop):
-        if getattr(self, prop) is None:
-            for act in self.basedOn:
-                val = getattr(act, prop)
-                if val is not None:
-                    setattr(self, prop, val)
-                    break
+#    def __inheritProperty(self, prop):
+#        if getattr(self, prop) is None:
+#            for act in self.basedOn:
+#                val = getattr(act, prop)
+#                if val is not None:
+#                    setattr(self, prop, val)
+#                    break
     
-    def __inheritDictionary(self, attr):
-        myDict = getattr(self, attr)
-        myIgnore = set(getattr(self, attr + 'Ignore'))
-        if myIgnore is not None and myIgnore == 'all':
-            return
+    def __inheritButtons(self):
+        if self.ignoreButtons == 'all': return
+        ignore = set(self.ignoreButtons)
         for act in self.basedOn:
-            actDict = getattr(act, attr)
-            actIgnore = set(getattr(act, attr + 'Ignore'))
-            myIgnore = myIgnore | actIgnore
-            for (k, v) in actDict.items():
-                if k not in myIgnore and k not in myDict:
-                    myDict[k] = v
-        
-        
+            for (k, v) in act.buttons.items():
+                if k in ignore: continue
+                if k in self.buttons: continue
+                self.buttons[k] = v
+                
+    def __inheritEvents(self):
+        if self.ignoreEvents == 'all': return
+        ignore = set(self.ignoreEvents)
+        for act in self.basedOn:
+            for (k, v) in act.events.items():
+                if k in ignore: continue
+                if k in self.events: continue
+                if k + '+' in self.events:
+                    myV = self.events[k + '+']
+                    del(self.events[k + '+'])
+                    self.events[k] = []
+                    if isinstance(v, list):
+                        self.events[k].extend(v)
+                    else:
+                        self.events[k].append(v)
+                    self.events[k].append(myV)
+                elif '+' + k in self.events:
+                    myV = self.events['+' + k]
+                    del(self.events['+' + k])
+                    self.events[k] = [myV]
+                    if isinstance(v, list):
+                        self.events[k].extend(v)
+                    else:
+                        self.events[k].append(v)
+                else:
+                    self.events[k] = v
+                    
+        # cleanup
+        for (k, v) in {**self.events}.items():
+            if k[:1] == '+':
+                self.events[k[1:]] = self.events[k]
+                del(self.events[k])
+            elif k[-1:] == '+':
+                self.events[k[:-1]] = self.events[k]
+                del(self.events[k])
+                

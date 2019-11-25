@@ -145,6 +145,10 @@ class Device(BaseDevice):
         data = struct.pack('15B', *colors)
         self.ledsChar.write(data)
 
+    #--------------------------------------------------------------------------
+    # Public API
+    #
+        
     @property
     def reset(self):
         if not self.connected: return

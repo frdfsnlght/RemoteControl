@@ -9,7 +9,7 @@ class DotDict(dict):
     def __getattr__(self, k):
         if k in self:
             v = self[k]
-            if instanceof(v, dict) and not instanceof(v, DotDict):
+            if isinstance(v, dict) and not instanceof(v, DotDict):
                 v = DotDict(v)
                 self[k] = v
             return v
