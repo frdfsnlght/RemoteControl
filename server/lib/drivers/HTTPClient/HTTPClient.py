@@ -63,6 +63,7 @@ class ClientRequest():
 class Device(BaseDevice):
 
     def configure(self, **config):
+        super().configure(**config)
         self.__reset()
         self.requests = {}
 

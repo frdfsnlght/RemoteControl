@@ -7,6 +7,7 @@ from hub import BaseDevice
 class Device(BaseDevice):
 
     def configure(self, **config):
+        super().configure(**config)
         self.port = config.get('port', 1969)
         self.address = config.get('address', '127.0.0.1')
         self.apiKey = config.get('apiKey')

@@ -13,4 +13,4 @@ class DotDict(dict):
                 v = DotDict(v)
                 self[k] = v
             return v
-        return super().__getattr__(k)
+        raise AttributeError("'{}' object has no attribute '{}'".format(__name__, k))
