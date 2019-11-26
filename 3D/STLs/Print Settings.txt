@@ -1,31 +1,10 @@
 
-
-Button Test 2:
-0.1mm detail
-15% honeycomb infill
-no skirt
-
-Button Test 3:
-0.05 detail
-15% honeycomb
-no skirt
-
-Button Test 4:
-0.1 layer
-10% gyroid
-no skirt
-
-Button Test 5:
-0.1 layer
-0% infill
-no skirt
-
-
 Hub-Top:
 Material: PETG, 44.71g
 Layers: 0.1mm
 Infill: 5% Gyroid
 Perimeters: 4
+Supports: No
 Time: 6:14
 Printer: Prusa MK3
 
@@ -34,6 +13,7 @@ Material: PETG, 60.95g
 Layers: 0.1mm
 Infill: 5% Gyroid
 Perimeters: 4
+Supports: Yes
 Time: 8:56
 Printer: Prusa MK3
 
@@ -42,5 +22,33 @@ Material: PETG, 38.89g
 Layers: 0.1mm
 Infill: 5% Gyroid
 Perimeters: 4
+Supports: Yes
 Time: 5:10
+Printer: Prusa MK3
+
+Remote Control-Top:
+Material: PETG, 33.36g
+Layers: 0.1mm
+Infill: 5% Gyroid
+Perimeters: 4
+Supports: No
+Time: 5:53
+Printer: Prusa MK3
+
+Keypad Spacer/Battery Spacer/Qi Charger Spacer/Button Hole Test:
+Material: PETG, 16.07g
+Layers: 0.1mm
+Infill: 5% Gyroid
+Perimeters: 2
+Supports: No
+Time: 2:32
+Printer: Prusa MK3
+
+Light Pipe Tool:
+Material: PETG, 0.63g
+Layers: 0.15mm
+Infill: 5% Grid
+Perimeters: 2
+Supports: No
+Time: 0:08
 Printer: Prusa MK3
