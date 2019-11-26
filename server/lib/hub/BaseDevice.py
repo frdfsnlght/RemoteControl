@@ -18,7 +18,7 @@ class BaseDevice():
         self.state = hub.DotDict()
         
     def configure(self, **config):
-        pass
+        self.state.update(config.get('state', {}))
 
     def start(self):
         self.logger.info('Starting...')

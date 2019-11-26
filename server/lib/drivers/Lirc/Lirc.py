@@ -6,31 +6,34 @@ import lirc, time
 from hub import BaseDevice, DeviceException
 
 
-class Remote():
+class RemoteKey():
 
-    def __init__(self, device, name):
+    def __init__(self, device, key):
         self.device = device
-        self.name = name
+        self.name = key
         
-    def keyDown(self, key):
-        self.device.keyDown(self.name, key)
+    def down(self):
+        self.device.keyDown(key)
         
-    def keyUp(self, key):
-        self.device.keyUp(self.name, key)
+    def up(self):
+        self.device.keyUp(key)
         
-    def keyPress(self, key):
-        self.device.keyPress(self.name, key)
+    def press(self, downTime = None):
+        self.device.keyPress(key, downTime)
         
         
 class Device(BaseDevice):
 
     def configure(self, **config):
+        super().configure(**config)
         self.socket = config.get('socket', lirc.client.get_default_socket_path())
-        self.remoteIds = config.get('remotes', {})
+        self.remote = config.get('remote')
+        if self.remote is None:
+            raise DeviceException('Remote name is required!')
+        self.buttonMap = config.get('buttonMap', {})
         self.keyPressDownTime = config.get('keyPressDownTime', 0.25)
         if self.keyPressDownTime <= 0:
             raise DeviceException('keyPressDownTime must be positive!')
-        
         self.__reset()
 
     def start(self):
@@ -41,21 +44,25 @@ class Device(BaseDevice):
             self.__lirc = lirc.CommandConnection(socket_path = self.socket)
         
             reply = lirc.VersionCommand(self.__lirc).run()
-            self.logger.info('LIRC version {}'.format(reply.data[0]))
+            version = reply.data[0]
             
             reply = lirc.ListRemotesCommand(self.__lirc).run()
-            self.logger.info('Available LIRC remotes: {}'.format(', '.join(reply.data)))
-            
-            for name in reply.data:
-                remote = Remote(self, name)
-                self.remotes[name] = remote
-        
-            for (id, name) in self.remoteIds.items():
-                if name not in self.remotes:
-                    self.logger.error('Remote "{}" ({}) is not a listed remote!'.format(id, name))
+            if self.remote not in reply.data:
+                raise DeviceException('Remote "{}" is not in the list of available remotes: {}'.format(self.remote, ', '.join(reply.data)))
+
+            self.__keys = {}
+            reply = lirc.ListKeysCommand(self.__lirc, self.remote).run()
+            keys = [k.split()[1] for k in reply.data]
+            for (button, key) in self.buttonMap.items():
+                if key not in keys:
+                    raise DeviceException('Remote key "{}" is not in the list of available keys for remote "{}": {}'.format(key, self.remote, ', '.join(keys)))
+                key = RemoteKey(self, key)
+                self.__keys[button] = key
                     
-            self.logger.info('Connected to LIRC at {}'.format(self.socket))
+            self.logger.info('Connected to LIRC v{} at {}'.format(version, self.socket))
         
+        except DeviceException:
+            raise
         except:
             self.logger.exception('Unable to connect to LIRC at {}!'.format(self.socket))
             self.__reset()
@@ -69,61 +76,59 @@ class Device(BaseDevice):
 
     def __reset(self):
         self.__lirc = None
-        self.remotes = {}
+        self.__keys = None
         
-    def __getRemote(self, nameOrId):
-        if nameOrId in self.remoteIds:
-            nameOrId = self.remoteIds[nameOrId]
-        if nameOrId in self.remotes:
-            return self.remotes[nameOrId]
-        raise DeviceException('Unknown LIRC remote "{}"!'.format(nameOrId))
+    def __getKey(self, button):
+        if button in self.__keys:
+            return self.__keys[button]
+        raise DeviceException('Unknown button "{}" for LIRC remote "{}"!'.format(button, self.remote))
         
     def __getattr__(self, attr):
-        return self.__getRemote(attr)
+        return self.__getKey(attr)
             
             
     #--------------------------------------------------------------------------
     # Public API
     #
 
-    def keyDown(self, remote, key):
+    def keyDown(self, key):
         if self.__lirc is None: return
-        self.logger.debug('Send key down for LIRC remote "{}" key "{}"'.format(remote, key))
-        reply = lirc.StartRepeatCommand(self.__lirc, remote, key).run()
+        self.logger.debug('Send key down for LIRC remote "{}" key "{}"'.format(self.remote, key))
+        reply = lirc.StartRepeatCommand(self.__lirc, self.remote, key).run()
         if not reply.success:
-            self.logger.error('Unable to start repeat for LIRC remote "{}", key "{}": {}'.format(remote, key, reply.data[0]))
+            self.logger.error('Unable to start repeat for LIRC remote "{}", key "{}": {}'.format(self.remote, key, reply.data[0]))
         
-    def keyUp(self, remote, key):
+    def keyUp(self, key):
         if self.__lirc is None: return
-        self.logger.debug('Send key up for LIRC remote "{}" key "{}"'.format(remote, key))
-        reply = lirc.StopRepeatCommand(self.__lirc, remote, key).run()
+        self.logger.debug('Send key up for LIRC remote "{}" key "{}"'.format(self.remote, key))
+        reply = lirc.StopRepeatCommand(self.__lirc, self.remote, key).run()
         if not reply.success:
-            self.logger.error('Unable to stop repeat for LIRC remote "{}", key "{}": {}'.format(remote, key, reply.data[0]))
+            self.logger.error('Unable to stop repeat for LIRC remote "{}", key "{}": {}'.format(self.remote, key, reply.data[0]))
     
     # this doesn't work because of a bug in the LIRC python bindings as of [at least] LIRC v0.10.1
-#    def keyPress(self, remote, key):
+#    def keyPress(self, key):
 #        if self.__lirc is None: return
-#        reply = lirc.SendCommand(self.__lirc, remote, key).run()
+#        reply = lirc.SendCommand(self.__lirc, self.remote, key).run()
 #        if not reply.success:
-#            self.logger.error('Unable to send command for LIRC remote "{}", key "{}": {}'.format(remote, key, reply.data[0]))
+#            self.logger.error('Unable to send command for LIRC remote "{}", key "{}": {}'.format(self.remote, key, reply.data[0]))
  
     # emulated version
-    def keyPress(self, remote, key, downTime = None):
+    def keyPress(self, key, downTime = None):
         if self.__lirc is None: return
         if downTime is None:
             downTime = self.keyPressDownTime
         elif downTime <= 0:
             raise DeviceException('downTime must be positive!')
             
-        self.logger.debug('Send key press for LIRC remote "{}" key "{}"'.format(remote, key))
+        self.logger.debug('Send key press for LIRC remote "{}" key "{}"'.format(self.remote, key))
         
-        reply = lirc.StartRepeatCommand(self.__lirc, remote, key).run()
+        reply = lirc.StartRepeatCommand(self.__lirc, self.remote, key).run()
         if not reply.success:
-            self.logger.error('Unable to press key for LIRC remote "{}", key "{}": {}'.format(remote, key, reply.data[0]))
+            self.logger.error('Unable to press key for LIRC remote "{}", key "{}": {}'.format(self.remote, key, reply.data[0]))
             
         time.sleep(downTime)
         
-        reply = lirc.StopRepeatCommand(self.__lirc, remote, key).run()
+        reply = lirc.StopRepeatCommand(self.__lirc, self.remote, key).run()
         if not reply.success:
-            self.logger.error('Unable to release key for LIRC remote "{}", key "{}": {}'.format(remote, key, reply.data[0]))
+            self.logger.error('Unable to release key for LIRC remote "{}", key "{}": {}'.format(self.remote, key, reply.data[0]))
                 

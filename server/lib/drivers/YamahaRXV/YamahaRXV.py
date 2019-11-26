@@ -49,6 +49,7 @@ REMOTE_CODES = {
 class Device(BaseDevice):
 
     def configure(self, **config):
+        super().configure(**config)
         self.address = config.get('address')
         if self.address is None:
             raise DeviceException('Address is required!')

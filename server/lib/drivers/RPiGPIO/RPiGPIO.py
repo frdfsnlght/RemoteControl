@@ -13,7 +13,6 @@ class Pin():
         self.device = device
 
     def configure(self, **config):
-    
         self.name = config.get('name', self.pin)
         self.mode = str(config.get('mode', 'input')).lower()
         if self.mode == 'input' or self.mode == 'in':
@@ -189,6 +188,7 @@ class Pin():
 class Device(BaseDevice):
 
     def configure(self, **config):
+        super().configure(**config)
         self.address = config.get('address', '127.0.0.1')
         self.port = config.get('port', 8888)
         pins = config.get('pins')
@@ -243,6 +243,9 @@ class Device(BaseDevice):
             raise DeviceException('Pin "{}" is unknown!', pinOrName)
         return pin
             
+    def __getattr__(self, attr):
+        return self.__findPin(attr)
+        
     #--------------------------------------------------------------------------
     # Public API
     #

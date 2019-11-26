@@ -7,6 +7,7 @@ from hub import BaseDevice, DeviceException
 class Device(BaseDevice):
 
     def configure(self, **config):
+        super().configure(**config)
         self.address = config.get('address')
         self.discoveryTimeout = config.get('discoveryTimeout', 2)
         self.discoveryRetries = config.get('discoveryRetries', 2)

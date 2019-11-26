@@ -115,7 +115,7 @@ class Controller():
         self.eventQueue = queue.Queue()
         self.currentActivity = None
         self.downButtons = {}
-        self.state = {}
+        self.state = hub.DotDict()
         self.execGlobals = {
             'hub': hub,
             'devices': hub.devices,
@@ -134,6 +134,7 @@ class Controller():
         }
         
     def configure(self, **config):
+        self.state.update(config.get('state', {}))
         actId = config.get('startActivity')
         if actId is None:
             raise ControllerException('No start activity defined!')

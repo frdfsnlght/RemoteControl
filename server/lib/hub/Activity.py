@@ -21,6 +21,7 @@ class Activity():
         self.state = hub.DotDict()
         
     def configure(self, **config):
+        self.state.update(config.get('state', {}))
         self.basedOn = config.get('basedOn', [])
         self.buttons = config.get('buttons', {})
         self.events = config.get('events', {})
