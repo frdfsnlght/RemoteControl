@@ -1,0 +1,227 @@
+
+home:
+    buttons:
+        power: controller.switchToActivity('home')
+        b1: controller.switchToActivity('htpcVideo')
+        b2: controller.switchToActivity('netflix')
+        b3: controller.switchToActivity('primeVideo')
+        b4: controller.switchToActivity('htpcMusic')
+
+        
+        theater: |
+            if activity.id == 'home':
+                logger.warning('Unable to open or close the theater outside an activity!')
+                raise Exit()
+            if time() - devices.pjlift.state.time < 60:
+                logger.info('Stopping projector lift!')
+                devices.pjlift.request('stop')
+                devices.htpc.notify('Theater', 'Emergency STOP')
+            elif devices.pjlift.state.open:
+                logger.info('Closing theater')
+                devices.htpc.notify('Theater', 'Theater mode CLOSE')
+                devices.projector.powerOff.press()
+                devices.vera.runScene('Theater off')
+                devices.pjlift.state.open = False
+                devices.pjlift.state.time = time()
+            else:
+                logger.info('Opening theater')
+                devices.htpc.notify('Theater', 'Theater mode OPEN')
+                devices.projector.powerOn.press()
+                devices.pjlift.state.open = True
+                devices.pjlift.state.time = time()
+
+        mediaPlay: |
+            if not devices.pjlift.state.open: raise Exit()
+            devices.vera.runScene('Theater Play')
+        
+        mediaPause: |
+            if not devices.pjlift.state.open: raise Exit()
+            devices.vera.runScene('Theater Pause')
+        
+        mediaResume: |
+            if not devices.pjlift.state.open: raise Exit()
+            devices.vera.runScene('Theater Play')
+        
+        mediaStop: |
+            if not devices.pjlift.state.open: raise Exit()
+            devices.vera.runScene('Theater Pause')
+
+    events:
+        onActivityBegin: |
+            devices.remote.setLEDColors([None, None, None, None, None])
+            if devices.tv.state.powerOn:
+                devices.tv.powerOff.press()
+                devices.tv.state.powerOn = False
+            if devices.amp.state.powerOn:
+                devices.amp.powerStandby()
+                devices.amp.state.powerOn = False
+        BLERemoteConnected: |
+            devices.gpio.status.setPWMDutyCycle(1)
+        BLERemoteDisconnected: |
+            devices.gpio.status.setPWMDutyCycle(0.25)
+            
+mainActivityBase:
+    basedOn:
+        - home
+    buttons:
+        volumeUp:
+            repeat: 0.1 0.5
+            onDown: devices.amp.volumeUp()
+        volumeDown:
+            repeat: 0.1 0.5
+            onDown: devices.amp.volumeDown()
+        mute:
+            onDown: devices.amp.volumeToggleMute()
+
+    events:
+        onActivityBegin: |
+            if not devices.tv.state.powerOn:
+                devices.tv.powerOn.press()
+                devices.tv.state.powerOn = True
+            if not devices.amp.state.powerOn:
+                devices.amp.powerOn()
+                devices.amp.state.powerOn = True
+                sleep(0.5)
+         
+htpcBase:
+    basedOn:
+        - mainActivityBase
+    
+    events:
+        onActivityBegin+: |
+            devices.amp.inputSelect('HTPC')
+        onActivityEnd: |
+            devices.htpc.releaseAll()
+            
+    buttons:
+        play:
+            onDown: devices.htpc.keyDown('p')
+            onUp: devices.htpc.keyUp('p')
+        pause:
+            onDown: devices.htpc.keyDown('space')
+            onUp: devices.htpc.keyUp('space')
+        stop:
+            onDown: devices.htpc.keyDown('x')
+            onUp: devices.htpc.keyUp('x')
+        forward:
+            onDown: devices.htpc.keyDown('f')
+            onUp: devices.htpc.keyUp('f')
+        reverse:
+            onDown: devices.htpc.keyDown('r')
+            onUp: devices.htpc.keyUp('r')
+        delete:
+            onDown: devices.htpc.keyDown('delete')
+            onUp: devices.htpc.keyUp('delete')
+        menu:
+            onDown: devices.htpc.keyDown('c')
+            onUp: devices.htpc.keyUp('c')
+        guide:
+            onDown: devices.htpc.keyDown('e')
+            onUp: devices.htpc.keyUp('e')
+        info:
+            onDown: devices.htpc.keyDown('i')
+            onUp: devices.htpc.keyUp('i')
+        exit:
+            onDown: devices.htpc.remoteDown('back')
+            onUp: devices.htpc.remoteUp('back')
+        up:
+            onDown: devices.htpc.remoteDown('up')
+            onUp: devices.htpc.remoteUp('up')
+        down:
+            onDown: devices.htpc.remoteDown('down')
+            onUp: devices.htpc.remoteUp('down')
+        left:
+            onDown: devices.htpc.remoteDown('left')
+            onUp: devices.htpc.remoteUp('left')
+        right:
+            onDown: devices.htpc.remoteDown('right')
+            onUp: devices.htpc.remoteUp('right')
+        ok:
+            onDown: devices.htpc.remoteDown('select')
+            onUp: devices.htpc.remoteUp('select')
+        pageUp:
+            onDown: devices.htpc.keyDown('pageup')
+            onUp: devices.htpc.keyUp('pageup')
+        pageDown:
+            onDown: devices.htpc.keyDown('pagedown')
+            onUp: devices.htpc.keyUp('pagedown')
+       
+htpcVideo:
+    basedOn:
+        - htpcBase
+    
+    events:
+        +onActivityBegin: |
+            devices.remote.setLEDColors([[0, 0, 255], None, None, None, None])
+        onActivityBegin+: |
+            devices.amp.sceneSelect(1)
+            
+htpcMusic:
+    basedOn:
+        - htpcBase
+    
+    events:
+        +onActivityBegin: |
+            devices.remote.setLEDColors([None, None, None, [0, 0, 255], None])
+        onActivityBegin+: |
+            devices.amp.sceneSelect(2)
+            
+       
+rokuBase:
+    basedOn:
+        - mainActivityBase
+
+    events:
+        onActivityBegin+: |
+            devices.amp.sceneSelect(1)
+            devices.amp.inputSelect('Roku')
+            if devices.pjlift.state.open:
+                devices.vera.runScene('Theater Play')
+        onActivityEnd: |
+            if devices.pjlift.state.open:
+                devices.vera.runScene('Theater Pause')
+    
+    buttons:
+        
+        play: devices.roku.play()
+        pause: devices.roku.play()
+        forward: devices.roku.forward()
+        reverse: devices.roku.reverse()
+        previous: devices.roku.replay()
+        exit: devices.roku.back()
+        up:
+            repeat: 0.1 0.5
+            onDown: devices.roku.up()
+        down:
+            repeat: 0.1 0.5
+            onDown: devices.roku.down()
+        left:
+            repeat: 0.1 0.5
+            onDown: devices.roku.left()
+        right:
+            repeat: 0.1 0.5
+            onDown: devices.roku.right()
+        ok: devices.roku.select()
+            
+netflix:
+    
+    basedOn:
+        - rokuBase
+        
+    events:
+        +onActivityBegin: |
+            devices.remote.setLEDColors([None, [0, 0, 255], None, None, None])
+        onActivityBegin+: |
+            devices.roku.launchApp('Netflix')
+            
+primeVideo:
+    
+    basedOn:
+        - rokuBase
+        
+    events:
+        +onActivityBegin: |
+            devices.remote.setLEDColors([None, None, [0, 0, 255], None, None])
+        onActivityBegin+: |
+            devices.roku.launchApp('Prime Video')
+            

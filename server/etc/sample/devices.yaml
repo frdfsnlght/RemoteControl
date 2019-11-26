@@ -1,0 +1,98 @@
+
+remote:
+    driver: BLERemote
+    address: F0:1C:A6:6A:AC:F9
+    buttonMap:
+        0x11: power
+        0x13: shift
+        0x14: b1
+        0x15: b2
+        0x16: b3
+        0x21: b4
+        0x23: b5
+        0x24: menu
+        0x26: guide
+        0x31: volumeUp
+        0x32: volumeDown
+        0x35: pageUp
+        0x36: pageDown
+        0x41: up
+        0x42: down
+        0x43: left
+        0x44: right
+        0x45: ok
+        0x51: exit
+        0x52: delete
+        0x53: info
+        0x54: reverse
+        0x55: play
+        0x56: forward
+        0x61: previous
+        0x62: pause
+        0x63: stop
+        0x64: theater
+        0x66: mute
+        
+amp:
+    driver: YamahaRXV
+    address: 10.10.10.46
+    state:
+        powerOn: false
+
+htpc:
+    driver: KodiEvent
+    address: 10.10.10.61
+    
+roku:
+    driver: Roku
+    address: 10.10.10.58
+    
+vera:
+    driver: VeraEdge
+    address: 10.10.10.19
+    
+pjlift:
+    driver: HTTPClient
+    requests:
+        stop:
+            url: http://pjlift.home.bennedum.org/stop
+        open:
+            url: http://pjlift.home.bennedum.org/open
+        close:
+            url: http://pjlift.home.bennedum.org/close
+    state:
+        open: false
+        time: 0
+
+gpio:
+    driver: RPiGPIO
+    address: localhost
+    pins:
+        3:
+            name: status
+            mode: softPWM
+            frequency: 1
+            dutyCycle: 0.25
+
+tv:
+    driver: Lirc
+    remote: Vizio_TV
+    state:
+        powerOn: false
+    buttonMap:
+        powerOn: KEY_POWERON
+        powerOff: KEY_POWEROFF
+    
+projector:
+    driver: Lirc
+    remote: Epson_Projector
+    state:
+        powerOn: false
+    buttonMap:
+        powerOn: KEY_ON
+        powerOff: KEY_STANDBY
+        
+udpEventServer:
+    driver: UDPEventServer
+
+        
