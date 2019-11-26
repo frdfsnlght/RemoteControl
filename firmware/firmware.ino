@@ -84,14 +84,20 @@ void(* reset) (void) = 0;
 //=============================================================================
 // Settings
 //
-
+typedef struct {
+    float wakeupAcceleration;
+    uint8_t lowBatteryLevel;
+    uint32_t sleepTime;
+    uint32_t deepSleepTime;
+} settings_t;
+settings_t settings;
 const float DEFAULT_WAKEUPACCELERATION = 1.5;       // g's
-const unsigned char DEFAULT_LOWBATTERYLEVEL = 20;   // percent
-const unsigned long DEFAULT_SLEEPTIME = 10000;      // milliseconds
+const uint8_t DEFAULT_LOWBATTERYLEVEL = 20;         // percent
+const uint32_t DEFAULT_SLEEPTIME = 10000;           // 10 seconds in milliseconds
+const uint32_t DEFAULT_DEEPSLEEPTIME = 3600000;     // 1 hour in milliseconds
+uint32_t* settingsAddress;
 
-float wakeupAcceleration = DEFAULT_WAKEUPACCELERATION;
-unsigned char lowBatterLevel = DEFAULT_LOWBATTERYLEVEL;
-unsigned long sleepTime = DEFAULT_SLEEPTIME;
+#define FLASH_WAIT_READY { while (NRF_NVMC->READY == NVMC_READY_READY_Busy); }
 
 //=============================================================================
 // Power supply
@@ -149,7 +155,7 @@ unsigned long ledsLastBlink;
 //=============================================================================
 // Bluetooth
 //
-const char* BLE_NAME = "RemoteControl";
+const char* BLE_NAME = "BLERemote";
 const unsigned short BLE_ADVERTISING_INTERVAL = 50;
 BLEPeripheral blePeriph;
 BLEService bleServ("1234");
@@ -158,9 +164,10 @@ BLEFixedLengthCharacteristic ledsChar("0002", BLERead | BLEWrite, LEDS_DATA_LENG
 BLEUnsignedCharCharacteristic chargingChar("0003", BLERead | BLENotify);
 BLEFloatCharacteristic batteryLevelChar("0004", BLERead | BLENotify);
 BLEFloatCharacteristic wakeupAccelerationChar("0005", BLERead | BLEWrite);
-BLEUnsignedCharCharacteristic lowBatterLevelChar("0006", BLERead | BLEWrite);
+BLEUnsignedCharCharacteristic lowBatteryLevelChar("0006", BLERead | BLEWrite);
 BLEUnsignedLongCharacteristic sleepTimeChar("0007", BLERead | BLEWrite);
-
+BLEUnsignedLongCharacteristic deepSleepTimeChar("0008", BLERead | BLEWrite);
+BLEUnsignedCharCharacteristic saveSettingsChar("0090", BLEWrite);
 BLEUnsignedCharCharacteristic resetChar("0099", BLEWrite);
 
 //=============================================================================
@@ -177,8 +184,9 @@ volatile bool accelInterrupted = false;
 //=============================================================================
 // Idle
 //
-bool isIdle;
-unsigned long idleStart;
+bool isIdle = false;
+unsigned long idleStart = 0;
+bool isSleeping = false;
 
 //=============================================================================
 // Stats
@@ -194,9 +202,11 @@ void setup() {
     
     digitalWrite(LED_PIN, LOW); // turn on built-in LED
 #ifdef DEBUG
-    Serial.begin(9600);
+    Serial.begin(115200);
 #endif
 
+    loadSettings();
+    
     setupBluetooth();
     setupPowerSupply();
     setupLEDs();
@@ -217,6 +227,76 @@ void loop() {
     loopKeypad();
     loopAccelerometer();
     checkIdle();
+}
+
+
+//=============================================================================
+// Settings
+//
+
+// NVM manipulation inspired by https://github.com/arduino-org/arduino-core-nrf52/blob/master/libraries/BLE/BLEBondStore.cpp
+
+void loadSettings() {
+    debugln("Loading settings...");
+    
+    settingsAddress = (uint32_t*)(NRF_FICR->CODEPAGESIZE * (NRF_FICR->CODESIZE - 4));
+    if (*settingsAddress != 0xFFFFFFFF)
+        memcpy(&settings, settingsAddress, sizeof(settings_t));
+    else {
+        debugln("No saved settings found, loading defaults");
+        settings.wakeupAcceleration = DEFAULT_WAKEUPACCELERATION;
+        settings.lowBatteryLevel = DEFAULT_LOWBATTERYLEVEL;
+        settings.sleepTime = DEFAULT_SLEEPTIME;
+        settings.deepSleepTime = DEFAULT_DEEPSLEEPTIME;
+    }
+    debugln("Done loading settings");
+}
+
+void saveSettings() {
+    debugln("Saving settings...");
+
+    // Erase a page of flash...
+    
+    // turn on flash erase enable
+    NRF_NVMC->CONFIG = (NVMC_CONFIG_WEN_Een << NVMC_CONFIG_WEN_Pos);
+    // wait until ready
+    FLASH_WAIT_READY
+    // erase page
+    NRF_NVMC->ERASEPAGE = (uint32_t)settingsAddress;
+    // wait until ready
+    FLASH_WAIT_READY
+    // turn off flash erase enable
+    NRF_NVMC->CONFIG = (NVMC_CONFIG_WEN_Ren << NVMC_CONFIG_WEN_Pos);
+    // wait until ready
+    FLASH_WAIT_READY
+
+    // Write a page to flash...
+    
+    // turn on flash write enable
+    NRF_NVMC->CONFIG = (NVMC_CONFIG_WEN_Wen << NVMC_CONFIG_WEN_Pos);
+    // wait until ready
+    FLASH_WAIT_READY
+
+    uint8_t length = sizeof(settings_t) / 4;
+    if ((length * 4) < sizeof(settings_t)) length++;
+    uint32_t *out = settingsAddress;
+    uint32_t *in  = (uint32_t*)&settings;
+    for (unsigned char i = 0; i < length; i += 4) { // assumes length is multiple of 4
+        *out = *in;
+        out++;
+        in++;
+    }
+
+    // wait until ready
+    FLASH_WAIT_READY
+
+    // turn off flash write enable
+    NRF_NVMC->CONFIG = (NVMC_CONFIG_WEN_Ren << NVMC_CONFIG_WEN_Pos);
+
+    // wait until ready
+    FLASH_WAIT_READY
+
+    debugln("Done saving settings");
 }
 
 //=============================================================================
@@ -240,18 +320,21 @@ void setupBluetooth() {
     blePeriph.addAttribute(ledsChar);
     blePeriph.addAttribute(chargingChar);
     blePeriph.addAttribute(batteryLevelChar);
-    blePeriph.addAttribute(resetChar);
     blePeriph.addAttribute(wakeupAccelerationChar);
-    blePeriph.addAttribute(lowBatterLevelChar);
+    blePeriph.addAttribute(lowBatteryLevelChar);
     blePeriph.addAttribute(sleepTimeChar);
-
+    blePeriph.addAttribute(deepSleepTimeChar);
+    blePeriph.addAttribute(saveSettingsChar);
+    blePeriph.addAttribute(resetChar);
+    
     // Initialize readable characteristic values
     ledsChar.setValue((unsigned char*)LEDS_OFF, LEDS_DATA_LENGTH);
     chargingChar.setValue(psCharging);
     batteryLevelChar.setValue(psBatteryLevel);
-    wakeupAccelerationChar.setValue(wakeupAcceleration);
-    lowBatterLevelChar.setValue(lowBatterLevel);
-    sleepTimeChar.setValue(sleepTime);
+    wakeupAccelerationChar.setValue(settings.wakeupAcceleration);
+    lowBatteryLevelChar.setValue(settings.lowBatteryLevel);
+    sleepTimeChar.setValue(settings.sleepTime);
+    deepSleepTimeChar.setValue(settings.deepSleepTime);
 
     blePeriph.setEventHandler(BLEConnected, bluetoothConnected);
     
@@ -282,23 +365,31 @@ void loopBluetooth() {
         dumpLEDs(ledsValue);
     }
     if (wakeupAccelerationChar.written()) {
-        wakeupAcceleration = wakeupAccelerationChar.value();
+        settings.wakeupAcceleration = wakeupAccelerationChar.value();
         debug("Set wakeupAcceleration to ");
-        debugln(wakeupAcceleration);
+        debugln(settings.wakeupAcceleration);
         if (accelSetup)
             setAccelerationThreshold();
     }
-    if (lowBatterLevelChar.written()) {
-        lowBatterLevel = lowBatterLevelChar.value();
-        debug("Set lowBatterLevel to ");
-        debugln(lowBatterLevel);
+    if (lowBatteryLevelChar.written()) {
+        settings.lowBatteryLevel = lowBatteryLevelChar.value();
+        debug("Set lowBatteryLevel to ");
+        debugln(settings.lowBatteryLevel);
     }
     if (sleepTimeChar.written()) {
-        sleepTime = sleepTimeChar.value();
+        settings.sleepTime = sleepTimeChar.value();
         debug("Set sleepTime to ");
-        debugln(sleepTime);
+        debugln(settings.sleepTime);
+    }
+    if (deepSleepTimeChar.written()) {
+        settings.deepSleepTime = deepSleepTimeChar.value();
+        debug("Set deepSleepTime to ");
+        debugln(settings.deepSleepTime);
     }
     
+    if (saveSettingsChar.written()) {
+        saveSettings();
+    }
     if (resetChar.written()) {
         debugln("Resetting...");
         delay(1000);
@@ -417,7 +508,7 @@ void loopLEDs() {
     if (psBatteryLevelChanged) {
         psBatteryLevelChanged = false;
         digitalWrite(LED_PIN, HIGH);
-        if (psBatteryLevel < lowBatterLevel) {
+        if (psBatteryLevel < settings.lowBatteryLevel) {
             if (!ledsBlink) {
                 ledsBlink = true;
                 ledsBlinkOn = true;
@@ -443,7 +534,7 @@ void loopLEDs() {
 }
 
 void setLEDs() {
-    if (ledsBlink) return;
+    if (ledsBlink || isSleeping) return;
     setLEDs(ledsValue);
 }
     
@@ -553,7 +644,7 @@ void setAccelerationThreshold() {
     accel.writeRegister(ADXL345_REG_INT_MAP, 0);            // map all interrupts to INT1
     accel.writeRegister(ADXL345_REG_POWER_CTL, 0);          // turn off link and put in standby
     accel.writeRegister(ADXL345_REG_ACT_INACT_CTL, 0xf0);   // ac-coupled x, y, z activity
-    accel.writeRegister(ADXL345_REG_THRESH_ACT, wakeupAcceleration * 1000.0 / 62.5);
+    accel.writeRegister(ADXL345_REG_THRESH_ACT, settings.wakeupAcceleration * 1000.0 / 62.5);
     accel.writeRegister(ADXL345_REG_INT_ENABLE, 0x10);      // enable activity interrupt
     accel.writeRegister(ADXL345_REG_POWER_CTL, 0x08);       // turn on measurement mode
     accel.readRegister(ADXL345_REG_INT_SOURCE);             // read to clear any interrupts
@@ -588,23 +679,40 @@ void checkIdle() {
         if (!isIdle) {
             isIdle = true;
             idleStart = millis();
-        } else if ((idleStart != 0) && ((millis() - idleStart) > sleepTime)) {
+        } else if ((idleStart != 0) && (settings.sleepTime > 0) && ((millis() - idleStart) > settings.sleepTime)) {
             debugln("Going to sleep");
+            isSleeping = true;
             idleStart = 0;
             enterSleep();
+            
+        } else if ((idleStart != 0) && ((millis() - idleStart) > settings.deepSleepTime)) {
+            debugln("Going to deep sleep");
+            enterDeepSleep();
         }
     } else {
         if (isIdle) {
             isIdle = false;
             if (idleStart == 0) {
                 debugln("Waking up");
-                // Should never be here
+                isSleeping = false;
+                exitSleep();
             }
         }
     }
 }
 
 void enterSleep() {
+    setLEDs(LEDS_OFF);
+    digitalWrite(PS_LED_ENABLE_PIN, LOW);  // disble leds
+}
+
+void exitSleep() {
+    digitalWrite(PS_LED_ENABLE_PIN, HIGH);  // enable leds
+    delay(100);
+    setLEDs();
+}
+
+void enterDeepSleep() {
     setLEDs(LEDS_OFF);
     digitalWrite(PS_LED_ENABLE_PIN, LOW);  // disble leds
     // TODO: put fuel gauge in hibernate mode (library doesn't support this)
