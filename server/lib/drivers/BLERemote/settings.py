@@ -4,31 +4,32 @@ import sys, os, struct, argparse
 import bluepy
 import bluepy.btle as bt
 
+periph = bt.Peripheral()
 
-serviceUUID = bt.UUID('1234')
-wakeupAccelerationUUID = bt.UUID('0005');
-lowBatterLevelUUID = bt.UUID('0006');
-sleepTimeUUID = bt.UUID('0007');
-resetUUID = bt.UUID('0099');
+uuids = {
+    'service': bt.UUID('1234'),
+    'wakeupAcceleration': bt.UUID('0005'),
+    'lowBatterLevel': bt.UUID('0006'),
+    'sleepTime': bt.UUID('0007'),
+    'deepSleepTime': bt.UUID('0008'),
+    'saveSettings': bt.UUID('0090'),
+    'reset': bt.UUID('0099')
+}
 
-periph = None
-wakeupAccelerationChar = None
-lowBatterLevelChar = None
-sleepTimeChar = None
-resetChar = None
+characteristics = {}
 
 def connect(address):
-    global periph, wakeupAccelerationChar, lowBatterLevelChar, sleepTimeChar, resetChar
-    periph = bt.Peripheral()
     try:
         periph.connect(address, bt.ADDR_TYPE_RANDOM)
         service = periph.getServiceByUUID(serviceUUID)
         chars = service.getCharacteristics()
 
-        wakeupAccelerationChar = next((c for c in chars if c.uuid == wakeupAccelerationUUID), None)
-        lowBatterLevelChar = next((c for c in chars if c.uuid == lowBatterLevelUUID), None)
-        sleepTimeChar = next((c for c in chars if c.uuid == sleepTimeUUID), None)
-        resetChar = next((c for c in chars if c.uuid == resetUUID), None)
+        characteristics['wakeupAcceleration'] = next((c for c in chars if c.uuid == uuids['wakeupAcceleration']), None)
+        characteristics['lowBatterLevel'] = next((c for c in chars if c.uuid == uuids['lowBatterLevel']), None)
+        characteristics['sleepTime'] = next((c for c in chars if c.uuid == uuids['sleepTime']), None)
+        characteristics['deepSleepTime'] = next((c for c in chars if c.uuid == uuids['deepSleepTime']), None)
+        characteristics['saveSettings'] = next((c for c in chars if c.uuid == uuids['saveSettings']), None)
+        characteristics['reset'] = next((c for c in chars if c.uuid == uuids['reset']), None)
 
         print('Connected')
     except bt.BTLEDisconnectError:
@@ -36,57 +37,69 @@ def connect(address):
         sys.exit(1)
             
 def disconnect():
-    global periph, wakeupAccelerationChar, lowBatterLevelChar, sleepTimeChar, resetChar
     periph.disconnect()
-    periph = None
-    wakeupAccelerationChar = None
-    lowBatterLevelChar = None
-    sleepTimeChar = None
-    resetChar = None
+    characteristics.clear()
     print('Disconnected')
 
 def writeWakeupAcceleration(value):
     data = struct.pack('f', float(value))
-    wakeupAccelerationChar.write(data)
-    print('Wrote wakeup acceleration')
+    characteristics['wakeupAcceleration'].write(data)
+    print('Wrote wakeup acceleration {}'.format(value))
     
 def readWakeupAcceleration():
-    data = wakeupAccelerationChar.read()
+    data = characteristics['wakeupAcceleration'].read()
     value = struct.unpack('f', data)
     return value
     
 def writeLowBatteryLevel(value):
     data = struct.pack('B', int(value))
-    lowBatterLevelChar.write(data)
-    print('Wrote low battery level')
+    characteristics['lowBatterLevel'].write(data)
+    print('Wrote low battery level {}'.format(value))
 
 def readLowBatteryLevel():
-    data = lowBatteryLevelChar.read()
+    data = characteristics['lowBatteryLevel'].read()
     value = struct.unpack('B', data)
     return value
     
 def writeSleepTime(value):
     data = struct.pack('L', int(value))
-    sleepTimeChar.write(data)
-    print('Wrote sleep time')
+    characteristics['sleepTime'].write(data)
+    print('Wrote sleep time {}'.format(value))
 
 def readSleepTime():
-    data = sleepTimeChar.read()
+    data = characteristics['sleepTime'].read()
     value = struct.unpack('L', data)
     return value
     
+def writeDeepSleepTime(value):
+    data = struct.pack('L', int(value))
+    characteristics['deepSleepTime'].write(data)
+    print('Wrote deep sleep time {}'.format(value))
+
+def readDeepSleepTime():
+    data = characteristics['deepSleepTime'].read()
+    value = struct.unpack('L', data)
+    return value
+    
+def saveSettings():
+    data = struct.pack('B', 1)
+    characteristics['saveSettings'].write(data)
+    print('Saved settings')
+
 def reset():
     data = struct.pack('B', 1)
-    resetChar.write(data)
-    print('Wrote reset')
+    characteristics['reset'].write(data)
+    print('Reset')
 
 def readValues():
     acceleration = readWakeupAcceleration()
     batteryLevel = readLowBatteryLevel()
     sleepTime = readSleepTime()
+    deepSleepTime = readDeepSleepTime()
     print('Acceleration: {}Gs'.format(acceleration))
     print('Low battery level: {}%'.format(batteryLevel))
     print('Sleep time: {}ms'.format(sleepTime))
+    print('Deep sleep time: {}ms'.format(deepSleepTime))
 
     
 if __name__ == '__main__':
@@ -95,7 +108,9 @@ if __name__ == '__main__':
     parser.add_argument('-a', '--address', type = str, required = True, help = 'the BT address of the remote')
     parser.add_argument('--acceleration', type = float, help = 'the acceleration required to wake the remote, in Gs (default 1.5)')
     parser.add_argument('--lowBattery', type = int, help = 'the battery level at which the remote indicates low battery, in percent (default 20)')
-    parser.add_argument('--sleep', type = int, help = 'the time after which the remote goes to sleep, in milliseconds (default 10000)')
+    parser.add_argument('--sleep', type = int, help = 'the time after which the remote goes to sleep, in milliseconds (default 10000, 0 to disable)')
+    parser.add_argument('--deepsleep', type = int, help = 'the time after which the remote goes to deep sleep, in milliseconds (default 3600000)')
+    parser.add_argument('--save', action = 'store_true', help = 'save settings to flash')
     parser.add_argument('--reset', action = 'store_true', help = 'reset (reboot) the remote')
     
     options = parser.parse_args(sys.argv[1:])
@@ -106,9 +121,13 @@ if __name__ == '__main__':
         writeLowBatteryLevel(options.lowBattery)
     if options.sleep:
         writeSleepTime(options.sleep)
+    if options.deepsleep:
+        writeDeepSleepTime(options.deepsleep)
         
     readValues()
     
+    if options.save:
+        saveSettings()
     if options.reset:
         reset()
 
