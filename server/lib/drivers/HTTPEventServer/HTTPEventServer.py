@@ -73,7 +73,7 @@ class Device(BaseDevice):
             if not id:
                 self.logger.error('Missing id from {}: {}'.format(flask.request.remote_addr, event))
                 return self.__error('Missing id', 400)
-            self.emitGenericEvent(id = id, payload = event.get('payload', {}))
+            self.emitGenericEvent(id = id, **event.get('args', {}))
             return self.__ok()
         elif type == 'button':
             button = event.get('button')

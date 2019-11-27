@@ -23,24 +23,32 @@ class Activity():
     def configure(self, **config):
         self.state.update(config.get('state', {}))
         self.basedOn = config.get('basedOn', [])
-        self.buttons = config.get('buttons', {})
-        self.events = config.get('events', {})
+        buttons = config.get('buttons', {})
+        events = config.get('events', {})
         self.ignoreButtons = config.get('ignoreButtons', [])
         self.ignoreEvents = config.get('ignoreEvents', [])
         
-        for (btnId, btnConf) in self.buttons.items():
+        self.buttons = {}
+        for (btnId, btnConf) in buttons.items():
             button = ActivityButton(btnId, self)
             if isinstance(btnConf, str):
                 button.configure(onDown = btnConf)
             else:
                 button.configure(**btnConf)
-            self.buttons[btnId] = button
+            self.buttons[button.id] = button
             
-        for (evtId, evtCode) in self.events.items():
+        self.events = {}
+        self.prefixEvents = {}
+        self.postfixEvents = {}
+        for (evtId, evtCode) in events.items():
             event = ActivityEvent(evtId, self)
             event.configure(code = evtCode)
-            self.events[evtId] = event
-            
+            if event.override == 'prefix':
+                self.prefixEvents[event.id] = event
+            elif event.override == 'postfix':
+                self.postfixEvents[event.id] = event
+            else:
+                self.events[event.id] = event
 
     def initialize(self):
         if self.initialized: return
@@ -58,62 +66,49 @@ class Activity():
                 raise ActivityException('Activity "{}" does not exist!'.format(id))
             basedOn[i] = hub.activities[id]
             basedOn[i].initialize()
-        basedOn.reverse()
         self.basedOn = basedOn
 
-        self.__inheritButtons()
-        self.__inheritEvents()
+        if isinstance(self.ignoreButtons, list):
+            for act in self.basedOn:
+                for (id, actButton) in act.buttons.items():
+                    if id in self.ignoreButtons: continue
+                    if id in self.buttons: continue
+                    self.buttons[id] = actButton
         
-#    def __inheritProperty(self, prop):
-#        if getattr(self, prop) is None:
-#            for act in self.basedOn:
-#                val = getattr(act, prop)
-#                if val is not None:
-#                    setattr(self, prop, val)
-#                    break
-    
-    def __inheritButtons(self):
-        if self.ignoreButtons == 'all': return
-        ignore = set(self.ignoreButtons)
-        for act in self.basedOn:
-            for (k, v) in act.buttons.items():
-                if k in ignore: continue
-                if k in self.buttons: continue
-                self.buttons[k] = v
-                
-    def __inheritEvents(self):
-        if self.ignoreEvents == 'all': return
-        ignore = set(self.ignoreEvents)
-        for act in self.basedOn:
-            for (k, v) in act.events.items():
-                if k in ignore: continue
-                if k in self.events: continue
-                if k + '+' in self.events:
-                    myV = self.events[k + '+']
-                    del(self.events[k + '+'])
-                    self.events[k] = []
-                    if isinstance(v, list):
-                        self.events[k].extend(v)
-                    else:
-                        self.events[k].append(v)
-                    self.events[k].append(myV)
-                elif '+' + k in self.events:
-                    myV = self.events['+' + k]
-                    del(self.events['+' + k])
-                    self.events[k] = [myV]
-                    if isinstance(v, list):
-                        self.events[k].extend(v)
-                    else:
-                        self.events[k].append(v)
-                else:
-                    self.events[k] = v
+        if isinstance(self.ignoreEvents, list):
+            for act in self.basedOn:
+                for (id, actEvent) in act.events.items():
+                    if id in self.ignoreEvents: continue
                     
-        # cleanup
-        for (k, v) in {**self.events}.items():
-            if k[:1] == '+':
-                self.events[k[1:]] = self.events[k]
-                del(self.events[k])
-            elif k[-1:] == '+':
-                self.events[k[:-1]] = self.events[k]
-                del(self.events[k])
-                
+                    if id not in self.events:
+                        if isinstance(actEvent, list):
+                            self.events[id] = [*actEvent]
+                        else:
+                            self.events[id] = actEvent
+                        
+                    if id in self.prefixEvents:
+                        myEvent = self.prefixEvents[id]
+                        if isinstance(self.events[id], list):
+                            self.events[id].insert(0, myEvent)
+                        else:
+                            self.events[id] = [myEvent, self.events[id]]
+                            
+                    if id in self.postfixEvents:
+                        myEvent = self.postfixEvents[id]
+                        if isinstance(self.events[id], list):
+                            self.events[id].append(myEvent)
+                        else:
+                            self.events[id] = [self.events[id], myEvent]
+                    
+        del(self.prefixEvents)
+        del(self.postfixEvents)
+        
+                    
+    def __str__(self):
+        return 'Activity({}, buttons={}, events={})'.format(
+            self.id,
+            ', '.join([str(x) for x in self.buttons.values()]),
+            ', '.join([str(x) for x in self.events.values()])
+        )
+        
+    __repr__ = __str__

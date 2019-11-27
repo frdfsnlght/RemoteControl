@@ -109,7 +109,7 @@ class Pin():
         if self.eventType == 'generic':
             id = self.risingEventId if level else self.fallingEventId
             if id is not None:
-                self.device.emitGenericEvent(id = id, payload = {'pin': self.pin, 'name': self.name, 'level': level})
+                self.device.emitGenericEvent(id = id, pinNum = self.pin, pinName = self.name, level = level)
         elif self.eventType == 'button':
             state = 'down' if ((not level and self.buttonDown == 'falling') or (level and self.buttonDown == 'rising')) else 'up'
             self.device.emitButtonEvent(button = self.button, state = state)

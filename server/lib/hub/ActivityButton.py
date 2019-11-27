@@ -45,5 +45,8 @@ class ActivityButton():
             code = compile(str(code), source + ', ' + key, 'exec')
         setattr(self, key, code)
 
+    def __str__(self):
+        return 'Button({}.{})'.format(self.activity.id, self.id)
         
+    __repr__ = __str__
             

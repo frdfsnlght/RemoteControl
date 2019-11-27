@@ -13,13 +13,13 @@ class RemoteKey():
         self.name = key
         
     def down(self):
-        self.device.keyDown(key)
+        self.device.keyDown(self.name)
         
     def up(self):
-        self.device.keyUp(key)
+        self.device.keyUp(self.name)
         
     def press(self, downTime = None):
-        self.device.keyPress(key, downTime)
+        self.device.keyPress(self.name, downTime)
         
         
 class Device(BaseDevice):
