@@ -277,8 +277,8 @@ void saveSettings() {
     // wait until ready
     FLASH_WAIT_READY
 
-    uint8_t length = sizeof(settings_t) / 4;
-    if ((length * 4) < sizeof(settings_t)) length++;
+    uint8_t length = sizeof(settings_t) & 0xfc;
+    if (length < sizeof(settings_t)) length += 4;
     uint32_t *out = settingsAddress;
     uint32_t *in  = (uint32_t*)&settings;
     for (unsigned char i = 0; i < length; i += 4) { // assumes length is multiple of 4
