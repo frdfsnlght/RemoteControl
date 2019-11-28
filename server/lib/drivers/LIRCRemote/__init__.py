@@ -1,0 +1,3 @@
+
+from .LIRCRemote import Device
+

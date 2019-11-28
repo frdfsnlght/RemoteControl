@@ -93,14 +93,14 @@ class Device(BaseDevice):
 
     def keyDown(self, key):
         if self.__lirc is None: return
-        self.logger.debug('Send key down for LIRC remote "{}" key "{}"'.format(self.remote, key))
+        self.logger.info('Send key down for LIRC remote "{}" key "{}"'.format(self.remote, key))
         reply = lirc.StartRepeatCommand(self.__lirc, self.remote, key).run()
         if not reply.success:
             self.logger.error('Unable to start repeat for LIRC remote "{}", key "{}": {}'.format(self.remote, key, reply.data[0]))
         
     def keyUp(self, key):
         if self.__lirc is None: return
-        self.logger.debug('Send key up for LIRC remote "{}" key "{}"'.format(self.remote, key))
+        self.logger.info('Send key up for LIRC remote "{}" key "{}"'.format(self.remote, key))
         reply = lirc.StopRepeatCommand(self.__lirc, self.remote, key).run()
         if not reply.success:
             self.logger.error('Unable to stop repeat for LIRC remote "{}", key "{}": {}'.format(self.remote, key, reply.data[0]))
@@ -120,7 +120,7 @@ class Device(BaseDevice):
         elif downTime <= 0:
             raise DeviceException('downTime must be positive!')
             
-        self.logger.debug('Send key press for LIRC remote "{}" key "{}"'.format(self.remote, key))
+        self.logger.info('Send key press for LIRC remote "{}" key "{}"'.format(self.remote, key))
         
         reply = lirc.StartRepeatCommand(self.__lirc, self.remote, key).run()
         if not reply.success:

@@ -3,5 +3,5 @@ default:
     startActivity: home
     eventDevices:
         - udpEventServer
-        - remote
+        - btRemote
         

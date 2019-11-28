@@ -131,10 +131,14 @@ class Controller():
             'aState': None,
             'logger': None,
             
-            'sleep': time.sleep,
-            'time': time.time,
+            'switchToActivity': self.switchToActivity,
+            'triggerGenericEvent': self.triggerGenericEvent,
+            
             'Exit': Exit,
-            'ExitLocal': ExitLocal
+            'ExitLocal': ExitLocal,
+            
+            'sleep': time.sleep, # TODO: move this to the Imports based device
+            'time': time.time # TODO: move this to the Imports based device
         }
         
     def configure(self, **config):

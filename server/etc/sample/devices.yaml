@@ -1,5 +1,5 @@
 
-remote:
+btRemote:
     driver: BLERemote
     address: F0:1C:A6:6A:AC:F9
     buttonMap:
@@ -75,7 +75,7 @@ gpio:
             dutyCycle: 0.25
 
 tv:
-    driver: Lirc
+    driver: LIRCRemote
     remote: Vizio_TV
     state:
         powerOn: false
@@ -84,7 +84,7 @@ tv:
         powerOff: KEY_POWEROFF
     
 projector:
-    driver: Lirc
+    driver: LIRCRemote
     remote: Epson_Projector
     state:
         powerOn: false

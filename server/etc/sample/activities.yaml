@@ -1,11 +1,11 @@
 
 home:
     buttons:
-        power: controller.switchToActivity('home')
-        b1: controller.switchToActivity('htpcVideo')
-        b2: controller.switchToActivity('netflix')
-        b3: controller.switchToActivity('primeVideo')
-        b4: controller.switchToActivity('htpcMusic')
+        power: switchToActivity('home')
+        b1: switchToActivity('htpcVideo')
+        b2: switchToActivity('netflix')
+        b3: switchToActivity('primeVideo')
+        b4: switchToActivity('htpcMusic')
 
         
         theater: |
@@ -48,7 +48,7 @@ home:
 
     events:
         onActivityBegin: |
-            devices.remote.setLEDColors([None, None, None, None, None])
+            devices.btRemote.setLEDColors([None, None, None, None, None])
             if devices.tv.state.powerOn:
                 devices.tv.powerOff.press()
                 devices.tv.state.powerOn = False
@@ -154,7 +154,7 @@ htpcVideo:
     
     events:
         +onActivityBegin: |
-            devices.remote.setLEDColors([[0, 0, 255], None, None, None, None])
+            devices.btRemote.setLEDColors([[0, 0, 255], None, None, None, None])
         onActivityBegin+: |
             devices.amp.sceneSelect(1)
             
@@ -164,7 +164,7 @@ htpcMusic:
     
     events:
         +onActivityBegin: |
-            devices.remote.setLEDColors([None, None, None, [0, 0, 255], None])
+            devices.btRemote.setLEDColors([None, None, None, [0, 0, 255], None])
         onActivityBegin+: |
             devices.amp.sceneSelect(3)
             
@@ -212,7 +212,7 @@ netflix:
         
     events:
         +onActivityBegin: |
-            devices.remote.setLEDColors([None, [0, 0, 255], None, None, None])
+            devices.btRemote.setLEDColors([None, [0, 0, 255], None, None, None])
         onActivityBegin+: |
             devices.roku.launchApp('Netflix')
             
@@ -223,7 +223,7 @@ primeVideo:
         
     events:
         +onActivityBegin: |
-            devices.remote.setLEDColors([None, None, [0, 0, 255], None, None])
+            devices.btRemote.setLEDColors([None, None, [0, 0, 255], None, None])
         onActivityBegin+: |
             devices.roku.launchApp('Prime Video')
             

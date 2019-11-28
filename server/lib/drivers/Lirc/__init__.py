@@ -1,3 +1,0 @@
-
-from .Lirc import Device
-
