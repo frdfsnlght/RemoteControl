@@ -113,8 +113,10 @@ htpcBase:
             onDown: devices.htpc.keyDown('delete')
             onUp: devices.htpc.keyUp('delete')
         menu:
-            onDown: devices.htpc.keyDown('c')
-            onUp: devices.htpc.keyUp('c')
+            onDown: devices.htpc.remoteDown('menu')
+            onUp: devices.htpc.remoteUp('menu')
+            #onDown: devices.htpc.keyDown('c')
+            #onUp: devices.htpc.keyUp('c')
         guide:
             onDown: devices.htpc.keyDown('e')
             onUp: devices.htpc.keyUp('e')
