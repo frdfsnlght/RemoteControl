@@ -26,8 +26,8 @@ class BaseDevice():
     def stop(self):
         self.logger.info('Stopping...')
         
-    def emitGenericEvent(self, id, payload = {}):
-        self.eventBus.emit('generic', id = id, payload = payload, device = self)
+    def emitGenericEvent(self, id, **args):
+        self.eventBus.emit('generic', id = id, device = self, **args)
         
     def emitButtonEvent(self, button, state):
         self.eventBus.emit('button', button = button, state = state, device = self)

@@ -60,7 +60,7 @@ class Device(BaseDevice):
             if not id:
                 self.logger.error('Missing id from {}: {}'.format(address, event))
                 return
-            self.emitGenericEvent(id = id, payload = event.get('payload', {}))
+            self.emitGenericEvent(id = id, **event.get('args', {}))
         elif type == 'button':
             button = event.get('button')
             state = event.get('state')

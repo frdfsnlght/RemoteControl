@@ -88,8 +88,8 @@ htpcBase:
         - mainActivityBase
     
     events:
-        onActivityBegin+: |
-            devices.amp.inputSelect('HTPC')
+#        onActivityBegin+: |
+#            devices.amp.inputSelect('HTPC')
         onActivityEnd: |
             devices.htpc.releaseAll()
             
@@ -164,7 +164,7 @@ htpcMusic:
         +onActivityBegin: |
             devices.remote.setLEDColors([None, None, None, [0, 0, 255], None])
         onActivityBegin+: |
-            devices.amp.sceneSelect(2)
+            devices.amp.sceneSelect(3)
             
        
 rokuBase:
@@ -173,8 +173,8 @@ rokuBase:
 
     events:
         onActivityBegin+: |
-            devices.amp.sceneSelect(1)
-            devices.amp.inputSelect('Roku')
+            devices.amp.sceneSelect(2)
+            #devices.amp.inputSelect('Roku')
             if devices.pjlift.state.open:
                 devices.vera.runScene('Theater Play')
         onActivityEnd: |

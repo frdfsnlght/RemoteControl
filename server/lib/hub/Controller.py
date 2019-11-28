@@ -10,6 +10,9 @@ class ControllerException(Exception):
 class Exit(Exception):
     pass
     
+class ExitLocal(Exception):
+    pass
+    
 class ControllerEvent():
 
     def __init__(self, type, device = None):
@@ -18,14 +21,14 @@ class ControllerEvent():
 
 class GenericControllerEvent(ControllerEvent):
 
-    def __init__(self, id, payload = {}, device = None):
+    def __init__(self, id, device = None, **args):
         super().__init__('generic', device)
         self.id = id
-        self.payload = payload
+        self.args = args
         
     def __str__(self):
-        return '{{type: {}, device: {}, id: {}, payload: {}}}'.format(
-                self.type, self.device.id if self.device else 'None', self.id, self.payload)
+        return '{{type: {}, device: {}, id: {}, args: {}}}'.format(
+                self.type, self.device.id if self.device else 'None', self.id, self.args)
             
 class ButtonControllerEvent(ControllerEvent):
 
@@ -130,7 +133,8 @@ class Controller():
             
             'sleep': time.sleep,
             'time': time.time,
-            'Exit': Exit
+            'Exit': Exit,
+            'ExitLocal': ExitLocal
         }
         
     def configure(self, **config):
@@ -174,8 +178,8 @@ class Controller():
         self.currentActivity = None
         
         
-    def submitGenericEvent(self, id, payload = {}, device = None):
-        self.eventQueue.put(GenericControllerEvent(id, payload, device))
+    def submitGenericEvent(self, id, device = None, **args):
+        self.eventQueue.put(GenericControllerEvent(id, device, **args))
         
     def submitButtonEvent(self, button, state, device = None):
         self.eventQueue.put(ButtonControllerEvent(button, state, device))
@@ -196,9 +200,7 @@ class Controller():
         if self.currentActivity is not None:
             self.execGlobals['nextActivity'] = activity
             self.execGlobals['previousActivity'] = None
-            event = self.currentActivity.events.get('onActivityEnd')
-            if event is not None:
-                self._execCode(event.code, locals = event.state)
+            self.triggerGenericEvent('onActivityEnd')
             
         self.execGlobals['previousActivity'] = self.currentActivity
         self.execGlobals['nextActivity'] = None
@@ -207,9 +209,20 @@ class Controller():
         self.execGlobals['aState'] = activity.state
         self.execGlobals['logger'] = activity.logger
         
-        event = self.currentActivity.events.get('onActivityBegin')
-        if event is not None:
-            self._execCode(event.code, locals = event.state)
+        self.logger.info('Switched to activity "{}"'.format(self.currentActivity.id))
+        self.triggerGenericEvent('onActivityBegin')
+        
+    def triggerGenericEvent(self, idOrEvent, **args):
+        event = None
+        if isinstance(idOrEvent, str):
+            event = self.currentActivity.events.get(idOrEvent)
+        else:
+            event = idOrEvent
+        if event is None:
+            if idOrEvent is not None:
+                self.logger.debug('Unhandled event: {}'.format(idOrEvent))
+            return
+        self.__triggerGenericEvent(event, device = None, **args)
         
     def __eventLoop(self):
         self.logger.info('Event loop started')
@@ -262,25 +275,33 @@ class Controller():
 
     def __dispatchGenericEvent(self, event):
         id = event.id
-        handler = self.currentActivity.events.get(id)
-        if handler is None:
+        actEvent = self.currentActivity.events.get(id)
+        if actEvent is None:
             self.logger.debug('Unhandled event: {}'.format(event))
             return
-        self._execCode(handler.code, locals = handler.state)
+        self.__triggerGenericEvent(actEvent, device = event.device, **event.args)
         
-    def _execCode(self, code, locals = {}, event = None, button = None):
+    def __triggerGenericEvent(self, actEvent, device = None, **args):
+        if isinstance(actEvent, list):
+            for e in actEvent:
+                if not self._execCode(e.code, event = e, locals = e.state, args = args):
+                    return
+        else:
+            self._execCode(actEvent.code, event = actEvent, locals = actEvent.state, args = args)
+    
+    def _execCode(self, code, locals = {}, event = None, button = None, args = {}):
         self.execGlobals['event'] = event
         self.execGlobals['button'] = button
+        self.execGlobals['args'] = args
         try:
-            if isinstance(code, list):
-                for c in code:
-                    try:
-                        exec(c, self.execGlobals, locals)
-                    except Exit:
-                        pass
-            else:
-                exec(code, self.execGlobals, locals)
+            exec(code, self.execGlobals, locals)
+            return True
         except Exit:
-            pass
+            self.logger.debug('Exiting global scope')
+            return False
+        except ExitLocal:
+            self.logger.debug('Exiting local scope')
+            return True
         except:
             self.logger.exception('Exception raised during code execution:')
+            return False
