@@ -52,3 +52,13 @@ Perimeters: 2
 Supports: No
 Time: 0:08
 Printer: Prusa MK3
+
+TPU Buttons:
+Material: TPU, 10.04g
+Layers: 0.1mm
+Infill: 5% Grid
+Slab  modifier at 1.5mm Z with Concentric Top Fill
+Perimeters: 2
+Supports: No
+Time: 2:03
+Printer: Prusa MK3
