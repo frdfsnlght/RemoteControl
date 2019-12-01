@@ -9,7 +9,6 @@ periph = bt.Peripheral()
 uuids = {
     'service': bt.UUID('1234'),
     'wakeupAcceleration': bt.UUID('0005'),
-    'lowBatterLevel': bt.UUID('0006'),
     'sleepTime': bt.UUID('0007'),
     'deepSleepTime': bt.UUID('0008'),
     'saveSettings': bt.UUID('0090'),
@@ -21,11 +20,10 @@ characteristics = {}
 def connect(address):
     try:
         periph.connect(address, bt.ADDR_TYPE_RANDOM)
-        service = periph.getServiceByUUID(serviceUUID)
+        service = periph.getServiceByUUID(uuids['service'])
         chars = service.getCharacteristics()
 
         characteristics['wakeupAcceleration'] = next((c for c in chars if c.uuid == uuids['wakeupAcceleration']), None)
-        characteristics['lowBatterLevel'] = next((c for c in chars if c.uuid == uuids['lowBatterLevel']), None)
         characteristics['sleepTime'] = next((c for c in chars if c.uuid == uuids['sleepTime']), None)
         characteristics['deepSleepTime'] = next((c for c in chars if c.uuid == uuids['deepSleepTime']), None)
         characteristics['saveSettings'] = next((c for c in chars if c.uuid == uuids['saveSettings']), None)
@@ -49,17 +47,7 @@ def writeWakeupAcceleration(value):
 def readWakeupAcceleration():
     data = characteristics['wakeupAcceleration'].read()
     value = struct.unpack('f', data)
-    return value
-    
-def writeLowBatteryLevel(value):
-    data = struct.pack('B', int(value))
-    characteristics['lowBatterLevel'].write(data)
-    print('Wrote low battery level {}'.format(value))
-
-def readLowBatteryLevel():
-    data = characteristics['lowBatteryLevel'].read()
-    value = struct.unpack('B', data)
-    return value
+    return value[0]
     
 def writeSleepTime(value):
     data = struct.pack('L', int(value))
@@ -69,7 +57,7 @@ def writeSleepTime(value):
 def readSleepTime():
     data = characteristics['sleepTime'].read()
     value = struct.unpack('L', data)
-    return value
+    return value[0]
     
 def writeDeepSleepTime(value):
     data = struct.pack('L', int(value))
@@ -79,7 +67,7 @@ def writeDeepSleepTime(value):
 def readDeepSleepTime():
     data = characteristics['deepSleepTime'].read()
     value = struct.unpack('L', data)
-    return value
+    return value[0]
     
 def saveSettings():
     data = struct.pack('B', 1)
@@ -93,11 +81,9 @@ def reset():
 
 def readValues():
     acceleration = readWakeupAcceleration()
-    batteryLevel = readLowBatteryLevel()
     sleepTime = readSleepTime()
     deepSleepTime = readDeepSleepTime()
     print('Acceleration: {}Gs'.format(acceleration))
-    print('Low battery level: {}%'.format(batteryLevel))
     print('Sleep time: {}ms'.format(sleepTime))
     print('Deep sleep time: {}ms'.format(deepSleepTime))
 
@@ -107,7 +93,6 @@ if __name__ == '__main__':
             epilog = 'If no settings are specified, just displays the current values.')
     parser.add_argument('-a', '--address', type = str, required = True, help = 'the BT address of the remote')
     parser.add_argument('--acceleration', type = float, help = 'the acceleration required to wake the remote, in Gs (default 1.5)')
-    parser.add_argument('--lowBattery', type = int, help = 'the battery level at which the remote indicates low battery, in percent (default 20)')
     parser.add_argument('--sleep', type = int, help = 'the time after which the remote goes to sleep, in milliseconds (default 10000, 0 to disable)')
     parser.add_argument('--deepsleep', type = int, help = 'the time after which the remote goes to deep sleep, in milliseconds (default 3600000)')
     parser.add_argument('--save', action = 'store_true', help = 'save settings to flash')
@@ -117,8 +102,6 @@ if __name__ == '__main__':
     connect(options.address)
     if options.acceleration:
         writeWakeupAcceleration(options.acceleration)
-    if options.lowBattery:
-        writeLowBatteryLevel(options.lowBattery)
     if options.sleep:
         writeSleepTime(options.sleep)
     if options.deepsleep:
