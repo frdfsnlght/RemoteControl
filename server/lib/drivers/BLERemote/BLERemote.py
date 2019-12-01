@@ -14,6 +14,24 @@ batteryLevelUUID = bt.UUID('0004')
 resetUUID = bt.UUID('0099')
 numLEDs = 5
 
+COLORS = {
+    'red': [255, 0, 0],
+    'orange': [255, 128, 0],
+    'yellow': [255, 255, 0],
+    'lime': [128, 255, 0],
+    'green': [0, 255, 0],
+    'bluegreen': [0, 255, 128],
+    'cyan': [0, 255, 255],
+    'lightblue': [0, 128, 255],
+    'blue': [0, 0, 255],
+    'purple': [128, 0, 255],
+    'magenta': [255, 0, 255],
+    'fuschia': [255, 0, 128],
+    'black': [0, 0, 0],
+    'white': [255, 255, 255],
+    'white50': [128, 128, 128],
+}
+
 
 class Device(BaseDevice):
 
@@ -92,7 +110,7 @@ class Device(BaseDevice):
                 self.emitGenericEvent(id = 'BLERemoteConnected')
 
                 while self.__run:
-                    if remote.waitForNotifications(0.5):
+                    if self.__periph.waitForNotifications(0.5):
                         continue
             
             except bt.BTLEDisconnectError:
@@ -144,7 +162,7 @@ class Device(BaseDevice):
     def __setLEDColors(self, *colors):
         if not self.connected: return
         data = struct.pack('15B', *colors)
-        self.ledsChar.write(data)
+        self.__ledsChar.write(data)
 
     #--------------------------------------------------------------------------
     # Public API
@@ -156,23 +174,28 @@ class Device(BaseDevice):
         # TODO: what's the correct state value for this? use periph.status()?
         if self.__resetChar is not None and self.__periph.getState() == 'up':
             self.__resetChar.write(b'\x01')
-
+    
     def setLEDColors(self, *colors):
+        while len(colors) < numLEDs:
+            colors.append(None)
         cols = []
-        if any(isinstance(item, list) for item in colors):
-            # provided a list of lists
-            for color in colors[:numLEDs]:
-                if not isinstance(color, list):
+        for color in colors:
+            if color is None:
+                color = [0, 0, 0]
+            elif isinstance(color, list):
+                color = color[:3]
+                while len(color) < 3:
+                    color.append(color[-1])
+            elif isinstance(color, str):
+                if color not in COLORS:
+                    self.logger.error('LED color "{}" is unknown'.format(color))
                     color = [0, 0, 0]
                 else:
-                    color = color[:3]
-                    while len(color) < 3:
-                        color.append(color[-1])
-                cols.extend(color)
-        else:
-            cols = colors[:numLEDs * 3]
-            while len(cols) < numLEDs * 3:
-                cols.append(0)
+                    color = COLORS[color]
+            else:
+                self.logger.error('LED color "{}" is unknown'.format(color))
+                color = [0, 0, 0]
+            cols.extend(color)
 
         self.ledColors = cols
         self.__setLEDColors(*cols)
