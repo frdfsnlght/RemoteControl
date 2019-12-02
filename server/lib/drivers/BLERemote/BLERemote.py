@@ -10,7 +10,6 @@ serviceUUID = bt.UUID('1234')
 buttonUUID = bt.UUID('0001')
 ledsUUID = bt.UUID('0002')
 chargingUUID = bt.UUID('0003')
-batteryLevelUUID = bt.UUID('0004')
 resetUUID = bt.UUID('0099')
 numLEDs = 5
 
@@ -46,13 +45,11 @@ class Device(BaseDevice):
         self.__buttonChar = None
         self.__ledsChar = None
         self.__chargingChar = None
-        self.__batteryLevelChar = None
         self.__resetChar = None
         self.__run = False
         self.connected = False
         self.ledColors = [0] * (numLEDs * 3)
         self.charging = False
-        self.batteryLevel = 0
             
     def start(self):
         if self.__run: return
@@ -91,7 +88,6 @@ class Device(BaseDevice):
                 self.__buttonChar = next((c for c in chars if c.uuid == buttonUUID), None)
                 self.__ledsChar = next((c for c in chars if c.uuid == ledsUUID), None)
                 self.__chargingChar = next((c for c in chars if c.uuid == chargingUUID), None)
-                self.__batteryLevelChar = next((c for c in chars if c.uuid == batteryLevelUUID), None)
                 self.__resetChar = next((c for c in chars if c.uuid == resetUUID), None)
         
                 # set up notifications
@@ -99,7 +95,6 @@ class Device(BaseDevice):
                 notify = struct.pack('<bb', 0x01, 0x00)
                 self.__periph.writeCharacteristic(self.__buttonChar.getHandle() + 1, notify)
                 self.__periph.writeCharacteristic(self.__chargingChar.getHandle() + 1, notify)
-                self.__periph.writeCharacteristic(self.__batteryLevelChar.getHandle() + 1, notify)
 
                 self.__periph.withDelegate(delegate)
                 t2 = time.time()
@@ -127,7 +122,6 @@ class Device(BaseDevice):
                 self.__buttonChar = None
                 self.__ledsChar = None
                 self.__chargingChar = None
-                self.__batteryLevelChar = None
                 self.__resetChar = None
                 
         self.__periph = None
@@ -138,8 +132,6 @@ class Device(BaseDevice):
             self.__handleButton(data)
         elif cHandle == self.__chargingChar.getHandle():
             self.__handleCharging(data)
-        elif cHandle == self.__batteryLevelChar.getHandle():
-            self.__handleBatteryLevel(data)
 
     def __handleButton(self, data):
         data = struct.unpack('BB', data)
@@ -154,11 +146,6 @@ class Device(BaseDevice):
         self.charging = data == 1
         self.emitGenericEvent(id = 'bleRemoteBeginCharge' if data == 1 else 'bleRemoteEndCharge')
         
-    def __handleBatteryLevel(self, data):
-        data = struct.unpack('f', data)[0]
-        self.batteryLevel = data
-        self.emitGenericEvent(id = 'bleRemoteBatteryLevelChanged')
-
     def __setLEDColors(self, *colors):
         if not self.connected: return
         data = struct.pack('15B', *colors)

@@ -48,7 +48,7 @@ home:
 
     events:
         onActivityBegin: |
-            devices.btRemote.setLEDColors([None, None, None, None, None])
+            devices.btRemote.setLEDColors(None, None, None, None, None)
             if devices.tv.state.powerOn:
                 devices.tv.powerOff.press()
                 devices.tv.state.powerOn = False
@@ -154,7 +154,7 @@ htpcVideo:
     
     events:
         +onActivityBegin: |
-            devices.btRemote.setLEDColors([[0, 0, 255], None, None, None, None])
+            devices.btRemote.setLEDColors('blue', None, None, None, None)
         onActivityBegin+: |
             devices.amp.sceneSelect(1)
             
@@ -164,7 +164,7 @@ htpcMusic:
     
     events:
         +onActivityBegin: |
-            devices.btRemote.setLEDColors([None, None, None, [0, 0, 255], None])
+            devices.btRemote.setLEDColors(None, None, None, 'blue', None)
         onActivityBegin+: |
             devices.amp.sceneSelect(3)
             
@@ -212,7 +212,7 @@ netflix:
         
     events:
         +onActivityBegin: |
-            devices.btRemote.setLEDColors([None, [0, 0, 255], None, None, None])
+            devices.btRemote.setLEDColors(None, 'blue', None, None, None)
         onActivityBegin+: |
             devices.roku.launchApp('Netflix')
             
@@ -223,7 +223,7 @@ primeVideo:
         
     events:
         +onActivityBegin: |
-            devices.btRemote.setLEDColors([None, None, [0, 0, 255], None, None])
+            devices.btRemote.setLEDColors(None, None, 'blue', None, None)
         onActivityBegin+: |
             devices.roku.launchApp('Prime Video')
             
