@@ -10,13 +10,11 @@ public class TCPRemoteClient : MonoBehaviour {
 
     public static TCPRemoteClient client;
 
-    public string address = "localhost";
-    public int port = 1970;
-    public string apiKey = null;
-
     public LEDs leds;
 
-    private bool connected = false;
+    [System.NonSerialized]
+    public bool connected = false;
+
     private bool quit = false;
     private Thread thread = null;
     private TcpClient socket = null;
@@ -24,11 +22,19 @@ public class TCPRemoteClient : MonoBehaviour {
     private StreamWriter writer = null;
     private ButtonMessage buttonMessage = new ButtonMessage();
 
+    private string address = null;
+    private int port = 1970;
+    private string apiKey = null;
+
     private void Awake() {
         client = this;
         thread = new Thread(Loop);
         thread.IsBackground = true;
         thread.Start();
+    }
+
+    private void Start() {
+        Reconnect();
     }
 
     private void OnApplicationQuit() {
@@ -40,31 +46,34 @@ public class TCPRemoteClient : MonoBehaviour {
             try {
                 socket = new TcpClient();
 
-                Debug.Log("Connecting to " + address + ":" + port + "...\n");
-                socket.Connect(address, port);
-                reader = new StreamReader(socket.GetStream(), Encoding.UTF8);
-                writer = new StreamWriter(socket.GetStream(), Encoding.UTF8);
-                writer.AutoFlush = true;
-                
-                HelloMessage helloMessage = new HelloMessage();
-                helloMessage.name = "TCPRemote";
-                helloMessage.apiKey = apiKey;
-                sendData(helloMessage);
+                if (address != null) {
+                    Debug.Log("Connecting to " + address + ":" + port + "...\n");
+                    socket.Connect(address, port);
+                    reader = new StreamReader(socket.GetStream(), Encoding.UTF8);
+                    writer = new StreamWriter(socket.GetStream(), Encoding.UTF8);
+                    writer.AutoFlush = true;
+                    
+                    HelloMessage helloMessage = new HelloMessage();
+                    helloMessage.hello = "TCPRemote";
+                    helloMessage.apiKey = apiKey;
+                    sendData(helloMessage);
 
-                Debug.Log("Connected\n");
-                connected = true;
+                    Debug.Log("Connected\n");
+                    connected = true;
 
-                string json;
-                while ((json = reader.ReadLine()) != null) {
-                    UnknownMessage msg = JsonUtility.FromJson<UnknownMessage>(json);
-                    processMessage(msg, json);
+                    string json;
+                    while ((json = reader.ReadLine()) != null) {
+                        UnknownMessage msg = JsonUtility.FromJson<UnknownMessage>(json);
+                        processMessage(msg, json);
+                    }
+                    Debug.Log("Disconnected\n");
                 }
-                Debug.Log("Disconnected\n");
 
             } catch (Exception e) {
                 connected = false;
                 Debug.LogException(e);
             } finally {
+                connected = false;
                 if (reader != null) reader.Dispose();
                 if (writer != null) writer.Dispose();
                 if (socket != null) socket.Dispose();
@@ -89,6 +98,9 @@ public class TCPRemoteClient : MonoBehaviour {
     }
 
     public void Reconnect() {
+        address = PlayerPrefs.GetString("address", null);
+        port = PlayerPrefs.GetInt("port", 1970);
+        apiKey = PlayerPrefs.GetString("apiKey", null);
         if (! connected) return;
         if (reader != null) reader.Close();
     }

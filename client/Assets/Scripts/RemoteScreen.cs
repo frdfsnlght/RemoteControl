@@ -5,10 +5,17 @@ using UnityEngine;
 public class RemoteScreen : MonoBehaviour {
 
     public SettingsScreen settingsScreen;
+    public NotConnectedOverlay notConnectedOverlay;
 
     public void OnSettings() {
-        settingsScreen.gameObject.SetActive(true);
+        settingsScreen.Show();
     }
 
+    private void Update() {
+        if (TCPRemoteClient.client.connected && notConnectedOverlay.IsVisible())
+            notConnectedOverlay.Hide();
+        else if (!TCPRemoteClient.client.connected && !notConnectedOverlay.IsVisible())
+            notConnectedOverlay.Show();
+    }
 
 }
