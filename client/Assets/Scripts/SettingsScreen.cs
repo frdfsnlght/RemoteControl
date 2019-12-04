@@ -1,9 +1,8 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
+using UnityEngine.EventSystems;
 using TMPro;
 
-public class SettingsScreen : MonoBehaviour {
+public class SettingsScreen : MonoBehaviour, IPointerDownHandler {
 
     public TMP_InputField addressField;
     public TMP_InputField portField;
@@ -12,6 +11,15 @@ public class SettingsScreen : MonoBehaviour {
     private void Awake() {
         Hide();
     }
+
+    private void Update() {
+        if (Input.GetKeyDown(KeyCode.Escape))
+            OnCancel();
+    }
+    
+    public void OnPointerDown(PointerEventData eventData) {
+        OnCancel();
+     }
 
     public void Show() {
         gameObject.SetActive(true);

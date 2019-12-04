@@ -14,6 +14,7 @@ public class RemoteButton : Button {
     }
 
     public override void OnPointerDown(PointerEventData eventData) {
+        if (!client.connected) return;
         base.OnPointerDown(eventData);
         if (eventData.button != PointerEventData.InputButton.Left)
             return;
@@ -22,6 +23,7 @@ public class RemoteButton : Button {
      }
 
     public override void OnPointerUp(PointerEventData eventData) {
+        if (!client.connected) return;
         base.OnPointerUp(eventData);
         if (eventData.button != PointerEventData.InputButton.Left)
             return;

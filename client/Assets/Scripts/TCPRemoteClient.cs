@@ -46,7 +46,7 @@ public class TCPRemoteClient : MonoBehaviour {
             try {
                 socket = new TcpClient();
 
-                if (address != null) {
+                if ((address != null) && (address != "")) {
                     Debug.Log("Connecting to " + address + ":" + port + "...\n");
                     socket.Connect(address, port);
                     reader = new StreamReader(socket.GetStream(), Encoding.UTF8);
