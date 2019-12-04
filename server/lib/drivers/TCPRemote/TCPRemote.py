@@ -32,7 +32,7 @@ class TCPRemoteClient():
         self.address = address[0]
         self.port = address[1]
         self.socket = sock
-        self.infile = sock.makefile(mode = 'r', buffering = 1, encoding = 'utf-8')
+        self.infile = sock.makefile(mode = 'r', buffering = 1, encoding = 'utf-8-sig')
         self.outfile = sock.makefile(mode = 'w', buffering = 1, encoding = 'utf-8', newline = '\r\n')
         self.name = None
         self.authorized = False
@@ -43,6 +43,7 @@ class TCPRemoteClient():
             line = self.infile.readline()
             if line:
                 try:
+                    print(line)
                     data = json.loads(line[:-1])
                     if not isinstance(data, dict):
                         self.logger.error('Client {} data is not a dict'.format(self))
@@ -52,7 +53,8 @@ class TCPRemoteClient():
                             break
                     elif not self.device._process(self, data):
                         break
-                except json.decoder.JSONDecodeError:
+                except json.decoder.JSONDecodeError as e:
+                    print(e);
                     self.device.logger.error('Invalid JSON received from {}:{}: {}'.format(self.address, self.port, line[:-1]))
                     if self.authorized:
                         self.sendError('bad request', 400)
