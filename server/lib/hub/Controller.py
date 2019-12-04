@@ -132,6 +132,9 @@ class Controller():
             'logger': None,
             
             'switchToActivity': self.switchToActivity,
+            'pushActivity': self.pushActivity,
+            'popActivity': self.popActivity,
+            'popAllActivities': self.popAllActivities,
             'triggerGenericEvent': self.triggerGenericEvent,
             
             'Exit': Exit,
@@ -181,7 +184,6 @@ class Controller():
             time.sleep(0.1)
         self.currentActivity = None
         
-        
     def submitGenericEvent(self, id, device = None, **args):
         self.eventQueue.put(GenericControllerEvent(id, device, **args))
         
@@ -198,9 +200,36 @@ class Controller():
                 self.logger.error('Unable to switch to unknown activity {}!'.format(str(activity)))
                 return
             activity = act
-        
+
         if self.currentActivity == activity: return
+        self.__switchToActivity(activity)
         
+    def pushActivity(self, activity):
+        if activity is None:
+            self.logger.error('Unable to push None activity!')
+            return
+        if not isinstance(activity, hub.Activity):
+            act = hub.activities.get(str(activity))
+            if act is None:
+                self.logger.error('Unable to push unknown activity {}!'.format(str(activity)))
+                return
+            activity = act
+
+        self.activityStack.append(self.currentActivity)
+        self.__switchToActivity(activity)
+        
+    def popActivity(self):
+        if len(self.activityStack) == 0: return
+        activity = self.activityStack.pop()
+        self.__switchToActivity(activity)
+
+    def popAllActivities(self):
+        if len(self.activityStack) == 0: return
+        activity = self.activityStack[0]
+        self.activityStack = []
+        self.__switchToActivity(activity)
+
+    def __switchToActivity(self, activity):
         if self.currentActivity is not None:
             self.execGlobals['nextActivity'] = activity
             self.execGlobals['previousActivity'] = None
@@ -215,7 +244,7 @@ class Controller():
         
         self.logger.info('Switched to activity "{}"'.format(self.currentActivity.id))
         self.triggerGenericEvent('onActivityBegin')
-        
+    
     def triggerGenericEvent(self, idOrEvent, **args):
         event = None
         if isinstance(idOrEvent, str):

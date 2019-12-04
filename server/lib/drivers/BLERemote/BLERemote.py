@@ -49,6 +49,7 @@ class Device(BaseDevice):
         self.__run = False
         self.connected = False
         self.ledColors = [0] * (numLEDs * 3)
+        self.ledColorsStack = []
         self.charging = False
             
     def start(self):
@@ -147,6 +148,7 @@ class Device(BaseDevice):
         self.emitGenericEvent(id = 'bleRemoteBeginCharge' if data == 1 else 'bleRemoteEndCharge')
         
     def __setLEDColors(self, *colors):
+        self.logger.debug('set LEDs to: {}'.format(colors))
         if not self.connected: return
         data = struct.pack('15B', *colors)
         self.__ledsChar.write(data)
@@ -162,6 +164,20 @@ class Device(BaseDevice):
         if self.__resetChar is not None and self.__periph.getState() == 'up':
             self.__resetChar.write(b'\x01')
     
+    def pushLEDColors(self, *colors):
+        self.ledColorsStack.append(self.ledColors[:])
+        self.setLEDColors(*colors)
+    
+    def popLEDColors(self):
+        if len(self.ledColorsStack) == 0: return
+        self.__setLEDColors(*self.ledColorsStack.pop())
+    
+    def popAllLEDColors(self):
+        if len(self.ledColorsStack) == 0: return
+        colors = self.ledColorsStack[0]
+        self.ledColorsStack = []
+        self.__setLEDColors(*colors)
+        
     def setLEDColors(self, *colors):
         while len(colors) < numLEDs:
             colors.append(None)

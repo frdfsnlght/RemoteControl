@@ -98,6 +98,7 @@ class Device(BaseDevice):
         self.buttonMap = config.get('buttonMap', {})
         self.__reset()
         self.ledColors = [0] * (numLEDs * 3)
+        self.ledColorsStack = []
             
     def start(self):
         if self.__run: return
@@ -197,6 +198,20 @@ class Device(BaseDevice):
     #--------------------------------------------------------------------------
     # Public API
     #
+        
+    def pushLEDColors(self, *colors):
+        self.ledColorsStack.append(self.ledColors[:])
+        self.setLEDColors(*colors)
+    
+    def popLEDColors(self):
+        if len(self.ledColorsStack) == 0: return
+        self.__setLEDColors(*self.ledColorsStack.pop())
+        
+    def popAllLEDColors(self):
+        if len(self.ledColorsStack) == 0: return
+        colors = self.ledColorsStack[0]
+        self.ledColorsStack = []
+        self.__setLEDColors(*colors)
         
     def setLEDColors(self, *colors):
         while len(colors) < numLEDs:

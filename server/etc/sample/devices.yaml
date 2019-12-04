@@ -3,6 +3,8 @@ btRemote:
     driver: BLERemote
     #address: F0:1C:A6:6A:AC:F9 dead MCU
     address: d3:68:c5:7a:67:0a
+    state:
+        shift: 0
     buttonMap:
         0x11: power
         0x13: shift
