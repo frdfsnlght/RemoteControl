@@ -1,0 +1,35 @@
+#!/usr/bin/env python3
+
+import sys, socket, json, argparse
+
+sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+def sendEvent(id, **args):
+    send(json.dumps({
+        'type': 'generic',
+        'id': id,
+        'args': args
+    }))
+
+def send(data):
+    sock.sendto(data.encode('utf-8'), (options.address, options.port))
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description = 'Send generic events to the UDPEventServer.')
+    parser.add_argument('-a', '--address', type = str, default = 'localhost', help = 'the address of the event server, defaults to localhost')
+    parser.add_argument('-p', '--port', type = int, default = 1968, help = 'the port of the event server, defaults to 1968')
+    parser.add_argument('-k', '--apikey', type = str, help = 'the API key required by the event server')
+    parser.add_argument('id', type = str, help = 'event id to send')
+    parser.add_argument('args', metavar='k=v', type = str, nargs='*', help='zero or more key=value pairs to send as event arguments')
+    
+    options = parser.parse_args()
+
+    args = {}
+    for i in options.args:
+        (k, v) = i.split('=', 2)
+        try:
+            args[k] = json.loads(v)
+        except ValueError:
+            args[k] = v
+        
+    sendEvent(options.id, **args)
