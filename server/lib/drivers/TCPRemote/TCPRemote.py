@@ -43,7 +43,6 @@ class TCPRemoteClient():
             line = self.infile.readline()
             if line:
                 try:
-                    print(line)
                     data = json.loads(line[:-1])
                     if not isinstance(data, dict):
                         self.logger.error('Client {} data is not a dict'.format(self))
@@ -66,8 +65,6 @@ class TCPRemoteClient():
         self.device._removeClient(self)
         
     def stop(self):
-        self.infile.close()
-        self.outfile.close()
         self.socket.close()
         
     def send(self, data):
