@@ -1,6 +1,4 @@
 
 * controller scheduleGenericEvent
-* systemd config
-* UDPEventServer udpEventClient
 * Imports driver
 * Save/restore state/activity on quit/start

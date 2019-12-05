@@ -98,16 +98,15 @@ home:
             devices.gpio.status.setPWMDutyCycle(1)
         BLERemoteDisconnected: |
             devices.gpio.status.setPWMDutyCycle(0.25)
+        TCPRemoteConnected: |
+            devices.gpio.status.setPWMDutyCycle(1)
+        TCPRemoteDisconnected: |
+            devices.gpio.status.setPWMDutyCycle(0.25)
 
         resetShift: |
             devices.btRemote.popAllLEDColors()
             devices.btRemote.state.shift = 0
             
-        onBeforeButton: |
-            if devices.btRemote.state.shift != 0 and event.button not in ['shift', 'b1', 'b2', 'b3', 'b4', 'b5']:
-                triggerGenericEvent('resetShift')
-                event.cancelled = True
-           
 mainActivityBase:
     basedOn:
         - home
@@ -136,8 +135,6 @@ htpcBase:
         - mainActivityBase
     
     events:
-#        onActivityBegin+: |
-#            devices.amp.inputSelect('HTPC')
         onActivityEnd: |
             devices.htpc.releaseAll()
             
@@ -163,8 +160,6 @@ htpcBase:
         menu:
             onDown: devices.htpc.remoteDown('menu')
             onUp: devices.htpc.remoteUp('menu')
-            #onDown: devices.htpc.keyDown('c')
-            #onUp: devices.htpc.keyUp('c')
         guide:
             onDown: devices.htpc.keyDown('e')
             onUp: devices.htpc.keyUp('e')
@@ -241,16 +236,16 @@ rokuBase:
         previous: devices.roku.replay()
         exit: devices.roku.back()
         up:
-            repeat: 0.1 0.5
+            repeat: 0.2 0.75
             onDown: devices.roku.up()
         down:
-            repeat: 0.1 0.5
+            repeat: 0.2 0.75
             onDown: devices.roku.down()
         left:
-            repeat: 0.1 0.5
+            repeat: 0.2 0.75
             onDown: devices.roku.left()
         right:
-            repeat: 0.1 0.5
+            repeat: 0.2 0.75
             onDown: devices.roku.right()
         ok: devices.roku.select()
             
