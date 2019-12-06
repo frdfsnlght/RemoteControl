@@ -2,10 +2,6 @@
 
 public class NotConnectedOverlay : MonoBehaviour {
 
-    private void Awake() {
-        Hide();
-    }
-
     public void Show() {
         gameObject.SetActive(true);
     }

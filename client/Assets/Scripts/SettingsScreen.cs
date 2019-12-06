@@ -8,10 +8,6 @@ public class SettingsScreen : MonoBehaviour, IPointerDownHandler {
     public TMP_InputField portField;
     public TMP_InputField apiKeyField;
 
-    private void Awake() {
-        Hide();
-    }
-
     private void Update() {
         if (Input.GetKeyDown(KeyCode.Escape))
             OnCancel();
@@ -30,6 +26,10 @@ public class SettingsScreen : MonoBehaviour, IPointerDownHandler {
 
     public void Hide() {
         gameObject.SetActive(false);
+    }
+
+    public bool IsVisible() {
+        return gameObject.activeSelf;
     }
 
     public void OnCancel() {

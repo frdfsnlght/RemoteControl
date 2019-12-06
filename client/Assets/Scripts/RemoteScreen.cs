@@ -7,6 +7,13 @@ public class RemoteScreen : MonoBehaviour {
     public SettingsScreen settingsScreen;
     public NotConnectedOverlay notConnectedOverlay;
 
+    private void Start() {
+        if (settingsScreen.IsVisible())
+            settingsScreen.Hide();
+        if (notConnectedOverlay.IsVisible())
+            notConnectedOverlay.Hide();
+    }
+
     public void OnSettings() {
         settingsScreen.Show();
     }
