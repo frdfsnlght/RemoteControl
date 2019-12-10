@@ -16,6 +16,7 @@ public class TCPRemoteClient : MonoBehaviour {
     public bool connected = false;
 
     private bool quit = false;
+    private bool canConnect = true;
     private Thread thread = null;
     private TcpClient socket = null;
     private StreamReader reader = null;
@@ -41,12 +42,20 @@ public class TCPRemoteClient : MonoBehaviour {
         Quit();
     }
 
+    private void OnApplicationPause(bool paused) {
+        Debug.Log("Paused: " + paused + "\n");
+        if (paused)
+            Disconnect();
+        else
+            Reconnect();
+    }
+
     private void Loop() {
         while (!quit) {
             try {
                 socket = new TcpClient();
 
-                if ((address != null) && (address != "")) {
+                if (canConnect && (address != null) && (address != "")) {
                     Debug.Log("Connecting to " + address + ":" + port + "...\n");
                     socket.Connect(address, port);
                     reader = new StreamReader(socket.GetStream(), Encoding.UTF8);
@@ -97,10 +106,17 @@ public class TCPRemoteClient : MonoBehaviour {
         }
     }
 
+    public void Disconnect() {
+        canConnect = false;
+        if (! connected) return;
+        if (reader != null) reader.Close();
+    }
+
     public void Reconnect() {
         address = PlayerPrefs.GetString("address", null);
         port = PlayerPrefs.GetInt("port", 1970);
         apiKey = PlayerPrefs.GetString("apiKey", null);
+        canConnect = true;
         if (! connected) return;
         if (reader != null) reader.Close();
     }
