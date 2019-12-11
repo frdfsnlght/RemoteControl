@@ -86,6 +86,13 @@ tv:
         powerOn: KEY_POWERON
         powerOff: KEY_POWEROFF
     
+tv2:
+    driver: SamsungTV
+    # need real address
+    address: 10.10.10.99
+    state:
+        powerOn: false
+    
 projector:
     driver: LIRCRemote
     remote: Epson_Projector

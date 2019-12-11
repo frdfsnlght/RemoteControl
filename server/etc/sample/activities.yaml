@@ -6,25 +6,15 @@ home:
         b1: |
             if devices.btRemote.state.shift == 0:
                 switchToActivity('htpcVideo')
-            else:
-                triggerGenericEvent('resetShift')
         b2: |
             if devices.btRemote.state.shift == 0:
                 switchToActivity('netflix')
-            else:
-                triggerGenericEvent('resetShift')
         b3: |
             if devices.btRemote.state.shift == 0:
                 switchToActivity('primeVideo')
-            else:
-                triggerGenericEvent('resetShift')
         b4: |
             if devices.btRemote.state.shift == 0:
                 switchToActivity('htpcMusic')
-            else:
-                triggerGenericEvent('resetShift')
-        b5: |
-            triggerGenericEvent('resetShift')
 
         shift: |
             devices.btRemote.state.shift = (devices.btRemote.state.shift + 1) % 6
@@ -66,6 +56,28 @@ home:
                     devices.pjlift.state.open = True
                     devices.pjlift.state.time = time()
 
+    events:
+        onActivityBegin: |
+            devices.btRemote.popAllLEDColors()
+            devices.tcpRemote.popAllLEDColors()
+            devices.btRemote.setLEDColors(None, None, None, None, None)
+            devices.tcpRemote.setLEDColors(None, None, None, None, None)
+            if devices.tv.state.powerOn:
+                devices.tv.powerOff.press()
+                devices.tv.state.powerOn = False
+            if devices.amp.state.powerOn:
+                devices.amp.powerStandby()
+                devices.amp.state.powerOn = False
+                
+        BLERemoteConnected: |
+            devices.gpio.status.setPWMDutyCycle(1)
+        BLERemoteDisconnected: |
+            devices.gpio.status.setPWMDutyCycle(0.25)
+        TCPRemoteConnected: |
+            devices.gpio.status.setPWMDutyCycle(1)
+        TCPRemoteDisconnected: |
+            devices.gpio.status.setPWMDutyCycle(0.25)
+
         mediaPlay: |
             if not devices.pjlift.state.open: raise Exit()
             devices.vera.runScene('Theater Play')
@@ -82,31 +94,7 @@ home:
             if not devices.pjlift.state.open: raise Exit()
             devices.vera.runScene('Theater Pause')
 
-    events:
-        onActivityBegin: |
-            devices.btRemote.popAllLEDColors()
-            devices.tcpRemote.popAllLEDColors()
-            devices.btRemote.setLEDColors(None, None, None, None, None)
-            devices.tcpRemote.setLEDColors(None, None, None, None, None)
-            if devices.tv.state.powerOn:
-                devices.tv.powerOff.press()
-                devices.tv.state.powerOn = False
-            if devices.amp.state.powerOn:
-                devices.amp.powerStandby()
-                devices.amp.state.powerOn = False
-        BLERemoteConnected: |
-            devices.gpio.status.setPWMDutyCycle(1)
-        BLERemoteDisconnected: |
-            devices.gpio.status.setPWMDutyCycle(0.25)
-        TCPRemoteConnected: |
-            devices.gpio.status.setPWMDutyCycle(1)
-        TCPRemoteDisconnected: |
-            devices.gpio.status.setPWMDutyCycle(0.25)
-
-        resetShift: |
-            devices.btRemote.popAllLEDColors()
-            devices.btRemote.state.shift = 0
-            
+           
 mainActivityBase:
     basedOn:
         - home
