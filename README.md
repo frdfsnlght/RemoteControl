@@ -1,6 +1,5 @@
 
-Current consumption:
+##Current consumption:
 
-Awake: ?
-Sleep: 9.mA
-Deep sleep: 3.3mA
+* Sleep: 9mA
+* Deep sleep: 3.3mA
