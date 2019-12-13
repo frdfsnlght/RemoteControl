@@ -49,10 +49,12 @@
 #ifdef DEBUG
 #define debug(x) Serial.print(x)
 #define debugln(x) Serial.println(x)
+#define debugnum(x, y) Serial.print(x, y)
 #define debugnumln(x, y) Serial.println(x, y)
 #else
 #define debug(x)
 #define debugln(x)
+#define debugnum(x, y)
 #define debugnumln(x, y)
 #endif
 
@@ -89,13 +91,13 @@ void(* reset) (void) = 0;
 //
 typedef struct {
     float wakeupAcceleration;
-    uint32_t sleepTime;
-    uint32_t deepSleepTime;
+    unsigned long sleepTime;
+    unsigned long deepSleepTime;
 } settings_t;
 settings_t settings;
 const float DEFAULT_WAKEUPACCELERATION = 1.5;       // g's
-const uint32_t DEFAULT_SLEEPTIME = 10000;           // 10 seconds in milliseconds
-const uint32_t DEFAULT_DEEPSLEEPTIME = 3600000;     // 1 hour in milliseconds
+const unsigned long DEFAULT_SLEEPTIME = 10000;           // 10 seconds in milliseconds
+const unsigned long DEFAULT_DEEPSLEEPTIME = 3600000;     // 1 hour in milliseconds
 uint32_t* settingsAddress;
 
 #define FLASH_WAIT_READY { while (NRF_NVMC->READY == NVMC_READY_READY_Busy); }
@@ -441,6 +443,7 @@ void loopLEDs() {
                 leds.stop(0);
             setLEDs(ledsValue);
         }
+        psChanged = false;
     }
 }
 
@@ -450,8 +453,14 @@ void setLEDs() {
 }
     
 void setLEDs(uint8_t values[]) {
-    for(int i = 0; i < LEDS_NUMPIXELS; i++)
-        leds.setPixelColor(i, COLOR(values[3 * i], values[3 * i + 1], values[3 * i + 2]), 0);
+    for(int i = 0; i < LEDS_NUMPIXELS; i++) {
+        uint32_t color = COLOR(values[3 * i], values[3 * i + 1], values[3 * i + 2]);
+        leds.setPixelColor(i, color, 0);
+        debug("pixel ");
+        debugnum(i, DEC);
+        debug(": ");
+        debugnumln(color, HEX);
+    }
     leds.show();
 }
 
@@ -590,12 +599,12 @@ void checkIdle() {
         if (!isIdle) {
             isIdle = true;
             idleStart = millis();
-        } else if ((!isSleeping) && (idleStart != 0) && (settings.sleepTime > 0) && ((millis() - idleStart) > settings.sleepTime)) {
+        } else if ((!isSleeping) && (settings.sleepTime > 0) && ((millis() - idleStart) > settings.sleepTime)) {
             debugln("Going to sleep");
             isSleeping = true;
             enterSleep();
             
-        } else if ((idleStart != 0) && ((millis() - idleStart) > settings.deepSleepTime)) {
+        } else if ((millis() - idleStart) > settings.deepSleepTime) {
             debugln("Going to deep sleep");
             enterDeepSleep();
         }
