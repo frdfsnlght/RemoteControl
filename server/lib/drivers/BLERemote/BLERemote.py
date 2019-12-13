@@ -1,5 +1,5 @@
 
-import threading, struct
+import threading, queue, struct
 import time
 import bluepy.btle as bt
 
@@ -40,22 +40,13 @@ class Device(BaseDevice):
         if self.address is None:
             raise DeviceException('Address is required!')
         self.buttonMap = config.get('buttonMap', {})
-
-        self.__periph = None
-        self.__buttonChar = None
-        self.__ledsChar = None
-        self.__chargingChar = None
-        self.__resetChar = None
-        self.__run = False
-        self.connected = False
-        self.ledColors = [0] * (numLEDs * 3)
-        self.ledColorsStack = []
-        self.charging = False
+        self.__reset()
             
     def start(self):
         if self.__run: return
         super().start()
         self.__run = True
+        self.__queue = queue.Queue()
         thread = threading.Thread(target = self.__loop, name = 'BLERemote.' + self.id, daemon = True)
         thread.start()
 
@@ -66,7 +57,21 @@ class Device(BaseDevice):
         # TODO: is there a way to interrupt the BLE connect process?
         #while self.__periph is not None:
         #    time.sleep(0.1)
-        
+        self.__reset()
+
+    def __reset(self):
+        self.__periph = None
+        self.__buttonChar = None
+        self.__ledsChar = None
+        self.__chargingChar = None
+        self.__resetChar = None
+        self.__run = False
+        self.__queue = None
+        self.connected = False
+        self.ledColors = [0] * (numLEDs * 3)
+        self.ledColorsStack = []
+        self.charging = False
+    
     def __loop(self):
         self.__periph = bt.Peripheral()
         myself = self
@@ -106,7 +111,12 @@ class Device(BaseDevice):
                 self.emitGenericEvent(id = 'BLERemoteConnected')
 
                 while self.__run:
-                    if self.__periph.waitForNotifications(0.5):
+                    if not self.__queue.empty():
+                        colors = self.__queue.get()
+                        self.logger.debug('write LEDs: {}'.format(colors))
+                        data = struct.pack('15B', *colors)
+                        self.__ledsChar.write(data)
+                    if self.__periph.waitForNotifications(0.1):
                         continue
             
             except bt.BTLEDisconnectError:
@@ -115,7 +125,10 @@ class Device(BaseDevice):
             except bt.BTLEException:
                 self.logger.exception('BLE exception:')
             finally:
-                self.__periph.disconnect()
+                try:
+                    self.__periph.disconnect()
+                except:
+                    pass
                 self.connected = False
                 if self.__buttonChar is not None:
                     self.logger.info('Disconnected')
@@ -150,8 +163,7 @@ class Device(BaseDevice):
     def __setLEDColors(self, *colors):
         self.logger.debug('set LEDs to: {}'.format(colors))
         if not self.connected: return
-        data = struct.pack('15B', *colors)
-        self.__ledsChar.write(data)
+        self.__queue.put(colors)
 
     #--------------------------------------------------------------------------
     # Public API
