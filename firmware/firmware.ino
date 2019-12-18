@@ -93,11 +93,13 @@ typedef struct {
     float wakeupAcceleration;
     unsigned long sleepTime;
     unsigned long deepSleepTime;
+    float ledBrightness;
 } settings_t;
 settings_t settings;
-const float DEFAULT_WAKEUPACCELERATION = 1.5;       // g's
+const float DEFAULT_WAKEUPACCELERATION = 1.5;            // g's
 const unsigned long DEFAULT_SLEEPTIME = 10000;           // 10 seconds in milliseconds
 const unsigned long DEFAULT_DEEPSLEEPTIME = 3600000;     // 1 hour in milliseconds
+const unsigned long DEFAULT_LEDBRIGHTNESS = 0.5f;        // 50% brightness
 uint32_t* settingsAddress;
 
 #define FLASH_WAIT_READY { while (NRF_NVMC->READY == NVMC_READY_READY_Busy); }
@@ -154,6 +156,7 @@ BLEUnsignedCharCharacteristic chargingChar("0003", BLERead | BLENotify);
 BLEFloatCharacteristic wakeupAccelerationChar("0005", BLERead | BLEWrite);
 BLEUnsignedLongCharacteristic sleepTimeChar("0007", BLERead | BLEWrite);
 BLEUnsignedLongCharacteristic deepSleepTimeChar("0008", BLERead | BLEWrite);
+BLEUnsignedLongCharacteristic ledBrightnessChar("0009", BLERead | BLEWrite);
 BLEUnsignedCharCharacteristic saveSettingsChar("0090", BLEWrite);
 BLEUnsignedCharCharacteristic resetChar("0099", BLEWrite);
 
@@ -241,10 +244,12 @@ void loadSettings() {
         settings.wakeupAcceleration = DEFAULT_WAKEUPACCELERATION;
         settings.sleepTime = DEFAULT_SLEEPTIME;
         settings.deepSleepTime = DEFAULT_DEEPSLEEPTIME;
+        settings.ledBrightness = DEFAULT_LEDBRIGHTNESS;
     }
     debug("wakeupAcceleration: "); debugnumln(settings.wakeupAcceleration, DEC);
     debug("sleepTime: "); debugnumln(settings.sleepTime, DEC);
     debug("deepSleepTime: "); debugnumln(settings.deepSleepTime, DEC);
+    debug("ledBrightness: "); debugnumln(settings.ledBrightness, DEC);
     debugln("Done loading settings");
 }
 
@@ -290,6 +295,7 @@ void setupBluetooth() {
     blePeriph.addAttribute(wakeupAccelerationChar);
     blePeriph.addAttribute(sleepTimeChar);
     blePeriph.addAttribute(deepSleepTimeChar);
+    blePeriph.addAttribute(ledBrightnessChar);
     blePeriph.addAttribute(saveSettingsChar);
     blePeriph.addAttribute(resetChar);
     
@@ -299,6 +305,7 @@ void setupBluetooth() {
     wakeupAccelerationChar.setValue(settings.wakeupAcceleration);
     sleepTimeChar.setValue(settings.sleepTime);
     deepSleepTimeChar.setValue(settings.deepSleepTime);
+    ledBrightnessChar.setValue(settings.ledBrightness);
 
     blePeriph.setEventHandler(BLEConnected, bluetoothConnected);
     
@@ -345,6 +352,11 @@ void loopBluetooth() {
         debug("Set deepSleepTime to ");
         debugln(settings.deepSleepTime);
     }
+    if (ledBrightnessChar.written()) {
+        settings.ledBrightness = ledBrightnessChar.value();
+        debug("Set ledBrightness to ");
+        debugln(settings.ledBrightness);
+    }
     
     if (saveSettingsChar.written()) {
         saveSettings();
@@ -362,7 +374,8 @@ void loopBluetooth() {
 
 void setupPowerSupply() {
     pinMode(PS_CHARGER_PIN, INPUT_PULLDOWN);    // pulldown isn't really needed
-    pinMode(PS_CHARGING_PIN, INPUT_PULLUP);
+    //pinMode(PS_CHARGING_PIN, INPUT_PULLUP);
+    pinMode(PS_CHARGING_PIN, INPUT);
 
     pinMode(PS_CHARGER_ENABLE_PIN, OUTPUT);     // enable charger managment
     digitalWrite(PS_CHARGER_ENABLE_PIN, HIGH);     // disable charger
@@ -392,19 +405,26 @@ void loopPowerSupply() {
         pinMode(PS_CHARGER_ENABLE_PIN, OUTPUT);     // enable charger managment
         digitalWrite(PS_CHARGER_ENABLE_PIN, HIGH);     // disable charger
         debugln("Off charger");
+        if (psCharging) {
+            psCharging = false;
+            chargingChar.setValue(0);
+            debugln("Stopped charging");
+        }
     }
 
-    bool charging = !digitalRead(PS_CHARGING_PIN);
-    if (psOnCharger && charging && !psCharging) {
-        psChanged = true;
-        psCharging = true;
-        chargingChar.setValue(1);
-        debugln("Started charging");
-    } else if (!charging && psCharging) {
-        psChanged = true;
-        psCharging = false;
-        chargingChar.setValue(0);
-        debugln("Stopped charging");
+    if (psOnCharger) {
+        bool charging = !digitalRead(PS_CHARGING_PIN);
+        if (charging && !psCharging) {
+            psChanged = true;
+            psCharging = true;
+            chargingChar.setValue(1);
+            debugln("Started charging");
+        } else if (!charging && psCharging) {
+            psChanged = true;
+            psCharging = false;
+            chargingChar.setValue(0);
+            debugln("Stopped charging");
+        }
     }
     
 }
@@ -421,7 +441,7 @@ void setupLEDs() {
     leds.setSegmentColor(COLOR_OFF, 0);
     for (int i = 0; i < LEDS_DATA_LENGTH; i++)
         ledsValue[i] = 0;
-    chargingPattern.setup(COLOR_GREEN, LEDS_CHARGING_SCAN_INTERVAL);
+    chargingPattern.setup(SCALECOLOR(COLOR_GREEN, settings.ledBrightness), LEDS_CHARGING_SCAN_INTERVAL);
     debugln("LEDs setup");
 }
 
@@ -435,7 +455,7 @@ void loopLEDs() {
                 leds.play(chargingPattern, 0);
             } else {
                 digitalWrite(LED_PIN, HIGH);
-                leds.setSegmentColor(COLOR_GREEN, 0);
+                leds.setSegmentColor(SCALECOLOR(COLOR_GREEN, settings.ledBrightness), 0);
             }
         } else {
             digitalWrite(LED_PIN, HIGH);
@@ -447,6 +467,7 @@ void loopLEDs() {
     }
 }
 
+
 void setLEDs() {
     if (leds.isSegmentActive(0) || isSleeping) return;
     setLEDs(ledsValue);
@@ -455,7 +476,7 @@ void setLEDs() {
 void setLEDs(uint8_t values[]) {
     for(int i = 0; i < LEDS_NUMPIXELS; i++) {
         uint32_t color = COLOR(values[3 * i], values[3 * i + 1], values[3 * i + 2]);
-        leds.setPixelColor(i, color, 0);
+        leds.setPixelColor(i, SCALECOLOR(color, settings.ledBrightness), 0);
         debug("pixel ");
         debugnum(i, DEC);
         debug(": ");
@@ -592,20 +613,34 @@ void loopAccelerometer() {
 void checkIdle() {
     if (psOnCharger) {
         isIdle = false;
+        if (isSleeping) {
+            debugln("Waking up");
+            isSleeping = false;
+            exitSleep();
+        }
         return;
     }
+    
+    unsigned long now = millis();
     
     if (keypadIdle && accelIdle) {
         if (!isIdle) {
             isIdle = true;
-            idleStart = millis();
-        } else if ((!isSleeping) && (settings.sleepTime > 0) && ((millis() - idleStart) > settings.sleepTime)) {
+            isSleeping = false;
+            idleStart = now;
+            debug("Time is ");
+            debugnumln(now, DEC);
+        } else if ((!isSleeping) && (settings.sleepTime > 0) && ((now - idleStart) > settings.sleepTime)) {
             debugln("Going to sleep");
             isSleeping = true;
             enterSleep();
             
-        } else if ((millis() - idleStart) > settings.deepSleepTime) {
+        } else if ((now - idleStart) > settings.deepSleepTime) {
             debugln("Going to deep sleep");
+            debug("Time is ");
+            debugnumln(now, DEC);
+            debug("Elapsed: ");
+            debugnumln(now - idleStart, DEC);
             enterDeepSleep();
         }
     } else {
@@ -638,6 +673,7 @@ void enterDeepSleep() {
         leds.stop(0);
     leds.setSegmentColor(COLOR_OFF, 0);
     digitalWrite(PS_LED_ENABLE_PIN, LOW);  // disble leds
+    delay(1000);
     nRF5x_lowPower.enableWakeupByInterrupt(ACC_INT1_PIN, RISING);
     nRF5x_lowPower.enableWakeupByInterrupt(PS_CHARGER_PIN, RISING);
     nRF5x_lowPower.powerMode(POWER_MODE_OFF);
