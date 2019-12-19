@@ -6,7 +6,7 @@
     --------------
     SparkFun nRF52832 Breakout
     ADXL345 Digital Accelerometer (eBay generic)
-    MAX17048 LiPo Fuel Gauge (custom PCB with LiPo charger)
+    MCP738312 LiPo Charger (custom PCB)
     Neopixels
     
     Required libraries:
@@ -99,7 +99,7 @@ settings_t settings;
 const float DEFAULT_WAKEUPACCELERATION = 1.5;            // g's
 const unsigned long DEFAULT_SLEEPTIME = 10000;           // 10 seconds in milliseconds
 const unsigned long DEFAULT_DEEPSLEEPTIME = 3600000;     // 1 hour in milliseconds
-const unsigned long DEFAULT_LEDBRIGHTNESS = 0.5f;        // 50% brightness
+const float DEFAULT_LEDBRIGHTNESS = 0.5f;                // 50% brightness
 uint32_t* settingsAddress;
 
 #define FLASH_WAIT_READY { while (NRF_NVMC->READY == NVMC_READY_READY_Busy); }
@@ -171,24 +171,28 @@ Adafruit_ADXL345_Unified accel = Adafruit_ADXL345_Unified();
 bool accelIdle;
 volatile bool accelInterrupted = false;
 
-//=============================================================================
-// Idle
-//
 bool isIdle = false;
 unsigned long idleStart = 0;
 bool isSleeping = false;
 
 //=============================================================================
+// Time
+//
+unsigned long lastMillis;
+unsigned long realMillis;
+
+//=============================================================================
 // Stats
 //
 unsigned long bootTime;
-unsigned long setupTime;
 unsigned long bluetoothConnectedTime;
 unsigned long bluetoothConnections = 0;
 
 
 void setup() {
-    bootTime = millis();
+    setupTime();
+    
+    bootTime = time();
     
     digitalWrite(LED_PIN, LOW); // turn on built-in LED
 #ifdef DEBUG
@@ -205,12 +209,11 @@ void setup() {
     
     digitalWrite(LED_PIN, HIGH); // turn off built-in LED
     
-    setupTime = millis();
-    debug("Ready in ");
-    debugln(setupTime - bootTime);
+    debugln("Ready");
 }
 
 void loop() {
+    loopTime();
     loopBluetooth();
     loopPowerSupply();
     loopLEDs();
@@ -317,7 +320,7 @@ void setupBluetooth() {
 }
 
 void bluetoothConnected(BLECentral& central) {
-    bluetoothConnectedTime = millis();
+    bluetoothConnectedTime = time();
     bluetoothConnections++;
     if (bluetoothConnections == 1) {
         debug("Connected in ");
@@ -383,15 +386,15 @@ void setupPowerSupply() {
     pinMode(PS_LED_ENABLE_PIN, OUTPUT);
     digitalWrite(PS_LED_ENABLE_PIN, HIGH);     // enable leds
     
-    psLastCheck = millis();
+    psLastCheck = time();
     psSetup = true;
     psChanged = true;
     debugln("Power supply setup");
 }
 
 void loopPowerSupply() {
-    if ((millis() - psLastCheck) < PS_CHECK_INTERVAL) return;
-    psLastCheck = millis();
+    if ((time() - psLastCheck) < PS_CHECK_INTERVAL) return;
+    psLastCheck = time();
     
     bool charger = digitalRead(PS_CHARGER_PIN);
     if (charger && !psOnCharger) {
@@ -621,15 +624,13 @@ void checkIdle() {
         return;
     }
     
-    unsigned long now = millis();
+    unsigned long now = time();
     
     if (keypadIdle && accelIdle) {
         if (!isIdle) {
             isIdle = true;
             isSleeping = false;
             idleStart = now;
-            debug("Time is ");
-            debugnumln(now, DEC);
         } else if ((!isSleeping) && (settings.sleepTime > 0) && ((now - idleStart) > settings.sleepTime)) {
             debugln("Going to sleep");
             isSleeping = true;
@@ -637,7 +638,9 @@ void checkIdle() {
             
         } else if ((now - idleStart) > settings.deepSleepTime) {
             debugln("Going to deep sleep");
-            debug("Time is ");
+            debug("Then: ");
+            debugnumln(idleStart, DEC);
+            debug("Now: ");
             debugnumln(now, DEC);
             debug("Elapsed: ");
             debugnumln(now - idleStart, DEC);
@@ -677,6 +680,32 @@ void enterDeepSleep() {
     nRF5x_lowPower.enableWakeupByInterrupt(ACC_INT1_PIN, RISING);
     nRF5x_lowPower.enableWakeupByInterrupt(PS_CHARGER_PIN, RISING);
     nRF5x_lowPower.powerMode(POWER_MODE_OFF);
+}
+
+//=============================================================================
+// Time
+// It appears that the millis() function rolls over at 512000 for some stupid reason.
+// So, I've implemented my own version.
+//
+
+void setupTime() {
+    lastMillis = millis();
+    realMillis = lastMillis;
+}
+
+void loopTime() {
+    unsigned long now = millis();
+    if (now < lastMillis) {
+        // we've rolled over
+        realMillis += (512000 - lastMillis) + now;
+    } else {
+        realMillis += now - lastMillis;
+    }
+    lastMillis = now;
+}
+
+unsigned long time() {
+    return realMillis;
 }
 
 
