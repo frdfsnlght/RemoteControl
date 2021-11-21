@@ -60,51 +60,49 @@ class DownButton():
         self.event = event
         
         if self.button.onDown is not None:
-            self.controller._execCode(self.button.onDown, locals = self.button.state, event = event, button = self.button)
+            self.__onDown()
             interval = self.button.repeatInterval
             delay = self.button.repeatDelay
             if interval is not None:
                 if delay is not None:
-                    self.repeatTimer = threading.Timer(delay, self.__afterRepeatDelay)
-                    self.repeatTimer.start()
+                    self.repeatTimer = hub.Timer(delay, self.__afterRepeatDelay, repeat = True)
                 else:
-                    self.__afterRepeatDelay()
+                    self.repeatTimer = hub.Timer(interval, self.__onDown, repeat = True)
+                self.repeatTimer.start()
                     
         if self.button.hold is not None and self.button.onHold is not None:
-            self.holdTimer = threading.Timer(self.button.hold, self.__afterHold)
+            self.holdTimer = hub.Timer(self.button.hold, self.__afterHold)
             self.holdTimer.start()
-        
-        
+
+    def __afterRepeatDelay(self):
+        self.__onDown()
+        self.repeatTimer.reset(self.button.repeatInterval, self.__onDown)
+            
+    def __afterHold(self):
+        if self.repeatTimer is not None: self.repeatTimer.cancel()
+        self.__onHold()
+        interval = self.button.repeatInterval
+        if interval is not None:
+            self.repeatTimer = hub.Timer(interval, self.__onHold, repeat = True)
+            self.repeatTimer.start()
+            
     def up(self, event):
         self.event = event
         if self.repeatTimer is not None: self.repeatTimer.cancel()
         if self.holdTimer is not None: self.holdTimer.cancel()
         if self.button.onUp is not None:
-            self.controller._execCode(self.button.onUp, locals = self.button.state, event = event, button = self.button)
+            self.__onUp()
         
-    def __afterRepeatDelay(self):
-        interval = self.button.repeatInterval
-        if interval is not None:
-            self.repeatTimer = threading.Timer(interval, self.__repeatDown)
-            self.repeatTimer.start()
-            
-    def __repeatDown(self):
+    def __onDown(self):
         self.controller._execCode(self.button.onDown, locals = self.button.state, event = self.event, button = self.button)
-        self.repeatTimer = threading.Timer(self.repeatTimer.interval, self.__repeatDown)
-        self.repeatTimer.start()
         
-    def __afterHold(self):
-        if self.repeatTimer is not None: self.repeatTimer.cancel()
+    def __onHold(self):
         self.controller._execCode(self.button.onHold, locals = self.button.state, event = self.event, button = self.button)
-        interval = self.button.repeatInterval
-        if interval is not None:
-            self.repeatTimer = threading.Timer(interval, self.__repeatHold)
-            self.repeatTimer.start()
+
+    def __onUp(self):
+        self.controller._execCode(self.button.onUp, locals = self.button.state, event = self.event, button = self.button)
+
         
-    def __repeatHold(self):
-        self.controller._execCode(self.button.onHold, locals = self.button.state, event = self.event, button = self.button)
-        self.repeatTimer = threading.Timer(self.repeatTimer.interval, self.__repeatHold)
-        self.repeatTimer.start()
     
     
     

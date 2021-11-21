@@ -84,10 +84,10 @@ class Device(BaseDevice):
         
         while self.__run:
             try:
-                self.logger.debug('Looking for remote...')
+                #self.logger.debug('Looking for remote...')
                 self.__periph.connect(self.address, bt.ADDR_TYPE_RANDOM)
                 t1 = time.time()
-                self.logger.debug('state is {}'.format(self.__periph.getState()))
+                #self.logger.debug('state is {}'.format(self.__periph.getState()))
                 service = self.__periph.getServiceByUUID(serviceUUID)
                 chars = service.getCharacteristics()
         
@@ -104,7 +104,7 @@ class Device(BaseDevice):
 
                 self.__periph.withDelegate(delegate)
                 t2 = time.time()
-                self.logger.debug('Setup in {} seconds'.format(t2 - t1))
+                #self.logger.debug('Setup in {} seconds'.format(t2 - t1))
                 self.logger.info('Connected to {}'.format(self.address))
                 self.connected = True
                 self.__setLEDColors(*self.ledColors)
@@ -120,7 +120,7 @@ class Device(BaseDevice):
                         continue
             
             except bt.BTLEDisconnectError:
-                self.logger.debug('Disconnected or remote not found')
+                #self.logger.debug('Disconnected or remote not found')
                 pass
             except bt.BTLEException:
                 self.logger.exception('BLE exception:')
@@ -179,10 +179,11 @@ class Device(BaseDevice):
     def pushLEDColors(self, *colors):
         self.ledColorsStack.append(self.ledColors[:])
         self.setLEDColors(*colors)
-    
+        
     def popLEDColors(self):
         if len(self.ledColorsStack) == 0: return
-        self.__setLEDColors(*self.ledColorsStack.pop())
+        self.ledColors = self.ledColorsStack.pop()
+        self.__setLEDColors(*self.ledColors)
     
     def popAllLEDColors(self):
         if len(self.ledColorsStack) == 0: return

@@ -5,7 +5,7 @@ home:
                 
         b1: |
             if devices.btRemote.state.shift == 0:
-                switchToActivity('plex')
+                switchToActivity('htpcVideo')
         b2: |
             if devices.btRemote.state.shift == 0:
                 switchToActivity('netflix')
@@ -14,7 +14,10 @@ home:
                 switchToActivity('primeVideo')
         b4: |
             if devices.btRemote.state.shift == 0:
-                switchToActivity('youtubeTV')
+                switchToActivity('plex')
+        b5: |
+            if devices.btRemote.state.shift == 0:
+                switchToActivity('htpcMusic')
 
         t0: |
             devices.btRemote.setLEDColors(None, None, None, None, None)
@@ -215,7 +218,7 @@ rokuBase:
 
     events:
         onActivityBegin+: |
-            devices.amp.sceneSelect(1)
+            devices.amp.sceneSelect(2)
             #devices.amp.inputSelect('Roku')
             if devices.pjlift.state.open:
                 devices.vera.runScene('Theater Play')
@@ -247,18 +250,6 @@ rokuBase:
             onDown: devices.roku.right()
         ok: devices.roku.select()
             
-plex:
-    
-    basedOn:
-        - rokuBase
-        
-    events:
-        +onActivityBegin: |
-            devices.btRemote.setLEDColors('blue', None, None, None, None)
-            devices.tcpRemote.setLEDColors('blue', None, None, None, None)
-        onActivityBegin+: |
-            devices.roku.launchApp(13535)
-            
 netflix:
     
     basedOn:
@@ -282,6 +273,18 @@ primeVideo:
             devices.tcpRemote.setLEDColors(None, None, 'blue', None, None)
         onActivityBegin+: |
             devices.roku.launchApp('Prime Video')
+            
+plex:
+    
+    basedOn:
+        - rokuBase
+        
+    events:
+        +onActivityBegin: |
+            devices.btRemote.setLEDColors(None, None, None, 'blue', None)
+            devices.tcpRemote.setLEDColors(None, None, None, 'blue', None)
+        onActivityBegin+: |
+            devices.roku.launchApp(13535)
             
 youtubeTV:
     

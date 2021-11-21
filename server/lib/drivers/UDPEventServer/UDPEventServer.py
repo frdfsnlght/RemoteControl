@@ -9,6 +9,8 @@ class Device(BaseDevice):
         super().configure(**config)
         self.port = config.get('port', 1968)
         self.address = config.get('address', '127.0.0.1')
+        if self.address == '*':
+            self.address = ''
         self.apiKey = config.get('apiKey')
         self.server = None
         

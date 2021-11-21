@@ -1,0 +1,23 @@
+#!/usr/bin/env python3
+
+import sys, argparse
+from samsungtv import SamsungTV
+
+parser = argparse.ArgumentParser(description = 'SamsungTV test')
+parser.add_argument('action', type = str)
+ 
+options = parser.parse_args()
+
+tv = SamsungTV('10.10.10.51', name = 'SamsungTV Test')
+print('connected')
+
+if options.action == 'on':
+    tv.send_key('KEY_POWERON')
+elif options.action == 'off':
+    tv.send_key('KEY_POWEROFF')
+elif options.action == 'toggle':
+    tv.send_key('KEY_POWER')
+else:
+    print('huh?')
+    
+

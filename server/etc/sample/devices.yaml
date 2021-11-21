@@ -3,42 +3,44 @@ btRemote:
     driver: BLERemote
     #address: F0:1C:A6:6A:AC:F9 dead MCU
     address: d3:68:c5:7a:67:0a
+    ledLevel: 0.1
     state:
         shift: 0
     buttonMap:
-        0x11: power
-        0x13: shift
-        0x14: b1
-        0x15: b2
-        0x16: b3
-        0x21: b4
-        0x23: b5
-        0x24: menu
-        0x26: guide
-        0x31: volumeUp
-        0x32: volumeDown
-        0x35: pageUp
-        0x36: pageDown
-        0x41: up
-        0x42: down
-        0x43: left
-        0x44: right
-        0x45: ok
-        0x51: exit
-        0x52: delete
-        0x53: info
-        0x54: reverse
-        0x55: play
-        0x56: forward
-        0x61: previous
-        0x62: pause
-        0x63: stop
-        0x64: theater
-        0x66: mute
+        '0x11': power
+        '0x13': shift
+        '0x14': b1
+        '0x15': b2
+        '0x16': b3
+        '0x21': b4
+        '0x23': b5
+        '0x24': menu
+        '0x26': guide
+        '0x31': volumeUp
+        '0x32': volumeDown
+        '0x35': pageUp
+        '0x36': pageDown
+        '0x41': up
+        '0x42': down
+        '0x43': left
+        '0x44': right
+        '0x45': ok
+        '0x51': exit
+        '0x52': delete
+        '0x53': info
+        '0x54': reverse
+        '0x55': play
+        '0x56': forward
+        '0x61': previous
+        '0x62': pause
+        '0x63': stop
+        '0x64': theater
+        '0x66': mute
         
 amp:
     driver: YamahaRXV
     address: 10.10.10.46
+    #address: 10.10.10.76
     state:
         powerOn: false
 
@@ -48,7 +50,7 @@ htpc:
     
 roku:
     driver: Roku
-    address: 10.10.10.58
+    address: 10.10.10.57
     
 vera:
     driver: VeraEdge
@@ -77,21 +79,29 @@ gpio:
             frequency: 1
             dutyCycle: 0.25
 
+#tv:
+#    driver: LIRCRemote
+#    remote: Vizio_TV
+#    state:
+#        powerOn: false
+#    buttonMap:
+#        powerOn: KEY_POWERON
+#        powerOff: KEY_POWEROFF
+    
 tv:
     driver: LIRCRemote
-    remote: Vizio_TV
+    remote: Samsung_TV
     state:
         powerOn: false
     buttonMap:
         powerOn: KEY_POWERON
         powerOff: KEY_POWEROFF
     
-tv2:
-    driver: SamsungTV
-    # need real address
-    address: 10.10.10.99
-    state:
-        powerOn: false
+#tv:
+#    driver: SamsungTV
+#    address: 10.10.10.51
+#    state:
+#        powerOn: false
     
 projector:
     driver: LIRCRemote
@@ -104,6 +114,7 @@ projector:
         
 udpEventServer:
     driver: UDPEventServer
+    address: '*'
 
         
 tcpRemote:

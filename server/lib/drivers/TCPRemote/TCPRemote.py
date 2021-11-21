@@ -202,7 +202,8 @@ class Device(BaseDevice):
     
     def popLEDColors(self):
         if len(self.ledColorsStack) == 0: return
-        self.__setLEDColors(*self.ledColorsStack.pop())
+        self.ledColors = self.ledColorsStack.pop()
+        self.__setLEDColors(*self.ledColors)
         
     def popAllLEDColors(self):
         if len(self.ledColorsStack) == 0: return

@@ -11,6 +11,7 @@ uuids = {
     'wakeupAcceleration': bt.UUID('0005'),
     'sleepTime': bt.UUID('0007'),
     'deepSleepTime': bt.UUID('0008'),
+    'ledBrightness': bt.UUID('0009'),
     'saveSettings': bt.UUID('0090'),
     'reset': bt.UUID('0099')
 }
@@ -26,6 +27,7 @@ def connect(address):
         characteristics['wakeupAcceleration'] = next((c for c in chars if c.uuid == uuids['wakeupAcceleration']), None)
         characteristics['sleepTime'] = next((c for c in chars if c.uuid == uuids['sleepTime']), None)
         characteristics['deepSleepTime'] = next((c for c in chars if c.uuid == uuids['deepSleepTime']), None)
+        characteristics['ledBrightness'] = next((c for c in chars if c.uuid == uuids['ledBrightness']), None)
         characteristics['saveSettings'] = next((c for c in chars if c.uuid == uuids['saveSettings']), None)
         characteristics['reset'] = next((c for c in chars if c.uuid == uuids['reset']), None)
 
@@ -69,6 +71,16 @@ def readDeepSleepTime():
     value = struct.unpack('L', data)
     return value[0]
     
+def writeLEDBrightness(value):
+    data = struct.pack('f', float(value))
+    characteristics['ledBrightness'].write(data)
+    print('Wrote LED brightness {}'.format(value))
+
+def readLEDBrightness():
+    data = characteristics['ledBrightness'].read()
+    value = struct.unpack('f', data)
+    return value[0]
+    
 def saveSettings():
     data = struct.pack('B', 1)
     characteristics['saveSettings'].write(data)
@@ -83,9 +95,11 @@ def readValues():
     acceleration = readWakeupAcceleration()
     sleepTime = readSleepTime()
     deepSleepTime = readDeepSleepTime()
+    brightness = readLEDBrightness()
     print('Acceleration: {}Gs'.format(acceleration))
     print('Sleep time: {}ms'.format(sleepTime))
     print('Deep sleep time: {}ms'.format(deepSleepTime))
+    print('LED brightness: {}'.format(brightness))
 
     
 if __name__ == '__main__':
@@ -95,6 +109,7 @@ if __name__ == '__main__':
     parser.add_argument('--acceleration', type = float, help = 'the acceleration required to wake the remote, in Gs (default 1.5)')
     parser.add_argument('--sleep', type = int, help = 'the time after which the remote goes to sleep, in milliseconds (default 10000, 0 to disable)')
     parser.add_argument('--deepsleep', type = int, help = 'the time after which the remote goes to deep sleep, in milliseconds (default 3600000)')
+    parser.add_argument('--brightness', type = float, help = 'the brightness of the LEDs, between 0 and 1 (default 0.5)')
     parser.add_argument('--save', action = 'store_true', help = 'save settings to flash')
     parser.add_argument('--reset', action = 'store_true', help = 'reset (reboot) the remote')
     
@@ -106,6 +121,8 @@ if __name__ == '__main__':
         writeSleepTime(options.sleep)
     if options.deepsleep:
         writeDeepSleepTime(options.deepsleep)
+    if options.brightness:
+        writeLEDBrightness(options.brightness)
         
     readValues()
     
