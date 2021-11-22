@@ -42,27 +42,29 @@ home:
         theater:
             hold: 4
             onDown: |
-                if time() - devices.pjlift.state.time < 60:
-                    logger.info('Stopping projector lift!')
-                    devices.pjlift.request('stop')
-                    devices.htpc.notify('Theater', 'Emergency STOP')
+                devices.mqtt.publish('theaterPress')
+#                if time() - devices.pjlift.state.time < 60:
+#                    logger.info('Stopping projector lift!')
+#                    devices.pjlift.request('stop')
+#                    devices.htpc.notify('Theater', 'Emergency STOP')
             onHold: |
-                if activity.id == 'home':
-                    logger.warning('Unable to open or close the theater outside an activity!')
-                    raise Exit()
-                if devices.pjlift.state.open:
-                    logger.info('Closing theater')
-                    devices.htpc.notify('Theater', 'Theater mode CLOSE')
-                    devices.projector.powerOff.press()
-                    devices.vera.runScene('Theater off')
-                    devices.pjlift.state.open = False
-                    devices.pjlift.state.time = time()
-                else:
-                    logger.info('Opening theater')
-                    devices.htpc.notify('Theater', 'Theater mode OPEN')
-                    devices.projector.powerOn.press()
-                    devices.pjlift.state.open = True
-                    devices.pjlift.state.time = time()
+                devices.mqtt.publish('theaterHold')
+#                if activity.id == 'home':
+#                    logger.warning('Unable to open or close the theater outside an activity!')
+#                    raise Exit()
+#                if devices.pjlift.state.open:
+#                    logger.info('Closing theater')
+#                    devices.htpc.notify('Theater', 'Theater mode CLOSE')
+#                    devices.projector.powerOff.press()
+#                    devices.vera.runScene('Theater off')
+#                    devices.pjlift.state.open = False
+#                    devices.pjlift.state.time = time()
+#                else:
+#                    logger.info('Opening theater')
+#                    devices.htpc.notify('Theater', 'Theater mode OPEN')
+#                    devices.projector.powerOn.press()
+#                    devices.pjlift.state.open = True
+#                    devices.pjlift.state.time = time()
 
     events:
         onActivityBegin: |
@@ -87,22 +89,31 @@ home:
             devices.gpio.status.setPWMDutyCycle(0.25)
 
         mediaPlay: |
-            if not devices.pjlift.state.open: raise Exit()
-            devices.vera.runScene('Theater Play')
+            devices.mqtt.publish('theaterPlay')
+#            if not devices.pjlift.state.open: raise Exit()
+#            devices.vera.runScene('Theater Play')
         
         mediaPause: |
-            if not devices.pjlift.state.open: raise Exit()
-            devices.vera.runScene('Theater Pause')
+            devices.mqtt.publish('theaterPause')
+#            if not devices.pjlift.state.open: raise Exit()
+#            devices.vera.runScene('Theater Pause')
         
         mediaResume: |
-            if not devices.pjlift.state.open: raise Exit()
-            devices.vera.runScene('Theater Play')
+            devices.mqtt.publish('theaterResume')
+#            if not devices.pjlift.state.open: raise Exit()
+#            devices.vera.runScene('Theater Play')
         
         mediaStop: |
-            if not devices.pjlift.state.open: raise Exit()
-            devices.vera.runScene('Theater Pause')
+            devices.mqtt.publish('theaterStop')
+#            if not devices.pjlift.state.open: raise Exit()
+#            devices.vera.runScene('Theater Pause')
 
-           
+        # the following 2 events are for testing
+        theaterPress: |
+            devices.mqtt.publish('theaterPress')
+        theaterHold: |
+            devices.mqtt.publish('theaterHold')
+        
 mainActivityBase:
     basedOn:
         - home
@@ -217,11 +228,13 @@ rokuBase:
         onActivityBegin+: |
             devices.amp.sceneSelect(1)
             #devices.amp.inputSelect('Roku')
-            if devices.pjlift.state.open:
-                devices.vera.runScene('Theater Play')
+            devices.mqtt.publish('theaterPlay')
+#            if devices.pjlift.state.open:
+#                devices.vera.runScene('Theater Play')
         onActivityEnd: |
-            if devices.pjlift.state.open:
-                devices.vera.runScene('Theater Pause')
+            devices.mqtt.publish('theaterPause')
+#            if devices.pjlift.state.open:
+#                devices.vera.runScene('Theater Pause')
     
     buttons:
         

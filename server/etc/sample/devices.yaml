@@ -44,30 +44,30 @@ amp:
     state:
         powerOn: false
 
-htpc:
-    driver: KodiEvent
-    address: 10.10.10.61
+#htpc:
+#    driver: KodiEvent
+#    address: 10.10.10.61
     
 roku:
     driver: Roku
     address: 10.10.10.57
     
-vera:
-    driver: VeraEdge
-    address: 10.10.10.19
+#vera:
+#    driver: VeraEdge
+#    address: 10.10.10.19
     
-pjlift:
-    driver: HTTPClient
-    requests:
-        stop:
-            url: http://pjlift.home.bennedum.org/stop
-        open:
-            url: http://pjlift.home.bennedum.org/open
-        close:
-            url: http://pjlift.home.bennedum.org/close
-    state:
-        open: false
-        time: 0
+#pjlift:
+#    driver: HTTPClient
+#    requests:
+#        stop:
+#            url: http://pjlift.home.bennedum.org/stop
+#        open:
+#            url: http://pjlift.home.bennedum.org/open
+#        close:
+#            url: http://pjlift.home.bennedum.org/close
+#    state:
+#        open: false
+#        time: 0
 
 gpio:
     driver: RPiGPIO
@@ -115,9 +115,13 @@ projector:
 udpEventServer:
     driver: UDPEventServer
     address: '*'
-
         
 tcpRemote:
     driver: TCPRemote
     address: '*'
+    
+mqtt:
+    driver: MQTT
+    address: ha.home.bennedum.org
+    publishTopic: rchub/publish
     
