@@ -45,10 +45,13 @@ def start():
     
     
 def configure():
-    loadDevicesConfig()
-    loadActivitiesConfig()
-    loadControllersConfig()
-
+    try:
+        loadDevicesConfig()
+        loadActivitiesConfig()
+        loadControllersConfig()
+    except Exception as e:
+        logger.exception('Configuration exception: {}'.format(e))
+        sys.exit(1)
     
 def run():
     for (id, device) in devices.items():
