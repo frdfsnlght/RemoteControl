@@ -20,7 +20,9 @@ class Timer(Thread):
         self.finished.set()
 
     def run(self):
-        while self.repeat:
+        while True:
+
+#        while self.repeat:
             while self.resetted:
                 self.resetted = False
                 self.finished.wait(self.interval)
@@ -28,6 +30,8 @@ class Timer(Thread):
             self.resetted = True
             if not self.finished.isSet():
                 self.function(*self.args, **self.kwargs)
+            if not self.repeat:
+                break
         self.finished.set()
         
     def reset(self, interval = None, function = None):
