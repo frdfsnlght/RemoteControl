@@ -71,6 +71,7 @@ class DownButton():
                 self.repeatTimer.start()
                     
         if self.button.hold is not None and self.button.onHold is not None:
+#            self.controller.logger.info('Starting hold timer for {}'.format(self.button))
             self.holdTimer = hub.Timer(self.button.hold, self.__afterHold)
             self.holdTimer.start()
 
@@ -79,6 +80,7 @@ class DownButton():
         self.repeatTimer.reset(self.button.repeatInterval, self.__onDown)
             
     def __afterHold(self):
+#        self.controller.logger.info('After hold for {}'.format(self.button))
         if self.repeatTimer is not None: self.repeatTimer.cancel()
         self.__onHold()
         interval = self.button.repeatInterval
@@ -97,6 +99,7 @@ class DownButton():
         self.controller._execCode(self.button.onDown, locals = self.button.state, event = self.event, button = self.button)
         
     def __onHold(self):
+#        self.controller.logger.info('OnHold for {}'.format(self.button))
         self.controller._execCode(self.button.onHold, locals = self.button.state, event = self.event, button = self.button)
 
     def __onUp(self):
