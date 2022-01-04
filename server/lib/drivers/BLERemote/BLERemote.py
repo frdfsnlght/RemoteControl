@@ -13,33 +13,35 @@ chargingUUID = bt.UUID('0003')
 resetUUID = bt.UUID('0099')
 numLEDs = 5
 
-COLORS = {
-    'red': [255, 0, 0],
-    'orange': [255, 128, 0],
-    'yellow': [255, 255, 0],
-    'lime': [128, 255, 0],
-    'green': [0, 255, 0],
-    'bluegreen': [0, 255, 128],
-    'cyan': [0, 255, 255],
-    'lightblue': [0, 128, 255],
-    'blue': [0, 0, 255],
-    'purple': [128, 0, 255],
-    'magenta': [255, 0, 255],
-    'fuschia': [255, 0, 128],
-    'black': [0, 0, 0],
-    'white': [255, 255, 255],
-    'white50': [128, 128, 128],
-}
-
-
 class Device(BaseDevice):
 
     def configure(self, **config):
         super().configure(**config)
         self.address = config.get('address')
+        self.ledLevel = config.get('ledLevel', 1.0)
         if self.address is None:
             raise DeviceException('Address is required!')
         self.buttonMap = config.get('buttonMap', {})
+        self.colors = {
+            'red': [255, 0, 0],
+            'orange': [255, 128, 0],
+            'yellow': [255, 255, 0],
+            'lime': [128, 255, 0],
+            'green': [0, 255, 0],
+            'bluegreen': [0, 255, 128],
+            'cyan': [0, 255, 255],
+            'lightblue': [0, 128, 255],
+            'blue': [0, 0, 255],
+            'purple': [128, 0, 255],
+            'magenta': [255, 0, 255],
+            'fuschia': [255, 0, 128],
+            'black': [0, 0, 0],
+            'off': [0, 0, 0],
+            'white': [255, 255, 255],
+            'white50': [128, 128, 128],
+        }
+        self.colors.update(config.get('colors', {}))
+
         self.__reset()
             
     def start(self):
@@ -68,9 +70,10 @@ class Device(BaseDevice):
         self.__run = False
         self.__queue = None
         self.connected = False
-        self.ledColors = [0] * (numLEDs * 3)
+        self.ledColors = ['off'] * numLEDs;
         self.ledColorsStack = []
         self.charging = False
+        
     
     def __loop(self):
         self.__periph = bt.Peripheral()
@@ -112,9 +115,12 @@ class Device(BaseDevice):
 
                 while self.__run:
                     if not self.__queue.empty():
-                        colors = self.__queue.get()
-                        self.logger.debug('write LEDs: {}'.format(colors))
-                        data = struct.pack('15B', *colors)
+                        ledBytes = self.__queue.get()
+                        if self.ledLevel < 1.0:
+                            self.logger.debug('reducing LED values to {}%'.format(self.ledLevel * 100))
+                            ledBytes = list(map(lambda v: int(v * self.ledLevel), ledBytes))
+                        self.logger.debug('write LEDs: {}'.format(ledBytes))
+                        data = struct.pack('15B', *ledBytes)
                         self.__ledsChar.write(data)
                     if self.__periph.waitForNotifications(0.1):
                         continue
@@ -160,14 +166,50 @@ class Device(BaseDevice):
         self.charging = data == 1
         self.emitGenericEvent(id = 'bleRemoteBeginCharge' if data == 1 else 'bleRemoteEndCharge')
         
+    # takes an array of numLEDs length, each element is an RGB array or color name
     def __setLEDColors(self, *colors):
-        self.logger.debug('set LEDs to: {}'.format(colors))
+        colors = list(colors[:numLEDs])
+        while len(colors) < numLEDs:
+            colors.append(None)
+        ledBytes = []
+        for color in colors:
+            rgbBytes = self.__colorToRGB(color)
+            ledBytes.extend(rgbBytes)
+        self.logger.debug('set LEDs to: {}'.format(ledBytes))
         if not self.connected: return
-        self.__queue.put(colors)
+        self.__queue.put(ledBytes)
+            
+    def __colorToRGB(self, color):
+        while True:
+            if color is None:
+                return [0, 0, 0]
+            elif isinstance(color, list):
+                color = color[:3]
+                while len(color) < 3:
+                    color.append(color[-1])
+                return color
+            elif isinstance(color, str):
+                if color not in self.colors:
+                    self.logger.error('LED color "{}" is unknown'.format(color))
+                    return [0, 0, 0]
+                else:
+                    color = self.colors[color]
+            else:
+                self.logger.error('LED color "{}" is unknown'.format(color))
+                return [0, 0, 0]
+  
 
     #--------------------------------------------------------------------------
     # Public API
     #
+    
+    def addColor(self, name, value):
+        self.colors[name] = value
+        self.logger.debug('added color {} as {}'.format(name, value))
+        
+    def removeColor(self, name):
+        self.colors.pop(name)
+        self.logger.debug('removed color {}'.format(name))
         
     @property
     def reset(self):
@@ -178,7 +220,8 @@ class Device(BaseDevice):
     
     def pushLEDColors(self, *colors):
         self.ledColorsStack.append(self.ledColors[:])
-        self.setLEDColors(*colors)
+        self.ledColors = colors
+        self.__setLEDColors(*self.ledColors)
         
     def popLEDColors(self):
         if len(self.ledColorsStack) == 0: return
@@ -187,31 +230,14 @@ class Device(BaseDevice):
     
     def popAllLEDColors(self):
         if len(self.ledColorsStack) == 0: return
-        colors = self.ledColorsStack[0]
+        self.ledColors = self.ledColorsStack[0]
         self.ledColorsStack = []
-        self.__setLEDColors(*colors)
+        self.__setLEDColors(*self.ledColors)
         
+    def updateLEDs(self):
+        self.__setLEDColors(*self.ledColors)
+    
     def setLEDColors(self, *colors):
-        while len(colors) < numLEDs:
-            colors.append(None)
-        cols = []
-        for color in colors:
-            if color is None:
-                color = [0, 0, 0]
-            elif isinstance(color, list):
-                color = color[:3]
-                while len(color) < 3:
-                    color.append(color[-1])
-            elif isinstance(color, str):
-                if color not in COLORS:
-                    self.logger.error('LED color "{}" is unknown'.format(color))
-                    color = [0, 0, 0]
-                else:
-                    color = COLORS[color]
-            else:
-                self.logger.error('LED color "{}" is unknown'.format(color))
-                color = [0, 0, 0]
-            cols.extend(color)
-
-        self.ledColors = cols
-        self.__setLEDColors(*cols)
+        self.ledColors = colors
+        self.__setLEDColors(*self.ledColors)
+        

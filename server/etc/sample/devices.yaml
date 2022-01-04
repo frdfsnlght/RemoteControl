@@ -36,6 +36,10 @@ btRemote:
         '0x63': stop
         '0x64': theater
         '0x66': mute
+    colors:
+        shift: orange
+        act: blue
+        
         
 amp:
     driver: YamahaRXV
@@ -116,12 +120,13 @@ udpEventServer:
     driver: UDPEventServer
     address: '*'
         
-tcpRemote:
-    driver: TCPRemote
-    address: '*'
+#tcpRemote:
+#    driver: TCPRemote
+#    address: '*'
     
 mqtt:
     driver: MQTT
     address: ha.home.bennedum.org
     publishTopic: rchub/publish
+    subscribeTopic: rchub/subscribe
     

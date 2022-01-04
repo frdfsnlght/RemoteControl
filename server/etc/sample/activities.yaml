@@ -17,27 +17,22 @@ home:
                 switchToActivity('youtubeTV')
 
         t0: |
-            devices.btRemote.setLEDColors(None, None, None, None, None)
-            devices.tcpRemote.setLEDColors(None, None, None, None, None)
+            devices.btRemote.setLEDColors(None, None, None)
         
         t1: |
-            devices.btRemote.setLEDColors('blue', 'blue', 'blue', 'blue', 'blue')
-            devices.tcpRemote.setLEDColors('blue', 'blue', 'blue', 'blue', 'blue')
+            devices.btRemote.setLEDColors('act', 'act', 'act', 'act', 'act')
         
         shift: |
             devices.btRemote.state.shift = (devices.btRemote.state.shift + 1) % 6
             if devices.btRemote.state.shift == 0:
                 devices.btRemote.popLEDColors()
-                devices.tcpRemote.popLEDColors()
             else:
                 colors = [None, None, None, None, None]
-                colors[devices.btRemote.state.shift - 1] = 'orange'
+                colors[devices.btRemote.state.shift - 1] = 'shift'
                 if devices.btRemote.state.shift == 1:
                     devices.btRemote.pushLEDColors(*colors)
-                    devices.tcpRemote.pushLEDColors(*colors)
                 else:
                     devices.btRemote.setLEDColors(*colors)
-                    devices.tcpRemote.setLEDColors(*colors)
             
         theater:
             hold: 4
@@ -69,9 +64,7 @@ home:
     events:
         onActivityBegin: |
             devices.btRemote.popAllLEDColors()
-            devices.tcpRemote.popAllLEDColors()
             devices.btRemote.setLEDColors(None, None, None, None, None)
-            devices.tcpRemote.setLEDColors(None, None, None, None, None)
             if devices.tv.state.powerOn:
                 devices.tv.powerOff.press()
                 devices.tv.state.powerOn = False
@@ -108,11 +101,19 @@ home:
 #            if not devices.pjlift.state.open: raise Exit()
 #            devices.vera.runScene('Theater Pause')
 
+        theaterBegin: |
+            devices.btRemote.addColor('act', 'red')
+            devices.btRemote.updateLEDs()
+            
+        theaterEnd: |
+            devices.btRemote.addColor('act', 'blue')
+            devices.btRemote.updateLEDs()
+        
         # the following 2 events are for testing
-        theaterPress: |
-            devices.mqtt.publish('theaterPress')
-        theaterHold: |
-            devices.mqtt.publish('theaterHold')
+#        theaterPress: |
+#            devices.mqtt.publish('theaterPress')
+#        theaterHold: |
+#            devices.mqtt.publish('theaterHold')
         
 mainActivityBase:
     basedOn:
@@ -204,8 +205,7 @@ htpcVideo:
     
     events:
         +onActivityBegin: |
-            devices.btRemote.setLEDColors('blue', None, None, None, None)
-            devices.tcpRemote.setLEDColors('blue', None, None, None, None)
+            devices.btRemote.setLEDColors('act', None, None, None, None)
         onActivityBegin+: |
             devices.amp.sceneSelect(1)
             
@@ -215,8 +215,7 @@ htpcMusic:
     
     events:
         +onActivityBegin: |
-            devices.btRemote.setLEDColors(None, None, None, None, 'blue')
-            devices.tcpRemote.setLEDColors(None, None, None, None, 'blue')
+            devices.btRemote.setLEDColors(None, None, None, None, 'act')
         onActivityBegin+: |
             devices.amp.sceneSelect(3)
             
@@ -228,11 +227,11 @@ rokuBase:
         onActivityBegin+: |
             devices.amp.sceneSelect(1)
             #devices.amp.inputSelect('Roku')
-            devices.mqtt.publish('theaterPlay')
+#            devices.mqtt.publish('theaterPlay')
 #            if devices.pjlift.state.open:
 #                devices.vera.runScene('Theater Play')
         onActivityEnd: |
-            devices.mqtt.publish('theaterPause')
+#            devices.mqtt.publish('theaterPause')
 #            if devices.pjlift.state.open:
 #                devices.vera.runScene('Theater Pause')
     
@@ -267,8 +266,7 @@ plex:
         
     events:
         +onActivityBegin: |
-            devices.btRemote.setLEDColors('blue', None, None, None, None)
-            devices.tcpRemote.setLEDColors('blue', None, None, None, None)
+            devices.btRemote.setLEDColors('act', None, None, None, None)
         onActivityBegin+: |
             devices.roku.launchApp(13535)
             
@@ -279,8 +277,7 @@ netflix:
         
     events:
         +onActivityBegin: |
-            devices.btRemote.setLEDColors(None, 'blue', None, None, None)
-            devices.tcpRemote.setLEDColors(None, 'blue', None, None, None)
+            devices.btRemote.setLEDColors(None, 'act', None, None, None)
         onActivityBegin+: |
             devices.roku.launchApp('Netflix')
             
@@ -291,8 +288,7 @@ primeVideo:
         
     events:
         +onActivityBegin: |
-            devices.btRemote.setLEDColors(None, None, 'blue', None, None)
-            devices.tcpRemote.setLEDColors(None, None, 'blue', None, None)
+            devices.btRemote.setLEDColors(None, None, 'act', None, None)
         onActivityBegin+: |
             devices.roku.launchApp('Prime Video')
             
@@ -303,8 +299,7 @@ youtubeTV:
         
     events:
         +onActivityBegin: |
-            devices.btRemote.setLEDColors(None, None, None, 'blue', None)
-            devices.tcpRemote.setLEDColors(None, None, None, 'blue', None)
+            devices.btRemote.setLEDColors(None, None, None, 'act', None)
         onActivityBegin+: |
             devices.roku.launchApp('YouTube TV')
             
