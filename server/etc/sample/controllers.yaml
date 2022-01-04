@@ -4,5 +4,5 @@ default:
     eventDevices:
         - udpEventServer
         - btRemote
-        - tcpRemote
+        - mqtt
         
