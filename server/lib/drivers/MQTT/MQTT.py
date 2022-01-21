@@ -15,6 +15,7 @@ class Device(BaseDevice):
         self.username = config.get('username')
         self.password = config.get('password')
         self.publishTopic = config.get('publishTopic')
+        self.publishOnConnect = config.get('publishOnConnect')
         self.subscribeTopic = config.get('subscribeTopic')
         self.apiKey = config.get('apiKey')
         if not self.publishTopic and not self.subscribeTopic:
@@ -51,6 +52,10 @@ class Device(BaseDevice):
     def __on_connect(self, client, userdata, flags, rc):
         self.connected = True
         self.logger.info('Connected to MQTT broker at {}:{}'.format(self.address, self.port))
+        if self.publishTopic:
+            self.logger.info('Publishing to MQTT topic {}'.format(self.publishTopic))
+            if self.publishOnConnect:
+                self.publish(self.publishOnConnect)
         if self.subscribeTopic:
             (result, mid) = self.client.subscribe(self.subscribeTopic, 0)
             self.subscribeMid = mid
@@ -113,4 +118,6 @@ class Device(BaseDevice):
         if not topic:
             self.logger.error('Unable to publish: missing topic')
             return
+        self.logger.debug('publishing to {}: {}'.format(topic, message))
         self.client.publish(topic, payload = message, qos = qos)
+
