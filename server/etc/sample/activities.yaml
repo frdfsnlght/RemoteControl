@@ -38,28 +38,8 @@ home:
             hold: 4
             onDown: |
                 devices.mqtt.publish('theaterPress')
-#                if time() - devices.pjlift.state.time < 60:
-#                    logger.info('Stopping projector lift!')
-#                    devices.pjlift.request('stop')
-#                    devices.htpc.notify('Theater', 'Emergency STOP')
             onHold: |
                 devices.mqtt.publish('theaterHold')
-#                if activity.id == 'home':
-#                    logger.warning('Unable to open or close the theater outside an activity!')
-#                    raise Exit()
-#                if devices.pjlift.state.open:
-#                    logger.info('Closing theater')
-#                    devices.htpc.notify('Theater', 'Theater mode CLOSE')
-#                    devices.projector.powerOff.press()
-#                    devices.vera.runScene('Theater off')
-#                    devices.pjlift.state.open = False
-#                    devices.pjlift.state.time = time()
-#                else:
-#                    logger.info('Opening theater')
-#                    devices.htpc.notify('Theater', 'Theater mode OPEN')
-#                    devices.projector.powerOn.press()
-#                    devices.pjlift.state.open = True
-#                    devices.pjlift.state.time = time()
 
     events:
         onActivityBegin: |
@@ -69,7 +49,7 @@ home:
                 devices.tv.powerOff.press()
                 devices.tv.state.powerOn = False
             if devices.amp.state.powerOn:
-                devices.amp.powerStandby()
+                devices.amp.powerOff()
                 devices.amp.state.powerOn = False
                 
         BLERemoteConnected: |
@@ -83,32 +63,33 @@ home:
 
         mediaPlay: |
             devices.mqtt.publish('theaterPlay')
-#            if not devices.pjlift.state.open: raise Exit()
-#            devices.vera.runScene('Theater Play')
         
         mediaPause: |
             devices.mqtt.publish('theaterPause')
-#            if not devices.pjlift.state.open: raise Exit()
-#            devices.vera.runScene('Theater Pause')
         
         mediaResume: |
             devices.mqtt.publish('theaterResume')
-#            if not devices.pjlift.state.open: raise Exit()
-#            devices.vera.runScene('Theater Play')
         
         mediaStop: |
             devices.mqtt.publish('theaterStop')
-#            if not devices.pjlift.state.open: raise Exit()
-#            devices.vera.runScene('Theater Pause')
 
         theaterBegin: |
             devices.btRemote.addColor('act', 'red')
             devices.btRemote.updateLEDs()
+            devices.projector.powerOn.press()
+            devices.projector.state.powerOn = True
+            devices.tv.powerOff.press()
+            devices.tv.state.powerOn = False
             
         theaterEnd: |
             devices.btRemote.addColor('act', 'blue')
             devices.btRemote.updateLEDs()
-        
+            devices.projector.powerOff.press()
+            devices.projector.state.powerOn = False
+            if devices.amp.state.powerOn:
+                devices.tv.powerOn.press()
+                devices.tv.state.powerOn = True
+
         # the following 2 events are for testing
 #        theaterPress: |
 #            devices.mqtt.publish('theaterPress')
@@ -127,97 +108,23 @@ mainActivityBase:
             onDown: devices.amp.volumeDown()
         mute:
             onDown: devices.amp.volumeToggleMute()
+        delete:
+            onDown: |
+                if devices.amp.soundMode == 'MUSIC':
+                    devices.amp.soundModeSelect('MOVIE')
+                else:
+                    devices.amp.soundModeSelect('MUSIC')
 
     events:
         onActivityBegin: |
             if not devices.tv.state.powerOn:
-                devices.tv.powerOn.press()
-                devices.tv.state.powerOn = True
+                if not devices.projector.state.powerOn:
+                    devices.tv.powerOn.press()
+                    devices.tv.state.powerOn = True
             if not devices.amp.state.powerOn:
                 devices.amp.powerOn()
                 devices.amp.state.powerOn = True
                 sleep(1.5)
-         
-htpcBase:
-    basedOn:
-        - mainActivityBase
-    
-    events:
-        onActivityEnd: |
-            devices.htpc.releaseAll()
-            
-    buttons:
-        play:
-            onDown: devices.htpc.keyDown('p')
-            onUp: devices.htpc.keyUp('p')
-        pause:
-            onDown: devices.htpc.keyDown('space')
-            onUp: devices.htpc.keyUp('space')
-        stop:
-            onDown: devices.htpc.keyDown('x')
-            onUp: devices.htpc.keyUp('x')
-        forward:
-            onDown: devices.htpc.keyDown('f')
-            onUp: devices.htpc.keyUp('f')
-        reverse:
-            onDown: devices.htpc.keyDown('r')
-            onUp: devices.htpc.keyUp('r')
-        delete:
-            onDown: devices.htpc.keyDown('delete')
-            onUp: devices.htpc.keyUp('delete')
-        menu:
-            onDown: devices.htpc.remoteDown('menu')
-            onUp: devices.htpc.remoteUp('menu')
-        guide:
-            onDown: devices.htpc.keyDown('e')
-            onUp: devices.htpc.keyUp('e')
-        info:
-            onDown: devices.htpc.keyDown('i')
-            onUp: devices.htpc.keyUp('i')
-        exit:
-            onDown: devices.htpc.remoteDown('back')
-            onUp: devices.htpc.remoteUp('back')
-        up:
-            onDown: devices.htpc.remoteDown('up')
-            onUp: devices.htpc.remoteUp('up')
-        down:
-            onDown: devices.htpc.remoteDown('down')
-            onUp: devices.htpc.remoteUp('down')
-        left:
-            onDown: devices.htpc.remoteDown('left')
-            onUp: devices.htpc.remoteUp('left')
-        right:
-            onDown: devices.htpc.remoteDown('right')
-            onUp: devices.htpc.remoteUp('right')
-        ok:
-            onDown: devices.htpc.remoteDown('select')
-            onUp: devices.htpc.remoteUp('select')
-        pageUp:
-            onDown: devices.htpc.keyDown('pageup')
-            onUp: devices.htpc.keyUp('pageup')
-        pageDown:
-            onDown: devices.htpc.keyDown('pagedown')
-            onUp: devices.htpc.keyUp('pagedown')
-       
-htpcVideo:
-    basedOn:
-        - htpcBase
-    
-    events:
-        +onActivityBegin: |
-            devices.btRemote.setLEDColors('act', None, None, None, None)
-        onActivityBegin+: |
-            devices.amp.sceneSelect(1)
-            
-htpcMusic:
-    basedOn:
-        - htpcBase
-    
-    events:
-        +onActivityBegin: |
-            devices.btRemote.setLEDColors(None, None, None, None, 'act')
-        onActivityBegin+: |
-            devices.amp.sceneSelect(3)
             
 rokuBase:
     basedOn:
@@ -225,15 +132,10 @@ rokuBase:
 
     events:
         onActivityBegin+: |
-            devices.amp.sceneSelect(1)
-            #devices.amp.inputSelect('Roku')
-#            devices.mqtt.publish('theaterPlay')
-#            if devices.pjlift.state.open:
-#                devices.vera.runScene('Theater Play')
+            devices.amp.inputSelect('Roku')
+            #devices.amp.soundModeSelect('MOVIE')
         onActivityEnd: |
-#            devices.mqtt.publish('theaterPause')
-#            if devices.pjlift.state.open:
-#                devices.vera.runScene('Theater Pause')
+            pass
     
     buttons:
         
@@ -244,7 +146,7 @@ rokuBase:
         previous: devices.roku.replay()
         exit: devices.roku.back()
         info: devices.roku.info()
-        delete: devices.roku.options()
+        #delete: devices.roku.options()
         up:
             repeat: 0.15 0.75
             onDown: devices.roku.up()

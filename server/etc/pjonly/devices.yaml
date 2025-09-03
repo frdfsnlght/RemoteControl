@@ -1,0 +1,27 @@
+
+gpio:
+    driver: RPiGPIO
+    address: localhost
+    pins:
+        3:
+            name: status
+            mode: softPWM
+            frequency: 1
+            dutyCycle: 0.25
+
+projector:
+    driver: LIRCRemote
+    remote: Epson_Projector
+    state:
+        powerOn: false
+    buttonMap:
+        powerOn: KEY_ON
+        powerOff: KEY_STANDBY
+        
+mqtt:
+    driver: MQTT
+    address: ha.home.bennedum.org
+    publishTopic: rchub/publish
+    publishOnConnect: "connected"
+    subscribeTopic: rchub/subscribe
+    

@@ -1,0 +1,15 @@
+
+home:
+    events:
+        onActivityBegin: |
+            devices.gpio.status.setPWMDutyCycle(0)
+
+        pjOn: |
+            devices.projector.powerOn.press()
+            devices.gpio.status.setPWMDutyCycle(1)
+
+
+        pjOff: |
+            devices.projector.powerOff.press()
+            devices.gpio.status.setPWMDutyCycle(0)
+

@@ -4,7 +4,7 @@ import roku.core
 
 from hub import BaseDevice, DeviceException
 
-roku.core.COMMANDS['options'] = 'Options'
+#roku.core.COMMANDS['options'] = 'Options'
 
 class Device(BaseDevice):
 
@@ -128,9 +128,9 @@ class Device(BaseDevice):
         if not self.connected: return
         self.__roku.search()
         
-    def options(self):
-        if not self.connected: return
-        self.__roku.options()
+#    def options(self):
+#        if not self.connected: return
+#        self.__roku.options()
         
     # will accept id or name
     def launchApp(self, appId):

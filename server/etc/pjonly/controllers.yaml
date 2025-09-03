@@ -1,0 +1,6 @@
+
+default:
+    startActivity: home
+    eventDevices:
+        - mqtt
+        
